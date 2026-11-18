@@ -96,6 +96,9 @@
   /* Accesso con password */
   .rp-accesso { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px; background: var(--color-bg); }
   .rp-accesso[hidden] { display: none; }
+/* 18/11/2026: su claude.ai il contorno della pagina nasconde gli elementi [hidden]; qui no, e le schede
+   (display:flex) restavano tutte aperte una sotto l'altra in Panoramica. */
+[hidden] { display: none !important; }
   .rp-accesso form { width: min(360px, 100%); display: flex; flex-direction: column; gap: 12px; padding: 24px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); }
   .rp-accesso h1 { margin: 0; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 1.6rem; }
   .rp-accesso p { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.5; }
