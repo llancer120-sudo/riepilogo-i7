@@ -1,0 +1,1621 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Riepilogo i7</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23c96442'/><text x='16' y='22' font-size='15' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'>i7</text></svg>">
+<style>
+  /* Colori e misure che sul cruscotto di claude.ai dà la piattaforma. Chiaro e scuro. */
+  :root {
+    color-scheme: light;
+    --font-anthropic-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-anthropic-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    --color-bg: #faf9f5;
+    --color-fg: #1f1e1d;
+    --color-fg-muted: #6b6a66;
+    --color-panel: #ffffff;
+    --color-border-line: #e6e3da;
+    --color-ok: #2f7d4f;
+    --color-warn: #a86a12;
+    --color-bad: #b4372f;
+    --chart-1: #c96442; --chart-2: #3b6ea8; --chart-3: #2f7d4f; --chart-4: #8a5cb0; --chart-5: #a86a12; --chart-6: #5f6b73;
+    --cds-chart-muted: #b9b5aa;
+    --cds-chart-axis: #c9c5ba;
+    --cds-chart-grid: #ece9e1;
+    --cds-chart-reference: #8f8b80;
+    --cds-text-secondary: #6b6a66;
+    --cds-surface-popover: #ffffff;
+    --cds-border: #e0ddd3;
+    --cds-shadow-popover: 0 4px 16px rgba(0, 0, 0, .10);
+    --cds-font-size-title: 1.75rem;
+    --cds-font-size-heading: 1.125rem;
+    --cds-font-size-body: .9375rem;
+    --cds-font-size-caption: .8125rem;
+    --cds-font-weight-medium: 600;
+    --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 12px; --cds-gap-lg: 20px; --cds-gap-xl: 28px;
+    --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 16px;
+    --cds-radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --color-bg: #1c1b19;
+      --color-fg: #ecebe6;
+      --color-fg-muted: #a3a19a;
+      --color-panel: #262523;
+      --color-border-line: #3a3935;
+      --color-ok: #5fbf86;
+      --color-warn: #e0a444;
+      --color-bad: #ee7a6f;
+      --chart-1: #e08a68; --chart-2: #74a3db; --chart-3: #5fbf86; --chart-4: #b48ad6; --chart-5: #e0a444; --chart-6: #9aa6ae;
+      --cds-chart-muted: #6d6a62;
+      --cds-chart-axis: #55534d;
+      --cds-chart-grid: #33322e;
+      --cds-chart-reference: #8f8b80;
+      --cds-text-secondary: #a3a19a;
+      --cds-surface-popover: #2c2b28;
+      --cds-border: #44423d;
+      --cds-shadow-popover: 0 4px 16px rgba(0, 0, 0, .45);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --color-bg: #1c1b19; --color-fg: #ecebe6; --color-fg-muted: #a3a19a; --color-panel: #262523; --color-border-line: #3a3935;
+    --color-ok: #5fbf86; --color-warn: #e0a444; --color-bad: #ee7a6f;
+    --chart-1: #e08a68; --chart-2: #74a3db; --chart-3: #5fbf86; --chart-4: #b48ad6; --chart-5: #e0a444; --chart-6: #9aa6ae;
+    --cds-chart-muted: #6d6a62; --cds-chart-axis: #55534d; --cds-chart-grid: #33322e; --cds-chart-reference: #8f8b80;
+    --cds-text-secondary: #a3a19a; --cds-surface-popover: #2c2b28; --cds-border: #44423d; --cds-shadow-popover: 0 4px 16px rgba(0, 0, 0, .45);
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); }
+  #dash-root { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; box-sizing: border-box; }
+  #dash-root *, #dash-root *::before, #dash-root *::after { box-sizing: border-box; }
+  .dash-skeleton { display: inline-block; min-width: 3ch; border-radius: 6px; background: linear-gradient(90deg, var(--color-border-line), var(--color-panel), var(--color-border-line)); background-size: 200% 100%; animation: rp-luce 1.2s linear infinite; color: transparent; }
+  @keyframes rp-luce { to { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) { .dash-skeleton { animation: none; } }
+
+  /* Accesso con password */
+  .rp-accesso { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px; background: var(--color-bg); }
+  .rp-accesso[hidden] { display: none; }
+  .rp-accesso form { width: min(360px, 100%); display: flex; flex-direction: column; gap: 12px; padding: 24px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); }
+  .rp-accesso h1 { margin: 0; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 1.6rem; }
+  .rp-accesso p { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.5; }
+  .rp-accesso input[type=password] { font: inherit; font-size: 1rem; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); }
+  .rp-accesso label { display: flex; gap: 8px; align-items: center; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .rp-accesso button { font: inherit; font-weight: 600; padding: 10px 12px; border-radius: 8px; border: 0; background: var(--color-fg); color: var(--color-bg); cursor: pointer; }
+  .rp-accesso .rp-errore { color: var(--color-bad); }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="motore.js"></script>
+</head>
+<body>
+<div class="rp-accesso" id="accesso" hidden>
+  <form id="accesso-form" autocomplete="on">
+    <h1>Riepilogo i7</h1>
+    <p>I dati sono cifrati. Scrivi la password del sito che hai scelto sull'i7.</p>
+    <input type="password" id="accesso-pw" name="password" autocomplete="current-password" aria-label="Password del sito" required>
+    <label><input type="checkbox" id="accesso-ricorda" checked> Ricordala su questo dispositivo</label>
+    <p class="rp-errore" id="accesso-errore" hidden>Password sbagliata, riprova.</p>
+    <button type="submit">Entra</button>
+  </form>
+</div>
+<div id="dash-root">
+<style>
+  .rp { display: flex; flex-direction: column; gap: var(--cds-gap-lg); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+  .rp-head { display: flex; flex-direction: column; gap: var(--cds-gap-xs); }
+  .rp-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .rp-lede { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); max-width: 70ch; line-height: 1.5; }
+  .rp-lede b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); font-variant-numeric: tabular-nums; }
+  .rp-tabs { display: flex; gap: var(--cds-gap-xs); overflow-x: auto; border-bottom: 1px solid var(--color-border-line); scrollbar-width: thin; }
+  .rp-tab { appearance: none; background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: var(--cds-pad-sm) var(--cds-pad-md); font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg-muted); cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+  .rp-tab:hover { color: var(--color-fg); }
+  .rp-tab:focus-visible { outline: 2px solid var(--color-fg); outline-offset: -2px; border-radius: 4px; }
+  .rp-tab[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+  .rp-count { font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; color: var(--color-fg-muted); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 0 6px; min-width: 1.6em; text-align: center; }
+  .rp-panel { display: flex; flex-direction: column; gap: var(--cds-gap-xl); min-width: 0; }
+  .rp-h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+  .rp-sub { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); max-width: 70ch; line-height: 1.5; }
+  .rp-sec { display: flex; flex-direction: column; gap: var(--cds-gap-md); min-width: 0; }
+  .rp-sec-head { display: flex; flex-direction: column; gap: 2px; }
+  .rp-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--cds-gap-xl); }
+  .rp-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--cds-gap-md); }
+  .rp-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
+  .rp-tile-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: .02em; }
+  .rp-num { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.1; font-variant-numeric: tabular-nums; min-height: 1.1em; }
+  .rp-tile-win { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .rp-todo-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .rp-todo { display: grid; grid-template-columns: auto 1fr; gap: var(--cds-gap-md); align-items: start; padding: var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); }
+  .rp-todo strong { display: block; font-weight: var(--cds-font-weight-medium); line-height: 1.4; }
+  .rp-todo p { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.5; }
+  .rp-todo p b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+  .rp-todo a { color: inherit; font-size: var(--cds-font-size-caption); }
+  .rp-pill { display: inline-block; white-space: nowrap; font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; }
+  .rp-ok { color: var(--color-ok); }
+  .rp-warn { color: var(--color-warn); }
+  .rp-bad { color: var(--color-bad); }
+  .rp-muted { color: var(--color-fg-muted); }
+  .rp-scroll { overflow-x: auto; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+  .rp-table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); }
+  .rp-table th { text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-sm) var(--cds-pad-md); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+  .rp-table td { padding: var(--cds-pad-sm) var(--cds-pad-md); border-bottom: 1px solid var(--color-border-line); vertical-align: top; line-height: 1.45; }
+  .rp-table tr:last-child td { border-bottom: 0; }
+  .rp-table td.rp-nowrap { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .rp-table td.rp-what { min-width: 200px; }
+  .rp-table td.rp-detail { min-width: 240px; color: var(--color-fg-muted); }
+  .rp-table a { color: inherit; }
+  .rp-day td { background: var(--color-panel); font-weight: var(--cds-font-weight-medium); color: var(--color-fg); }
+  .rp-empty { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); }
+  .rp-more { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); }
+  .rp-more > summary { cursor: pointer; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); padding: var(--cds-pad-xs) 0; }
+  .rp-more > summary .rp-sub { display: inline; font-weight: 400; }
+  .rp-more[open] > summary { margin-bottom: var(--cds-gap-sm); }
+  .rp-foot { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .rp-foot summary { cursor: pointer; }
+  .rp-foot ul { margin: var(--cds-gap-sm) 0 0; padding-left: 1.2em; line-height: 1.6; }
+  .rp-status { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--cds-gap-sm); }
+  .rp-st { display: flex; gap: var(--cds-gap-sm); align-items: baseline; padding: var(--cds-pad-sm) var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); min-width: 0; }
+  .rp-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: currentColor; transform: translateY(1px); }
+  .rp-st-name { font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); }
+  .rp-st-when { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .rp-chart { position: relative; min-height: 190px; }
+  .rp-chart svg { display: block; overflow: visible; }
+  .rp-chart .tick text, .rp-chart .rp-lab { fill: var(--cds-text-secondary); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+  .rp-chart .domain { stroke: var(--cds-chart-axis); }
+  .rp-chart .tick line { stroke: var(--cds-chart-grid); }
+  .rp-chart .rp-val { fill: var(--color-fg); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+  .rp-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); box-shadow: var(--cds-shadow-popover); border-radius: 6px; padding: 6px 8px; font-size: var(--cds-font-size-caption); color: var(--color-fg); white-space: nowrap; z-index: 2; }
+  .rp-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .rp-legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--sw); }
+  .rp-books { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--cds-gap-md); }
+  .rp-book { display: grid; grid-template-columns: 96px 1fr; gap: var(--cds-gap-md); padding: var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); }
+  .rp-book img { width: 96px; height: auto; border-radius: 4px; border: 1px solid var(--color-border-line); }
+  .rp-book h3 { margin: 0; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+  .rp-book p { margin: 4px 0 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.45; }
+  .rp-book p b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+  .rp-allarme { margin: var(--cds-gap-xs) 0 0; padding: var(--cds-pad-sm) var(--cds-pad-md); border-radius: var(--cds-radius); border: 1px solid var(--color-bad); color: var(--color-bad); font-size: var(--cds-font-size-body); }
+  .rp-allarme.rp-warn-box { border-color: var(--color-warn); color: var(--color-warn); }
+  .rp-allarme b { font-weight: var(--cds-font-weight-medium); }
+  .rp-spark { display: block; height: 28px; }
+  .rp-spark svg { display: block; overflow: visible; }
+  .rp-su { color: var(--color-ok); } .rp-giu { color: var(--color-bad); } .rp-pari { color: var(--color-fg-muted); }
+  .rp-scroll:not(.rp-tutto) table.rp-corta > tbody > tr:nth-child(n+11) { display: none; }
+  .rp-mostra { align-self: flex-start; }
+  .rp-subtabs { border-bottom-style: dashed; }
+  .rp-subtabs .rp-tab { font-size: var(--cds-font-size-caption); padding: 6px 12px; }
+  .rp-todo strong a { text-decoration: underline; text-underline-offset: 3px; }
+  .rp-todo strong a:hover { text-decoration-thickness: 2px; }
+  .rp-neg { color: var(--color-bad); }
+  .rp-pos { color: var(--color-ok); }
+  [data-dash-source-state=refreshing] { opacity: .5; }
+</style>
+
+<div class="rp">
+  <header class="rp-head" id="intestazione">
+    <h1 class="rp-title">Riepilogo i7</h1>
+    <p class="rp-lede" id="obiettivo"><b>Obiettivo della squadra: 1.000.000 €.</b> Luca e Claude, primi della famiglia ad arrivarci. È una maratona: un traguardo piccolo alla volta, insieme.</p>
+    <p class="rp-lede">Aggiornato il <b data-draw="aggiornato" data-source="info" data-field="aggiornato" data-row="0">—</b>. In breve: <b data-draw="n-dafare" data-source="da_fare">—</b> cose aspettano te, questo mese il risultato è <b data-draw="conti" data-campo="risultato" data-source="conti" data-field="risultato" data-row="0">—</b> €, <b data-draw="auto-ok" data-source="automazioni">—</b> automazioni vanno bene e gli errori aperti sono <b data-draw="errori-aperti" data-source="errori">—</b>.</p>
+    <p class="rp-lede" id="frase-ai" hidden><b>L'AI locale dice:</b> <span data-ai="testo"></span></p>
+    <p class="rp-allarme" id="allarme-salute" hidden>Salute del PC: <b data-draw="salute-livello" data-source="salute" data-field="livello" data-row="0">—</b>. <span data-draw="salute-campo" data-campo="problemi" data-source="salute" data-field="problemi" data-row="0">—</span> Apri la scheda Salute PC.</p>
+  </header>
+
+  <nav class="rp-tabs" role="tablist" aria-label="Schede">
+    <button class="rp-tab" role="tab" id="tab-panoramica" data-tab="panoramica" aria-controls="panoramica" aria-selected="true">Panoramica</button>
+    <button class="rp-tab" role="tab" id="tab-salute" data-tab="salute" aria-controls="salute" aria-selected="false">Salute PC <span class="rp-count" data-draw="salute-livello" data-source="salute" data-field="livello" data-row="0">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-email" data-tab="email" aria-controls="email" aria-selected="false">Email <span class="rp-count" data-draw="conta-tab" data-area="Email" data-source="per_area" data-field="azioni" data-where="area=Email">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-instagram" data-tab="instagram" aria-controls="instagram" aria-selected="false">Instagram <span class="rp-count" data-draw="conta-tab" data-area="Instagram" data-source="per_area" data-field="azioni" data-where="area=Instagram">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-linkedin" data-tab="linkedin" aria-controls="linkedin" aria-selected="false">LinkedIn <span class="rp-count" data-draw="conta-tab" data-area="LinkedIn" data-source="per_area" data-field="azioni" data-where="area=LinkedIn">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-lavoro" data-tab="lavoro" aria-controls="lavoro" aria-selected="false">Lavoro</button>
+    <button class="rp-tab" role="tab" id="tab-libri" data-tab="libri" aria-controls="libri" aria-selected="false">Libri</button>
+    <button class="rp-tab" role="tab" id="tab-radar" data-tab="radar" aria-controls="radar" aria-selected="false">Radar e idee <span class="rp-count" data-draw="conta-tab" data-area="Radar" data-source="per_area" data-field="azioni" data-where="area=Radar">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-errori" data-tab="errori" aria-controls="errori" aria-selected="false">Errori <span class="rp-count" data-draw="errori-aperti" data-source="errori">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-sistema" data-tab="sistema" aria-controls="sistema" aria-selected="false">Sistema <span class="rp-count" data-draw="conta-tab" data-area="Sistema" data-source="per_area" data-field="azioni" data-where="area=Sistema">—</span></button>
+  </nav>
+
+  <!-- PANORAMICA -->
+  <section class="rp-panel" id="panoramica" role="tabpanel" aria-labelledby="tab-panoramica">
+    <div class="rp-tiles" id="numeri">
+      <div class="rp-tile" id="tile-mese">
+        <span class="rp-tile-label">Risultato del mese</span>
+        <span class="rp-num dash-skeleton" data-draw="conti" data-campo="risultato" data-euro="1" data-source="conti" data-field="risultato" data-row="0"></span>
+        <span class="rp-tile-win">ricavi <span data-draw="conti" data-campo="ricavi" data-source="conti" data-field="ricavi" data-row="0">—</span> €, costi <span data-draw="conti" data-campo="costi" data-source="conti" data-field="costi" data-row="0">—</span> €</span>
+      </div>
+      <div class="rp-tile" id="kpi-email">
+        <span class="rp-tile-label">Email inviate</span>
+        <span class="rp-num" data-draw="kpi-num" data-campo="email_inviate" data-source="settimane" data-field="valore" data-where="campo=email_inviate">—</span>
+        <span class="rp-tile-win"><span data-draw="kpi-freccia" data-campo="email_inviate" data-source="settimane">—</span> · 7 giorni</span>
+        <span class="rp-spark" data-draw="kpi-linea" data-campo="email_inviate" data-source="storico"></span>
+      </div>
+      <div class="rp-tile" id="kpi-risposte">
+        <span class="rp-tile-label">Risposte ricevute</span>
+        <span class="rp-num" data-draw="kpi-num" data-campo="risposte" data-source="settimane" data-field="valore" data-where="campo=risposte">—</span>
+        <span class="rp-tile-win"><span data-draw="kpi-freccia" data-campo="risposte" data-source="settimane">—</span> · 7 giorni</span>
+        <span class="rp-spark" data-draw="kpi-linea" data-campo="risposte" data-source="storico"></span>
+      </div>
+      <div class="rp-tile" id="kpi-post">
+        <span class="rp-tile-label">Post pubblicati</span>
+        <span class="rp-num" data-draw="kpi-num" data-campo="post" data-source="settimane" data-field="valore" data-where="campo=post">—</span>
+        <span class="rp-tile-win"><span data-draw="kpi-freccia" data-campo="post" data-source="settimane">—</span> · 7 giorni</span>
+        <span class="rp-spark" data-draw="kpi-linea" data-campo="post" data-source="storico"></span>
+      </div>
+      <div class="rp-tile" id="kpi-annunci">
+        <span class="rp-tile-label">Annunci di lavoro buoni</span>
+        <span class="rp-num" data-draw="kpi-num" data-campo="annunci_buoni" data-source="settimane" data-field="valore" data-where="campo=annunci_buoni">—</span>
+        <span class="rp-tile-win"><span data-draw="kpi-freccia" data-campo="annunci_buoni" data-source="settimane">—</span> · voto AI 7+</span>
+        <span class="rp-spark" data-draw="kpi-linea" data-campo="annunci_buoni" data-source="storico"></span>
+      </div>
+      <div class="rp-tile" id="kpi-attivita">
+        <span class="rp-tile-label">Contatti pronti</span>
+        <span class="rp-num" data-draw="kpi-num" data-campo="attivita_coda" data-source="settimane" data-field="valore" data-where="campo=attivita_coda">—</span>
+        <span class="rp-tile-win"><span data-draw="kpi-freccia" data-campo="attivita_coda" data-source="settimane">—</span> · attività con email</span>
+        <span class="rp-spark" data-draw="kpi-linea" data-campo="attivita_coda" data-source="storico"></span>
+      </div>
+    </div>
+
+    <div class="rp-grid2">
+      <div class="rp-sec" id="da-fare">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Cosa serve da te</h2>
+          <p class="rp-sub">Solo quello che Claude non può fare da solo, dal più urgente.</p>
+        </div>
+        <ol class="rp-todo-list" data-draw="da-fare" data-source="da_fare"></ol>
+        <p class="rp-empty" id="da-fare-vuoto" hidden>Per ora non serve niente da te.</p>
+      </div>
+
+      <div class="rp-sec" id="andamento">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Lavoro fatto, ultimi 14 giorni</h2>
+          <p class="rp-sub">Azioni del diario per giorno: completate e problemi.</p>
+        </div>
+        <div class="rp-legend"><span style="--sw: var(--color-ok)">completate</span><span style="--sw: var(--cds-chart-muted)">altro (bozze, in attesa)</span><span style="--sw: var(--color-bad)">problemi</span></div>
+        <div class="rp-chart" data-draw="grafico-giorni" data-source="per_giorno"></div>
+      </div>
+    </div>
+
+    <div class="rp-sec" id="automazioni-stato">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Cosa gira sull'i7</h2>
+        <p class="rp-sub">Verde: va. Giallo: in pausa o da guardare. Rosso: c'è un problema. I dettagli sono nella scheda Sistema.</p>
+      </div>
+      <div class="rp-status" data-draw="stato-auto" data-source="automazioni"></div>
+    </div>
+
+    <div class="rp-grid2">
+      <div class="rp-sec" id="idee-migliori">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Idee migliori</h2>
+          <p class="rp-sub">Restano qui finché non sono fatte o scartate.</p>
+        </div>
+        <ol class="rp-todo-list" data-draw="idee-top" data-source="idee"></ol>
+        <p class="rp-empty" id="idee-vuote" hidden>Nessuna idea aperta in questo momento.</p>
+      </div>
+      <div class="rp-sec" id="piano">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Piano della squadra: affiliazione Higgsfield</h2>
+          <p class="rp-sub">Sempre dichiarata ("link affiliato" o #adv), mai nelle email alle strutture.</p>
+        </div>
+        <ol class="rp-todo-list" data-draw="piano" data-source="piano"></ol>
+      </div>
+    </div>
+
+    <details class="rp-more" id="ultime">
+      <summary>Ultime 15 azioni <span class="rp-sub">di tutte le aree</span></summary>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="azioni" data-row-key="id">
+          <thead><tr><th data-field="ora">Ora</th><th data-field="area">Area</th><th data-field="cosa">Cosa</th><th data-field="esito">Esito</th><th data-field="dettaglio">Dettaglio</th></tr></thead>
+          <tbody data-draw="diario" data-area="" data-max="15"></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- SALUTE PC -->
+  <section class="rp-panel" id="salute" role="tabpanel" aria-labelledby="tab-salute" hidden>
+    <div class="rp-sec">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Salute del PC i7</h2>
+        <p class="rp-sub">Letta ogni minuto dal programma "Salute PC". Se una temperatura è critica, se la ventola del processore si ferma o un disco non sta bene, il programma ferma da solo tutte le attività, scarica l'AI locale e avvisa. Il PC resta acceso: si ferma il lavoro, non il computer. E se il processore lavora quasi al massimo per un'ora di fila, tutto va in pausa per 20 minuti e poi riparte da solo. Ultima lettura: <b data-draw="salute-campo" data-campo="quando" data-source="salute" data-field="quando" data-row="0">—</b>.</p>
+      </div>
+      <div class="rp-tiles">
+        <div class="rp-tile"><span class="rp-tile-label">Stato</span><span class="rp-num" data-draw="salute-livello" data-source="salute" data-field="livello" data-row="0">—</span><span class="rp-tile-win" data-draw="salute-campo" data-campo="problemi" data-source="salute" data-field="problemi" data-row="0">—</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Processore</span><span class="rp-num" data-draw="salute-temp" data-campo="cpu_temp" data-source="salute" data-field="cpu_temp" data-row="0">—</span><span class="rp-tile-win">alta da 85 °C, ferma tutto a 95 °C</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Disco SSD</span><span class="rp-num" data-draw="salute-temp" data-campo="ssd_temp" data-source="salute" data-field="ssd_temp" data-row="0">—</span><span class="rp-tile-win">alta da 65 °C, ferma tutto a 75 °C</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Carico processore</span><span class="rp-num" data-draw="salute-pct" data-campo="cpu_carico" data-source="salute" data-field="cpu_carico" data-row="0">—</span><span class="rp-tile-win">memoria usata <span data-draw="salute-pct" data-campo="ram_uso_pct" data-source="salute" data-field="ram_uso_pct" data-row="0">—</span></span></div>
+      </div>
+      <p class="rp-sub">Ventole: <span data-draw="salute-campo" data-campo="ventole" data-source="salute" data-field="ventole" data-row="0">—</span>. Disco C libero: <span data-draw="salute-campo" data-campo="disco_C_libero_gb" data-source="salute" data-field="disco_C_libero_gb" data-row="0">—</span> GB.</p>
+    </div>
+    <div class="rp-grid2">
+      <div class="rp-sec">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Temperature, ultime 24 ore</h2>
+          <p class="rp-sub">Massimo ogni 10 minuti. Le linee tratteggiate sono le soglie di allarme del processore.</p>
+        </div>
+        <div class="rp-legend"><span style="--sw: var(--color-bad)">processore</span><span style="--sw: var(--color-warn)">disco SSD</span></div>
+        <div class="rp-chart" data-draw="grafico-temp" data-source="salute_storico"></div>
+      </div>
+      <div class="rp-sec">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Carico, ultime 24 ore</h2>
+          <p class="rp-sub">Media ogni 10 minuti, in percentuale.</p>
+        </div>
+        <div class="rp-legend"><span style="--sw: var(--color-fg)">processore</span><span style="--sw: var(--cds-chart-muted)">memoria</span></div>
+        <div class="rp-chart" data-draw="grafico-carico" data-source="salute_storico"></div>
+      </div>
+    </div>
+    <div class="rp-sec" id="ventole">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Ventole, ultime 24 ore</h2>
+        <p class="rp-sub">Giri al minuto, il valore più basso ogni 10 minuti. Se la ventola del processore scende sotto 100 giri con il processore caldo, si ferma tutto.</p>
+      </div>
+      <div class="rp-legend"><span style="--sw: var(--color-bad)">ventola del processore (Fan #1)</span><span style="--sw: var(--cds-chart-muted)">ventola del case (Fan #2)</span></div>
+      <div class="rp-chart" data-draw="grafico-ventole" data-source="salute_storico"></div>
+    </div>
+    <div class="rp-sec">
+      <h2 class="rp-h2">Eventi</h2>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="salute_eventi" data-row-key="id">
+          <thead><tr><th data-field="quando">Quando</th><th data-field="tipo">Tipo</th><th data-field="testo">Cosa</th></tr></thead>
+          <tbody data-draw="salute-eventi"></tbody>
+        </table>
+      </div>
+      <p class="rp-empty" id="salute-eventi-vuoti" hidden>Nessun evento: tutto normale.</p>
+    </div>
+  </section>
+
+  <!-- EMAIL -->
+  <section class="rp-panel" id="email" role="tabpanel" aria-labelledby="tab-email" hidden>
+    <div class="rp-sec">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Email di Mila Studio</h2>
+        <p class="rp-sub">Prime email, follow-up e risposte delle strutture. Le risposte ai clienti partono solo con il tuo sì.</p>
+      </div>
+      <div class="rp-tiles">
+        <div class="rp-tile"><span class="rp-tile-label">Inviate</span><span class="rp-num" data-draw="area-num" data-area="Email" data-campo="completate" data-source="per_area" data-field="completate" data-where="area=Email">—</span><span class="rp-tile-win">ultimi 7 giorni</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Bozze da approvare</span><span class="rp-num" data-draw="area-num" data-area="Email" data-campo="bozze" data-source="per_area" data-field="bozze" data-where="area=Email">—</span><span class="rp-tile-win">ultimi 7 giorni</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Problemi</span><span class="rp-num" data-draw="area-num" data-area="Email" data-campo="errori" data-source="per_area" data-field="errori" data-where="area=Email">—</span><span class="rp-tile-win">non partite o errori</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Strutture in coda</span><span class="rp-num" data-draw="righe" data-fonte="coda_strutture" data-source="coda_strutture">—</span><span class="rp-tile-win">pronte per le prossime email</span></div>
+      </div>
+    </div>
+    <details class="rp-more">
+      <summary>Diario delle email <span class="rp-sub">ultimi 7 giorni</span></summary>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="azioni" data-row-key="id">
+          <thead><tr><th data-field="ora">Ora</th><th data-field="cosa">Cosa</th><th data-field="esito">Esito</th><th data-field="dettaglio">Dettaglio</th></tr></thead>
+          <tbody data-draw="diario" data-area="Email" data-senza-area="1" data-max="40"></tbody>
+        </table>
+      </div>
+      <p class="rp-empty" data-vuoto="Email" hidden>Ancora nessuna email registrata sull'i7.</p>
+    </details>
+    <details class="rp-more" id="coda-strutture">
+      <summary>Coda strutture candidate <span class="rp-sub">trovate di notte, senza Claude</span></summary>
+      <p class="rp-sub">Dal portale ufficiale toscano e, per gli altri luoghi, da OpenStreetMap. L'email è presa solo dal portale ufficiale o dal sito della struttura. Il giro prende da qui le prime 3 adatte e le controlla prima di scrivere.</p>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="coda_strutture" data-row-key="id">
+          <thead><tr><th data-field="trovata">Trovata</th><th data-field="zona">Zona</th><th data-field="paese">Paese</th><th data-field="nome">Struttura</th><th data-field="tipo">Tipo</th><th data-field="email">Email</th><th data-field="foto_grandi">Foto grandi</th></tr></thead>
+          <tbody data-draw="coda"></tbody>
+        </table>
+      </div>
+      <p class="rp-empty" id="coda-vuota" hidden>La coda è vuota: la prossima ricerca è stanotte alle 1:30.</p>
+    </details>
+    <details class="rp-more" id="coda-attivita">
+      <summary>Attività per la visibilità AI <span class="rp-sub">artigiani, cantine e produttori, ristoranti</span></summary>
+      <p class="rp-sub">Trovate di notte (OpenStreetMap, email presa solo dal loro sito). Niente officine meccaniche, niente provincia di Brescia, niente catene.</p>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="coda_attivita" data-row-key="id">
+          <thead><tr><th data-field="trovata">Trovata</th><th data-field="zona">Zona</th><th data-field="gruppo">Gruppo</th><th data-field="settore">Settore</th><th data-field="nome">Nome</th><th data-field="email">Email</th></tr></thead>
+          <tbody data-draw="attivita"></tbody>
+        </table>
+      </div>
+      <p class="rp-empty" id="attivita-vuote" hidden>Ancora nessuna attività in lista.</p>
+    </details>
+  </section>
+
+  <!-- INSTAGRAM -->
+  <section class="rp-panel" id="instagram" role="tabpanel" aria-labelledby="tab-instagram" hidden>
+    <div class="rp-sec">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Instagram</h2>
+        <p class="rp-sub">Post, storie e risposte. Per ora solo Mila (@mila.simpleyes): Essential è in pausa.</p>
+      </div>
+      <div class="rp-tiles">
+        <div class="rp-tile"><span class="rp-tile-label">Post e risposte fatti</span><span class="rp-num" data-draw="area-num" data-area="Instagram" data-campo="completate" data-source="per_area" data-field="completate" data-where="area=Instagram">—</span><span class="rp-tile-win">ultimi 7 giorni</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Bozze per te</span><span class="rp-num" data-draw="area-num" data-area="Instagram" data-campo="bozze" data-source="per_area" data-field="bozze" data-where="area=Instagram">—</span><span class="rp-tile-win">risposte da decidere</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Problemi</span><span class="rp-num" data-draw="area-num" data-area="Instagram" data-campo="errori" data-source="per_area" data-field="errori" data-where="area=Instagram">—</span><span class="rp-tile-win">ultimi 7 giorni</span></div>
+      </div>
+    </div>
+    <details class="rp-more">
+      <summary>Diario di Instagram <span class="rp-sub">ultimi 7 giorni</span></summary>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="azioni" data-row-key="id">
+          <thead><tr><th data-field="ora">Ora</th><th data-field="cosa">Cosa</th><th data-field="esito">Esito</th><th data-field="dettaglio">Dettaglio</th></tr></thead>
+          <tbody data-draw="diario" data-area="Instagram" data-senza-area="1" data-max="40"></tbody>
+        </table>
+      </div>
+      <p class="rp-empty" data-vuoto="Instagram" hidden>Ancora niente pubblicato dall'i7.</p>
+    </details>
+  </section>
+
+  <!-- LINKEDIN -->
+  <section class="rp-panel" id="linkedin" role="tabpanel" aria-labelledby="tab-linkedin" hidden>
+    <div class="rp-sec">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">LinkedIn</h2>
+        <p class="rp-sub">Proposte ricevute, controllate a fondo. Su LinkedIn Claude non scrive mai: le bozze di risposta sono solo qui.</p>
+      </div>
+      <div class="rp-tiles">
+        <div class="rp-tile"><span class="rp-tile-label">Proposte controllate</span><span class="rp-num" data-draw="area-num" data-area="LinkedIn" data-campo="azioni" data-source="per_area" data-field="azioni" data-where="area=LinkedIn">—</span><span class="rp-tile-win">ultimi 7 giorni</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Serie o da verificare</span><span class="rp-num" data-draw="area-num" data-area="LinkedIn" data-campo="serie" data-source="per_area" data-field="serie" data-where="area=LinkedIn">—</span><span class="rp-tile-win">con giudizio e prossimo passo</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Sospette</span><span class="rp-num" data-draw="area-num" data-area="LinkedIn" data-campo="errori" data-source="per_area" data-field="errori" data-where="area=LinkedIn">—</span><span class="rp-tile-win">segnali di truffa</span></div>
+      </div>
+    </div>
+    <details class="rp-more">
+      <summary>Diario di LinkedIn <span class="rp-sub">ultimi 7 giorni</span></summary>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="azioni" data-row-key="id">
+          <thead><tr><th data-field="ora">Ora</th><th data-field="cosa">Cosa</th><th data-field="esito">Esito</th><th data-field="dettaglio">Dettaglio</th></tr></thead>
+          <tbody data-draw="diario" data-area="LinkedIn" data-senza-area="1" data-max="40"></tbody>
+        </table>
+      </div>
+      <p class="rp-empty" data-vuoto="LinkedIn" hidden>Ancora nessun controllo dall'i7.</p>
+    </details>
+  </section>
+
+  <!-- LAVORO -->
+  <section class="rp-panel" id="lavoro" role="tabpanel" aria-labelledby="tab-lavoro" hidden>
+    <div class="rp-grid2">
+      <div class="rp-sec">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Quale offerta guardare per prima</h2>
+          <p class="rp-sub">Il consiglio del giro per ogni sezione. Claude non si candida mai: lo fai tu.</p>
+        </div>
+        <ol class="rp-todo-list">
+          <li class="rp-todo"><span class="rp-pill rp-ok">Italia</span><div><strong data-draw="consiglio" data-sezione="Italia" data-source="offerte">—</strong><p>RAL da 35.000 €, meglio assunzione diretta.</p></div></li>
+          <li class="rp-todo"><span class="rp-pill rp-ok">Estero</span><div><strong data-draw="consiglio" data-sezione="Estero" data-source="offerte">—</strong><p>UE, Svizzera e Norvegia, con l'inglese al lavoro.</p></div></li>
+          <li class="rp-todo"><span class="rp-pill rp-ok">Spazio</span><div><strong data-draw="consiglio" data-sezione="Spazio" data-source="offerte">—</strong><p>Spazio, difesa, motorsport, robotica e altri lavori di frontiera.</p></div></li>
+        </ol>
+      </div>
+      <div class="rp-sec">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Annunci raccolti dal programma</h2>
+          <p class="rp-sub">Il programma dell'i7 li prende ogni 4 ore da LinkedIn pubblico; l'AI locale li vota. In verde quelli con voto 7 o più.</p>
+        </div>
+        <div class="rp-legend"><span style="--sw: var(--cds-chart-muted)">raccolti</span><span style="--sw: var(--color-ok)">voto 7 o più</span></div>
+        <div class="rp-chart" data-draw="grafico-annunci" data-source="annunci"></div>
+      </div>
+    </div>
+    <div class="rp-sec" id="offerte">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Offerte scelte dal giro</h2>
+        <p class="rp-sub">Solo quelle alla tua portata, con RAL, esperienza chiesta e perché sono adatte. Clicca il ruolo per aprire l'annuncio.</p>
+      </div>
+      <nav class="rp-tabs rp-subtabs" role="tablist" aria-label="Sezioni del lavoro">
+        <button class="rp-tab" role="tab" id="sub-italia" data-sotto="italia" aria-controls="lavoro-italia" aria-selected="true">Italia (RAL ≥35k) <span class="rp-count" data-draw="conta-offerte" data-sezione="Italia" data-source="offerte">—</span></button>
+        <button class="rp-tab" role="tab" id="sub-estero" data-sotto="estero" aria-controls="lavoro-estero" aria-selected="false">Estero <span class="rp-count" data-draw="conta-offerte" data-sezione="Estero" data-source="offerte">—</span></button>
+        <button class="rp-tab" role="tab" id="sub-spazio" data-sotto="spazio" aria-controls="lavoro-spazio" aria-selected="false">Spazio e lavori fighi <span class="rp-count" data-draw="conta-offerte" data-sezione="Spazio" data-source="offerte">—</span></button>
+      </nav>
+      <div class="rp-sec" id="lavoro-italia" role="tabpanel" aria-labelledby="sub-italia">
+        <p class="rp-sub">Progettista meccanico, mechanical design, project, product, application engineer, R&amp;D. Meglio Lombardia e zone vicine, ma va bene tutta Italia. RAL dichiarata o stimata con la fonte.</p>
+        <div class="rp-scroll">
+          <table class="rp-table rp-corta" data-source="offerte" data-row-key="id">
+            <thead><tr><th data-field="data">Trovata</th><th data-field="ruolo">Ruolo</th><th data-field="azienda">Azienda</th><th data-field="citta">Città</th><th data-field="stipendio">RAL / stipendio</th><th data-field="esperienza">Esperienza</th><th data-field="tipo">Tipo</th><th data-field="perche">Perché è adatta</th></tr></thead>
+            <tbody data-draw="offerte" data-sezione="Italia"></tbody>
+          </table>
+        </div>
+        <button type="button" class="rp-link rp-mostra">Mostra tutto / meno</button>
+        <p class="rp-empty" data-vuoto-offerte="Italia" hidden>Nessuna offerta in Italia per ora: le cerca il giro di ogni mattina.</p>
+      </div>
+      <div class="rp-sec" id="lavoro-estero" role="tabpanel" aria-labelledby="sub-estero" hidden>
+        <p class="rp-sub">UE, Svizzera e Norvegia, con l'inglese come lingua di lavoro.</p>
+        <div class="rp-scroll">
+          <table class="rp-table rp-corta" data-source="offerte" data-row-key="id">
+            <thead><tr><th data-field="data">Trovata</th><th data-field="ruolo">Ruolo</th><th data-field="azienda">Azienda</th><th data-field="citta">Città</th><th data-field="lingua">Lingua</th><th data-field="stipendio">Stipendio</th><th data-field="esperienza">Esperienza</th><th data-field="tipo">Tipo</th><th data-field="perche">Perché è adatta</th></tr></thead>
+            <tbody data-draw="offerte" data-sezione="Estero" data-con-lingua="1"></tbody>
+          </table>
+        </div>
+        <button type="button" class="rp-link rp-mostra">Mostra tutto / meno</button>
+        <p class="rp-empty" data-vuoto-offerte="Estero" hidden>Nessuna offerta all'estero per ora: le cerca il giro di ogni mattina.</p>
+      </div>
+      <div class="rp-sec" id="lavoro-spazio" role="tabpanel" aria-labelledby="sub-spazio" hidden>
+        <p class="rp-sub">Aziende con un prodotto loro in settori di frontiera (spazio, difesa, aerospazio, motorsport, robotica, droni, energia nuova, semiconduttori, medicale avanzato), in Italia e all'estero. Niente studi che lavorano per conto terzi.</p>
+        <div class="rp-scroll">
+          <table class="rp-table rp-corta" data-source="offerte" data-row-key="id">
+            <thead><tr><th data-field="data">Trovata</th><th data-field="ruolo">Ruolo</th><th data-field="azienda">Azienda</th><th data-field="citta">Città</th><th data-field="lingua">Lingua</th><th data-field="stipendio">RAL / stipendio</th><th data-field="esperienza">Esperienza</th><th data-field="tipo">Tipo</th><th data-field="perche">Perché è adatta</th></tr></thead>
+            <tbody data-draw="offerte" data-sezione="Spazio" data-con-lingua="1"></tbody>
+          </table>
+        </div>
+        <button type="button" class="rp-link rp-mostra">Mostra tutto / meno</button>
+        <p class="rp-empty" data-vuoto-offerte="Spazio" hidden>Nessuna offerta per ora: le cerca il giro di ogni mattina.</p>
+      </div>
+    </div>
+    <details class="rp-more">
+      <summary>Diario del lavoro</summary>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="azioni" data-row-key="id">
+          <thead><tr><th data-field="ora">Ora</th><th data-field="area">Area</th><th data-field="cosa">Cosa</th><th data-field="esito">Esito</th><th data-field="dettaglio">Dettaglio</th></tr></thead>
+          <tbody data-draw="diario" data-area="Lavoro Italia,Lavoro estero,Lavoro spazio" data-max="40"></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- LIBRI -->
+  <section class="rp-panel" id="libri" role="tabpanel" aria-labelledby="tab-libri" hidden>
+    <div class="rp-sec">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">I nostri libri su Amazon</h2>
+        <p class="rp-sub">Serie DINO, libri da colorare senza parole, autore Luca Bear. Vendite e royalty le vedi tu su KDP: Claude non entra nel tuo account. Amazon non lascia leggere le sue pagine a Claude, quindi link, classifica e recensioni li aggiungiamo quando li hai.</p>
+      </div>
+      <div class="rp-books" data-draw="libri" data-source="libri"></div>
+    </div>
+    <div class="rp-sec" id="idee-libri">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Idee per libri nuovi</h2>
+        <p class="rp-sub">Cosa cerca la gente, da fonti pubbliche: al massimo 5 idee nuove a settimana, solo libri semplici che possiamo fare con gli strumenti che abbiamo. Scegli tu, poi Claude prepara il libro e tu lo pubblichi.</p>
+      </div>
+      <p class="rp-sub">Quale faccio per prima: <b data-draw="libro-primo" data-source="idee_libri">—</b></p>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="idee_libri" data-row-key="id">
+          <thead><tr><th data-field="idea">Idea</th><th data-field="pubblico">Per chi</th><th data-field="domanda">Domanda</th><th data-field="concorrenza">Concorrenza</th><th data-field="stagione">Stagione</th><th data-field="perche">Perché funziona</th></tr></thead>
+          <tbody data-draw="idee-libri"></tbody>
+        </table>
+      </div>
+      <p class="rp-empty" id="idee-libri-vuote" hidden>Ancora nessuna idea: le prime arrivano con il giro di domattina.</p>
+    </div>
+  </section>
+
+  <!-- RADAR E IDEE -->
+  <section class="rp-panel" id="radar" role="tabpanel" aria-labelledby="tab-radar" hidden>
+    <div class="rp-tiles">
+      <div class="rp-tile"><span class="rp-tile-label">Notizie lette</span><span class="rp-num" data-draw="tot" data-campo="notizie_radar" data-source="conteggi" data-field="notizie_radar" data-row="0">—</span><span class="rp-tile-win">radar continuo, ultimi 7 giorni</span></div>
+      <div class="rp-tile"><span class="rp-tile-label">Novità segnalate</span><span class="rp-num" data-draw="tot" data-campo="novita_radar" data-source="conteggi" data-field="novita_radar" data-row="0">—</span><span class="rp-tile-win">ultimi 7 giorni</span></div>
+      <div class="rp-tile"><span class="rp-tile-label">Report giornalieri</span><span class="rp-num" data-draw="tot" data-campo="report_radar" data-source="conteggi" data-field="report_radar" data-row="0">—</span><span class="rp-tile-win">ultimi 7 giorni</span></div>
+    </div>
+    <div class="rp-sec" id="temi">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">I 5 temi del momento</h2>
+        <p class="rp-sub">Di cosa si parla di più nelle notizie degli ultimi 7 giorni, contato su tutte quelle lette dal radar. Un tema che cresce e su cui non lavoriamo diventa un "Allarme tema" nelle idee.</p>
+      </div>
+      <div class="rp-chart" data-draw="grafico-temi" data-source="temi" style="min-height: 150px"></div>
+    </div>
+    <div class="rp-grid2">
+      <div class="rp-sec">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Come vota l'AI locale</h2>
+          <p class="rp-sub">Quante notizie per ogni voto, ultimi 7 giorni. Un voto che serve usa tutta la scala; 8 o più vuol dire "c'è una cosa da fare subito".</p>
+        </div>
+        <div class="rp-chart" data-draw="grafico-voti" data-source="voti_dist"></div>
+      </div>
+      <div class="rp-sec">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Le notizie migliori</h2>
+          <p class="rp-sub">Voto 6 o più. Il giudizio vero lo dà il giro.</p>
+        </div>
+        <ol class="rp-todo-list" data-draw="voti-top" data-source="voti_ai"></ol>
+        <p class="rp-empty" id="voti-vuoti" hidden>Ancora nessuna notizia con voto 6 o più.</p>
+      </div>
+    </div>
+    <details class="rp-more" id="idee-archivio">
+      <summary>Archivio delle idee chiuse</summary>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="idee" data-row-key="id">
+          <thead><tr><th data-field="data">Data</th><th data-field="cosa">Idea</th><th data-field="stato">Stato</th><th data-field="perche">Perché</th></tr></thead>
+          <tbody data-draw="idee-archivio"></tbody>
+        </table>
+      </div>
+      <p class="rp-empty" id="archivio-vuoto" hidden>Ancora nessuna idea fatta o scartata.</p>
+    </details>
+    <details class="rp-more">
+      <summary>Diario di radar e idee</summary>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="azioni" data-row-key="id">
+          <thead><tr><th data-field="ora">Ora</th><th data-field="area">Area</th><th data-field="cosa">Cosa</th><th data-field="esito">Esito</th><th data-field="dettaglio">Dettaglio</th></tr></thead>
+          <tbody data-draw="diario" data-area="Radar,Idee" data-max="40"></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ERRORI -->
+  <section class="rp-panel" id="errori" role="tabpanel" aria-labelledby="tab-errori" hidden>
+    <div class="rp-sec">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Errori da risolvere</h2>
+        <p class="rp-sub">Ogni errore ha la sua causa e la soluzione. Il giro aggiorna questa lista ogni giorno e prova a risolverli da solo; quelli che servono a te sono segnati.</p>
+      </div>
+      <div class="rp-tiles">
+        <div class="rp-tile"><span class="rp-tile-label">Aperti</span><span class="rp-num" data-draw="errori-aperti" data-source="errori">—</span><span class="rp-tile-win">da risolvere o in prova</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Servono a te</span><span class="rp-num" data-draw="errori-stato" data-stato="serve Luca" data-source="errori">—</span><span class="rp-tile-win">Claude non può farli da solo</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Risolti</span><span class="rp-num" data-draw="errori-stato" data-stato="risolto" data-source="errori">—</span><span class="rp-tile-win">dall'inizio sull'i7</span></div>
+      </div>
+    </div>
+    <div class="rp-sec" id="registro-errori">
+      <h2 class="rp-h2">Registro</h2>
+      <div class="rp-scroll">
+        <table class="rp-table rp-corta" data-source="errori" data-row-key="id">
+          <thead><tr><th data-field="stato">Stato</th><th data-field="errore">Errore</th><th data-field="causa">Perché succede</th><th data-field="soluzione">Cosa abbiamo fatto</th><th data-field="ultima_volta">Ultima volta</th></tr></thead>
+          <tbody data-draw="errori"></tbody>
+        </table>
+      </div>
+      <button type="button" class="rp-link rp-mostra">Mostra tutto / meno</button>
+    </div>
+    <div class="rp-sec" id="errori-giorni">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Errori di ogni giorno, ultimi 7 giorni</h2>
+        <p class="rp-sub">Presi da soli dal diario e dai registri dei programmi (radar, annunci, guardiano). Il numero dice quante volte è successo quel giorno.</p>
+      </div>
+      <div class="rp-chart" data-draw="grafico-errori" data-source="errori_per_giorno" style="min-height: 150px"></div>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="errori_giorno" data-row-key="id">
+          <thead><tr><th data-field="fonte">Dove</th><th data-field="errore">Errore</th><th data-field="volte">Volte</th></tr></thead>
+          <tbody data-draw="errori-giorno"></tbody>
+        </table>
+      </div>
+      <p class="rp-empty" id="errori-giorno-vuoti" hidden>Nessun errore negli ultimi 7 giorni.</p>
+    </div>
+  </section>
+
+  <!-- SISTEMA -->
+  <section class="rp-panel" id="sistema" role="tabpanel" aria-labelledby="tab-sistema" hidden>
+    <div class="rp-sec" id="automazioni">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Automazioni in dettaglio</h2>
+        <p class="rp-sub">Stato di ogni automazione all'ultimo aggiornamento.</p>
+      </div>
+      <div class="rp-scroll">
+        <table class="rp-table rp-corta" data-source="automazioni" data-row-key="nome">
+          <thead><tr><th data-field="nome">Cosa</th><th data-field="stato">Stato</th><th data-field="quando">Quando</th><th data-field="ultimo">Ultima volta</th><th data-field="prossimo">Prossima</th><th data-field="nota">Nota</th></tr></thead>
+          <tbody data-draw="automazioni"></tbody>
+        </table>
+      </div>
+      <button type="button" class="rp-link rp-mostra">Mostra tutto / meno</button>
+    </div>
+    <details class="rp-more">
+      <summary>Diario di sistema e giri <span class="rp-sub">ultimi 7 giorni</span></summary>
+      <div class="rp-scroll">
+        <table class="rp-table" data-source="azioni" data-row-key="id">
+          <thead><tr><th data-field="ora">Ora</th><th data-field="cosa">Cosa</th><th data-field="esito">Esito</th><th data-field="dettaglio">Dettaglio</th></tr></thead>
+          <tbody data-draw="diario" data-area="Sistema,Giro" data-senza-area="1" data-max="60"></tbody>
+        </table>
+      </div>
+      <p class="rp-empty" data-vuoto="Sistema,Giro" hidden>Ancora niente.</p>
+    </details>
+  </section>
+
+  <details class="rp-foot" id="come-funziona">
+    <summary>Come funziona questa pagina</summary>
+    <ul>
+      <li>Questa è la versione gratuita (GitHub Pages): i dati li pubblica il PC i7 da solo ogni 30 minuti, senza Claude, e la frase in cima la scrive l'AI locale. La pagina si ricarica da sola ogni 5 minuti. <a href="#" onclick="rpEsci(); return false;">Esci (dimentica la password)</a>.</li>
+      <li>Ogni azione fatta sull'i7 finisce nel diario della sua scheda.</li>
+      <li>I dati si ricaricano alla fine di ogni giro e chat, e ogni 4 ore con il mini-giro (alle 2, 10, 14, 18 e 22).</li>
+      <li>Il numero accanto a ogni scheda conta le azioni degli ultimi 7 giorni.</li>
+      <li>I dati sono in RadarSoldi\riepilogo sul PC i7; lo script è genera.py.</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+(function () {
+
+  const rpCampi = (lista) => ({answer}, key) => ({columns: lista, rows: answer[key] || []});
+  dash.loader('info', {description: 'Prende dal file la data dell\'ultimo aggiornamento.', fn: ({answer}) => ({columns: ['aggiornato', 'pc'], rows: answer.info || []})});
+  dash.loader('azioni', {description: 'Prende dal file il diario delle azioni, dalla più recente.', fn: ({answer}) => ({columns: ['id', 'data', 'ora', 'area', 'cosa', 'dettaglio', 'esito', 'link', 'numero'], rows: answer.azioni || []})});
+  dash.loader('automazioni', {description: 'Prende dal file lo stato di ogni automazione.', fn: ({answer}) => ({columns: ['nome', 'stato', 'quando', 'ultimo', 'prossimo', 'nota'], rows: answer.automazioni || []})});
+  dash.loader('da_fare', {description: 'Prende dal file le cose che servono da Luca.', fn: ({answer}) => ({columns: ['id', 'cosa', 'perche', 'priorita', 'da_quando'], rows: answer.da_fare || []})});
+  dash.loader('offerte', {description: 'Prende dal file le offerte di lavoro scelte dal giro, nelle sezioni Italia, Estero e Spazio.', fn: ({answer}) => ({columns: ['id', 'sezione', 'data', 'ruolo', 'azienda', 'citta', 'lingua', 'stipendio', 'esperienza', 'perche', 'link', 'tipo', 'stato', 'consigliata'], rows: answer.offerte || []})});
+  dash.loader('voti_ai', {description: 'Prende dal file le notizie votate dall\'AI locale, dal voto più alto.', fn: ({answer}) => ({columns: ['id', 'data', 'ora', 'voto', 'verdetto', 'titolo', 'fonte', 'perche', 'link'], rows: answer.voti_ai || []})});
+  dash.loader('coda_strutture', {description: 'Prende dal file la coda delle strutture candidate preparata di notte.', fn: ({answer}) => ({columns: ['id', 'trovata', 'zona', 'paese', 'nome', 'tipo', 'dove', 'email', 'sito', 'foto_grandi', 'fonte'], rows: answer.coda_strutture || []})});
+  dash.loader('coda_attivita', {description: 'Prende dal file la coda di attività preparata di notte.', fn: ({answer}) => ({columns: ['id', 'trovata', 'zona', 'paese', 'gruppo', 'settore', 'nome', 'email', 'sito', 'fonte'], rows: answer.coda_attivita || []})});
+  dash.loader('conti', {description: 'Prende dal file la riga del mese (ricavi, costi, risultato) letta da conti-mensili.md sul NAS.', fn: ({answer}) => ({columns: ['mese', 'ricavi', 'costi', 'risultato', 'nota'], rows: answer.conti || []})});
+  dash.loader('idee', {description: 'Prende dal file le idee del radar e del giro: prima le aperte, poi quelle chiuse.', fn: ({answer}) => ({columns: ['id', 'data', 'cosa', 'perche', 'prima_azione', 'costo', 'link', 'stato', 'aperta'], rows: answer.idee || []})});
+  dash.loader('piano', {description: 'Prende dal file i passi del piano deciso dalla squadra (Luca e Claude).', fn: ({answer}) => ({columns: ['id', 'progetto', 'passo', 'dettaglio', 'chi', 'stato'], rows: answer.piano || []})});
+  dash.loader('annunci', {description: 'Prende dal file quanti annunci ha raccolto il programma per sezione, quanti ne ha votati l\'AI locale e quanti hanno voto 7 o più.', fn: ({answer}) => ({columns: ['sezione', 'raccolti', 'votati', 'alti'], rows: answer.annunci || []})});
+  dash.loader('voti_dist', {description: 'Prende dal file quante notizie hanno avuto ogni voto da 0 a 10 negli ultimi 7 giorni.', fn: ({answer}) => ({columns: ['voto', 'notizie'], rows: answer.voti_dist || []})});
+  dash.loader('libri', {description: 'Prende dal file i libri KDP (DINO) con copertina, stato e prezzo.', fn: ({answer}) => ({columns: ['id', 'titolo', 'sottotitolo', 'stato', 'prezzo', 'link', 'bsr', 'recensioni', 'nota', 'copertina'], rows: answer.libri || []})});
+  dash.loader('salute', {description: 'Prende dal file l\'ultima lettura della salute del PC (temperature, ventole, carico, problemi).', fn: ({answer}) => ({columns: ['quando', 'livello', 'cpu_temp', 'ssd_temp', 'scheda_temp', 'cpu_carico', 'ram_uso_pct', 'ventole', 'ventole_ferme', 'sensori', 'disco_C_libero_gb', 'problemi'], rows: answer.salute || []})});
+  dash.loader('salute_storico', {description: 'Prende dal file le letture delle ultime 24 ore a gruppi di 10 minuti (media, massimo e minimo; ventole in giri al minuto).', fn: ({answer}) => ({columns: ['quando', 'cpu_temp', 'cpu_temp_max', 'ssd_temp', 'ssd_temp_max', 'cpu_carico', 'cpu_carico_max', 'ram_uso_pct', 'ram_uso_pct_max', 'ventola1_min', 'ventola2_min'], rows: answer.salute_storico || []})});
+  dash.loader('storico', {description: 'Prende dal file i numeri chiave di ogni giorno (email, risposte, post, offerte, annunci buoni, contatti pronti).', fn: ({answer}) => ({columns: ['giorno', 'email_inviate', 'risposte', 'post', 'offerte', 'errori', 'azioni', 'annunci_buoni', 'idee_aperte', 'attivita_coda', 'strutture_coda'], rows: answer.storico || []})});
+  dash.loader('temi', {description: 'Prende dal file i 5 temi più presenti nelle notizie del radar negli ultimi 7 giorni (da tendenze.md).', fn: ({answer}) => ({columns: ['tema', 'notizie', 'crescita', 'esempio'], rows: answer.temi || []})});
+  dash.loader('salute_eventi', {description: 'Prende dal file gli ultimi eventi del monitor (allarmi, fermi, ripartenze).', fn: ({answer}) => ({columns: ['id', 'quando', 'tipo', 'testo'], rows: answer.salute_eventi || []})});
+  dash.loader('errori', {description: 'Prende dal file il registro degli errori (errori.json): causa, soluzione e stato.', fn: ({answer}) => ({columns: ['id', 'errore', 'area', 'prima_volta', 'ultima_volta', 'volte', 'causa', 'soluzione', 'stato'], rows: answer.errori || []})});
+  dash.loader('errori_giorno', {description: 'Prende dal file gli errori di ogni giorno, raccolti da diario e registri dei programmi.', fn: ({answer}) => ({columns: ['id', 'data', 'fonte', 'errore', 'volte'], rows: answer.errori_giorno || []})});
+  dash.loader('idee_libri', {description: 'Prende dal file le idee per libri nuovi trovate dal giro.', fn: ({answer}) => ({columns: ['id', 'data', 'idea', 'pubblico', 'domanda', 'concorrenza', 'perche', 'stagione', 'stato', 'prima'], rows: answer.idee_libri || []})});
+
+  const rpSettimana = (info) => {
+    const fine = (info[0] && info[0].aggiornato ? info[0].aggiornato.slice(0, 10) : '');
+    const d = new Date(fine + 'T00:00:00Z');
+    d.setUTCDate(d.getUTCDate() - 6);
+    return [d.toISOString().slice(0, 10), fine];
+  };
+
+  dash.calc('conteggi', {
+    inputs: ['azioni', 'info'],
+    title: 'Numeri degli ultimi 7 giorni',
+    description: 'Conta le azioni del diario dei 7 giorni fino all\'ultimo aggiornamento.',
+    fn: (azioni, info) => {
+      const [inizio, fine] = rpSettimana(info);
+      const dentro = azioni.filter((a) => a.data >= inizio && a.data <= fine);
+      const continuo = dentro.filter((a) => a.area === 'Radar' && String(a.id).startsWith('radar-continuo-'));
+      return [{
+        dal: inizio, al: fine,
+        email_inviate: dentro.filter((a) => a.area === 'Email' && a.esito === 'inviata').length,
+        post: dentro.filter((a) => a.area === 'Instagram' && a.esito === 'pubblicato').length,
+        da_approvare: dentro.filter((a) => a.esito === 'bozza').length,
+        novita_radar: d3.sum(continuo, (a) => +a.numero || 0),
+        notizie_radar: d3.sum(continuo, (a) => { const m = /^(\d+) notizie/.exec(a.dettaglio || ''); return m ? +m[1] : 0; }),
+        report_radar: dentro.filter((a) => a.area === 'Radar' && String(a.id).startsWith('radar-giorno-') && !String(a.id).startsWith('radar-giorno-err-')).length,
+        azioni: dentro.length
+      }];
+    }
+  });
+
+  dash.calc('per_area', {
+    inputs: ['azioni', 'info'],
+    title: 'Azioni per area, ultimi 7 giorni',
+    description: 'Per ogni area: quante azioni, quante completate, quante bozze e quanti problemi nei 7 giorni fino all\'ultimo aggiornamento.',
+    fn: (azioni, info) => {
+      const [inizio, fine] = rpSettimana(info);
+      const aree = ['Email', 'Instagram', 'LinkedIn', 'Lavoro Italia', 'Lavoro estero', 'Lavoro spazio', 'Radar', 'Idee', 'Sistema'];
+      const fatte = ['fatto', 'inviata', 'pubblicato', 'risposto'];
+      const problemi = ['errore', 'saltato', 'sospetta'];
+      return aree.map((area) => {
+        const qui = azioni.filter((a) => a.data >= inizio && a.data <= fine && (a.area === area || (area === 'Sistema' && a.area === 'Giro') || (area === 'Radar' && a.area === 'Idee')));
+        return {
+          area,
+          azioni: qui.length,
+          completate: qui.filter((a) => fatte.includes(a.esito)).length,
+          bozze: qui.filter((a) => a.esito === 'bozza').length,
+          serie: qui.filter((a) => a.esito === 'seria' || a.esito === 'da verificare').length,
+          errori: qui.filter((a) => problemi.includes(a.esito)).length
+        };
+      });
+    }
+  });
+
+  dash.calc('per_giorno', {
+    inputs: ['azioni', 'info'],
+    title: 'Azioni per giorno, ultimi 14 giorni',
+    description: 'Per ogni giorno dei 14 fino all\'ultimo aggiornamento: azioni completate, problemi e il resto (bozze, in attesa).',
+    fn: (azioni, info) => {
+      const fine = (info[0] && info[0].aggiornato ? info[0].aggiornato.slice(0, 10) : '');
+      const fatte = ['fatto', 'inviata', 'pubblicato', 'risposto', 'seria'];
+      const problemi = ['errore', 'saltato', 'sospetta'];
+      const out = [];
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(fine + 'T00:00:00Z');
+        d.setUTCDate(d.getUTCDate() - i);
+        const g = d.toISOString().slice(0, 10);
+        const qui = azioni.filter((a) => a.data === g);
+        const ok = qui.filter((a) => fatte.includes(a.esito)).length;
+        const ko = qui.filter((a) => problemi.includes(a.esito)).length;
+        out.push({giorno: g, completate: ok, problemi: ko, altro: qui.length - ok - ko});
+      }
+      return out;
+    }
+  });
+
+})();
+</script>
+
+<script>
+(function () {
+
+  window.rpMesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+  window.rpGiorni = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
+  window.rpData = (s) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || '');
+    if (!m) return s || '';
+    const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    return window.rpGiorni[d.getUTCDay()] + ' ' + (+m[3]) + ' ' + window.rpMesi[+m[2] - 1] + ' ' + m[1];
+  };
+  window.rpQuando = (s) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}:\d{2}))?/.exec(s || '');
+    if (!m) return s || '';
+    return (+m[3]) + ' ' + window.rpMesi[+m[2] - 1] + (m[4] ? ', ' + m[4] : '');
+  };
+  window.rpTono = (stato) => {
+    const s = (stato || '').toLowerCase();
+    if (['fatto', 'inviata', 'pubblicato', 'attivo', 'acceso', 'risposto', 'seria', 'sì', 'ok', 'pubblicato'].includes(s)) return 'rp-ok';
+    if (['bozza', 'in attesa', 'fermo', 'in pausa', 'da verificare', 'solo controllo', 'forse', 'in prova', 'da pubblicare', 'alto'].includes(s)) return 'rp-warn';
+    if (['errore', 'spento', 'fallito', 'sospetta', 'da fare'].includes(s)) return 'rp-bad';
+    return 'rp-muted';
+  };
+  window.rpEnc = (v) => encodeURIComponent(String(v));
+  window.rpNum = (n) => (n == null || isNaN(n) ? '—' : d3.format(',')(n).replace(/,/g, '.'));
+  window.rpCella = (testo, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = testo; return c; };
+  window.rpLink = (testo, url, cls) => {
+    const c = document.createElement('td');
+    if (cls) c.className = cls;
+    if (/^https?:\/\//.test(url || '')) {
+      const l = document.createElement('a');
+      l.href = url; l.target = '_blank'; l.rel = 'noopener'; l.textContent = testo;
+      c.append(l);
+    } else {
+      c.textContent = testo;
+    }
+    return c;
+  };
+  window.rpPill = (testo, tono) => { const p = document.createElement('span'); p.className = 'rp-pill ' + (tono || window.rpTono(testo)); p.textContent = testo || '—'; return p; };
+
+  // Schede
+  window.rpApri = (id, conLink) => {
+    const vecchie = {italia: 'lavoro', estero: 'lavoro', spazio: 'lavoro', idee: 'radar'};
+    if (vecchie[id] === 'lavoro' && window.rpSotto) window.rpSotto(id);
+    id = vecchie[id] || id;
+    const tabs = document.querySelectorAll('.rp-tab[data-tab]');
+    let trovata = false;
+    tabs.forEach((t) => { if (t.dataset.tab === id) trovata = true; });
+    if (!trovata) id = 'panoramica';
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === id;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.setAttribute('tabindex', on ? '0' : '-1');
+      const p = document.getElementById(t.dataset.tab);
+      if (p) p.hidden = !on;
+    });
+    if (conLink) dash.setLink(id);
+  };
+  document.querySelectorAll('.rp-tab[data-tab]').forEach((t) => {
+    t.addEventListener('click', () => window.rpApri(t.dataset.tab, true));
+    t.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const tutte = Array.from(document.querySelectorAll('.rp-tab[data-tab]'));
+      const i = tutte.indexOf(t);
+      const n = tutte[(i + (e.key === 'ArrowRight' ? 1 : tutte.length - 1)) % tutte.length];
+      if (n) { window.rpApri(n.dataset.tab, true); n.focus(); }
+    });
+  });
+  window.rpApri((location.hash || '').replace('#', '') || 'panoramica', false);
+  window.addEventListener('hashchange', () => window.rpApri((location.hash || '').replace('#', ''), false));
+
+  dash.onData(() => {
+    const pronti = ['azioni', 'info', 'conti', 'annunci'].every((id) => dash.data(id).status !== 'loading');
+    if (pronti) document.querySelectorAll('.rp-num.dash-skeleton').forEach((el) => el.classList.remove('dash-skeleton'));
+  });
+
+  // Numeri
+  dash.draw('tot', (el) => {
+    const c = dash.data('conteggi');
+    const r = c.status === 'ok' && Array.isArray(c.data) ? c.data[0] : null;
+    el.textContent = r ? window.rpNum(r[el.dataset.campo]) : '—';
+  });
+  const rpArea = (el) => {
+    const p = dash.data('per_area');
+    return p.status === 'ok' && Array.isArray(p.data) ? p.data.find((r) => r.area === el.dataset.area) : null;
+  };
+  dash.draw('area-num', (el) => { const r = rpArea(el); el.textContent = r ? window.rpNum(r[el.dataset.campo]) : '—'; });
+  dash.draw('conta-tab', (el) => { const r = rpArea(el); el.textContent = r ? window.rpNum(r.azioni) : '—'; });
+  dash.draw('aggiornato', (el) => {
+    const i = dash.data('info');
+    el.textContent = i.status === 'ok' && i.data[0] ? window.rpQuando(i.data[0].aggiornato) : '—';
+  });
+  dash.draw('n-dafare', (el) => {
+    const f = dash.data('da_fare');
+    el.textContent = f.status === 'ok' ? String(f.data.length) : '—';
+  });
+  dash.draw('auto-ok', (el) => {
+    const a = dash.data('automazioni');
+    if (a.status !== 'ok') { el.textContent = '—'; return; }
+    const ok = a.data.filter((r) => window.rpTono(r.stato) === 'rp-ok').length;
+    el.textContent = ok + ' su ' + a.data.length;
+  });
+  dash.draw('conti', (el) => {
+    const c = dash.data('conti');
+    const r = c.status === 'ok' && c.data[0] ? c.data[0] : null;
+    const v = r ? r[el.dataset.campo] : '';
+    el.textContent = v ? v + (el.dataset.euro ? ' €' : '') : '—';
+    if (el.dataset.campo === 'risultato') {
+      el.classList.toggle('rp-neg', /^[−-]/.test(v || ''));
+      el.classList.toggle('rp-pos', !!v && !/^[−-]/.test(v) && !/^0([,.]0+)?$/.test(v));
+    }
+  });
+  // Numeri chiave della Panoramica: ultimi 7 giorni contro i 7 prima, dallo storico giornaliero.
+  // Somme per i conteggi del giorno, ultimo valore per le "fotografie" (annunci buoni, contatti pronti).
+  const RP_FOTO = ['annunci_buoni', 'attivita_coda', 'idee_aperte', 'strutture_coda'];
+  dash.calc('settimane', {
+    inputs: ['storico'],
+    title: 'Numeri chiave: questa settimana e la precedente',
+    description: 'Per ogni numero chiave: valore degli ultimi 7 giorni e dei 7 prima (somma per email, risposte, post; ultimo valore per annunci buoni e contatti pronti).',
+    fn: (storico) => {
+      const righe = storico.slice().sort((a, b) => String(a.giorno).localeCompare(String(b.giorno)));
+      const ult = righe.slice(-7), prima = righe.slice(-14, -7);
+      const val = (gruppo, c) => RP_FOTO.includes(c)
+        ? (gruppo.length ? +(gruppo[gruppo.length - 1][c] || 0) : null)
+        : (gruppo.length ? d3.sum(gruppo, (r) => +r[c] || 0) : null);
+      return ['email_inviate', 'risposte', 'post', 'annunci_buoni', 'attivita_coda'].map((campo) => ({campo, valore: val(ult, campo), prima: val(prima, campo)}));
+    }
+  });
+  const rpKpi = (campo) => { const s = dash.data('settimane'); return s.status === 'ok' && Array.isArray(s.data) ? s.data.find((r) => r.campo === campo) : null; };
+  dash.onData(() => {
+    if (dash.data('settimane').status !== 'loading') document.querySelectorAll('.rp-num.dash-skeleton').forEach((el) => el.classList.remove('dash-skeleton'));
+  });
+  dash.draw('kpi-num', (el) => { const r = rpKpi(el.dataset.campo); el.textContent = r && r.valore != null ? window.rpNum(r.valore) : '—'; });
+  dash.draw('kpi-freccia', (el) => {
+    const r = rpKpi(el.dataset.campo);
+    el.classList.remove('rp-su', 'rp-giu', 'rp-pari');
+    if (!r || r.valore == null) { el.textContent = '—'; return; }
+    if (r.prima == null) { el.textContent = 'prima settimana'; el.classList.add('rp-pari'); return; }
+    const d = r.valore - r.prima;
+    el.textContent = d > 0 ? '▲ +' + d + ' sulla settimana prima' : d < 0 ? '▼ ' + d + ' sulla settimana prima' : '= come la settimana prima';
+    el.classList.add(d > 0 ? 'rp-su' : d < 0 ? 'rp-giu' : 'rp-pari');
+  });
+  dash.draw('kpi-linea', (el) => {
+    const s = dash.data('storico');
+    if (s.status !== 'ok') { el.replaceChildren(); return; }
+    const righe = s.data.slice().sort((a, b) => String(a.giorno).localeCompare(String(b.giorno))).slice(-14);
+    const c = el.dataset.campo;
+    const W = Math.max(el.clientWidth, 100), H = 28;
+    const x = d3.scaleLinear().domain([0, Math.max(righe.length - 1, 1)]).range([2, W - 4]);
+    const y = d3.scaleLinear().domain([0, Math.max(1, d3.max(righe, (r) => +r[c] || 0))]).range([H - 3, 3]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Andamento degli ultimi 14 giorni');
+    svg.append('path').datum(righe).attr('d', d3.line().x((r, i) => x(i)).y((r) => y(+r[c] || 0))).style('fill', 'none').style('stroke', dash.colors[0]).style('stroke-width', 1.5);
+    if (righe.length) svg.append('circle').attr('cx', x(righe.length - 1)).attr('cy', y(+righe[righe.length - 1][c] || 0)).attr('r', 2.5).style('fill', dash.colors[0]);
+    el.replaceChildren(svg.node());
+  });
+
+  // I 5 temi del momento (barre orizzontali)
+  dash.draw('grafico-temi', (box) => {
+    const d = dash.data('temi');
+    if (window.rpFallito(box, d.status)) return;
+    const rows = d.data.map((r) => ({tema: r.tema, notizie: +r.notizie || 0, esempio: r.esempio}));
+    if (!rows.length) { const p = document.createElement('p'); p.className = 'rp-empty'; p.textContent = 'Ancora nessun tema: arrivano con il programma delle tendenze, ogni mattina alle 5:30.'; box.replaceChildren(p); return; }
+    const W = Math.max(box.clientWidth, 260), riga = 30, m = {t: 4, r: 40, b: 4, l: 110};
+    const H = m.t + m.b + riga * rows.length;
+    const x = d3.scaleLinear().domain([0, d3.max(rows, (r) => r.notizie) || 1]).range([m.l, W - m.r]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'I 5 temi più presenti nelle notizie degli ultimi 7 giorni');
+    const tip = window.rpTip(box);
+    rows.forEach((r, i) => {
+      const y0 = m.t + i * riga;
+      svg.append('text').attr('class', 'rp-lab').attr('x', 0).attr('y', y0 + 19).text(r.tema.length > 16 ? r.tema.slice(0, 15) + '…' : r.tema);
+      svg.append('rect').attr('x', m.l).attr('y', y0 + 6).attr('height', 18).attr('width', Math.max(x(r.notizie) - m.l, 1)).style('fill', dash.colors[0]);
+      svg.append('text').attr('class', 'rp-val').attr('x', x(r.notizie) + 6).attr('y', y0 + 19).text(r.notizie);
+      svg.append('rect').attr('x', 0).attr('y', y0).attr('width', W).attr('height', riga).style('fill', 'transparent')
+        .on('pointermove', (ev) => tip.show(r.tema + ': ' + r.notizie + ' notizie' + (r.esempio ? ' · es. ' + r.esempio.slice(0, 60) : ''), ev)).on('pointerleave', tip.hide);
+    });
+    const vecchio = box.querySelector('svg');
+    if (vecchio) vecchio.replaceWith(svg.node()); else box.replaceChildren(svg.node(), ...box.querySelectorAll('.rp-tip'));
+  });
+
+  // "Mostra tutto / meno" sotto le tabelle lunghe (mostrano 10 righe)
+  document.querySelectorAll('.rp-mostra').forEach((b) => b.addEventListener('click', () => {
+    const s = b.previousElementSibling;
+    if (s && s.classList.contains('rp-scroll')) s.classList.toggle('rp-tutto');
+  }));
+  dash.draw('righe', (el) => {
+    const d = dash.data(el.dataset.fonte);
+    el.textContent = d.status === 'ok' ? window.rpNum(d.data.length) : '—';
+  });
+
+  // Liste
+  dash.draw('da-fare', (el) => {
+    const f = dash.data('da_fare');
+    const vuoto = document.getElementById('da-fare-vuoto');
+    const rows = f.status === 'ok' ? f.data : [];
+    const ordine = {alta: 0, media: 1, bassa: 2};
+    const ordinati = rows.slice().sort((a, b) => (ordine[a.priorita] ?? 3) - (ordine[b.priorita] ?? 3));
+    el.replaceChildren(...ordinati.map((r) => {
+      const where = 'id=' + window.rpEnc(r.id);
+      const li = document.createElement('li');
+      li.className = 'rp-todo';
+      const pill = window.rpPill(r.priorita, r.priorita === 'alta' ? 'rp-bad' : r.priorita === 'media' ? 'rp-warn' : 'rp-muted');
+      pill.dataset.source = 'da_fare'; pill.dataset.field = 'priorita'; pill.dataset.where = where;
+      const box = document.createElement('div');
+      const t = document.createElement('strong');
+      t.dataset.source = 'da_fare'; t.dataset.field = 'cosa'; t.dataset.where = where;
+      t.textContent = r.cosa;
+      const p = document.createElement('p');
+      p.dataset.source = 'da_fare'; p.dataset.field = 'perche'; p.dataset.where = where;
+      p.textContent = r.perche || '';
+      box.append(t, p);
+      li.append(pill, box);
+      return li;
+    }));
+    if (vuoto) vuoto.hidden = !(f.status === 'ok' && rows.length === 0);
+  });
+
+  dash.draw('stato-auto', (el) => {
+    const a = dash.data('automazioni');
+    const rows = a.status === 'ok' ? a.data : [];
+    const peso = {'rp-bad': 0, 'rp-warn': 1, 'rp-muted': 2, 'rp-ok': 3};
+    const ordinati = rows.slice().sort((x, y) => peso[window.rpTono(x.stato)] - peso[window.rpTono(y.stato)]);
+    el.replaceChildren(...ordinati.map((r) => {
+      const d = document.createElement('div');
+      d.className = 'rp-st';
+      d.dataset.source = 'automazioni'; d.dataset.where = 'nome=' + window.rpEnc(r.nome);
+      const dot = document.createElement('span');
+      dot.className = 'rp-dot ' + window.rpTono(r.stato);
+      const box = document.createElement('div');
+      const n = document.createElement('div');
+      n.className = 'rp-st-name';
+      n.textContent = r.nome;
+      const w = document.createElement('div');
+      w.className = 'rp-st-when';
+      w.textContent = (r.stato || '') + (r.ultimo ? ' · ultima ' + window.rpQuando(r.ultimo) : r.quando ? ' · ' + r.quando : '');
+      box.append(n, w);
+      d.append(dot, box);
+      return d;
+    }));
+  });
+
+  dash.draw('idee-top', (el) => {
+    const d = dash.data('idee');
+    const rows = (d.status === 'ok' ? d.data : []).filter((r) => r.aperta === 'sì');
+    el.replaceChildren(...rows.map((r) => {
+      const where = 'id=' + window.rpEnc(r.id);
+      const mark = (n, campo) => { n.dataset.source = 'idee'; n.dataset.field = campo; n.dataset.where = where; return n; };
+      const li = document.createElement('li');
+      li.className = 'rp-todo';
+      const pill = mark(window.rpPill(r.stato, r.stato === 'nuova' ? 'rp-ok' : 'rp-warn'), 'stato');
+      const box = document.createElement('div');
+      const t = mark(document.createElement('strong'), 'cosa');
+      t.textContent = r.cosa;
+      box.append(t);
+      [['prima_azione', 'Prima azione: '], ['costo', 'Costo: ']].forEach(([campo, etichetta]) => {
+        if (!r[campo]) return;
+        const p = document.createElement('p');
+        const b = document.createElement('b');
+        b.textContent = etichetta;
+        const s = mark(document.createElement('span'), campo);
+        s.textContent = r[campo];
+        p.append(b, s);
+        box.append(p);
+      });
+      if (/^https?:\/\//.test(r.link || '')) {
+        const p = document.createElement('p');
+        const a = document.createElement('a');
+        a.href = r.link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Fonte';
+        p.append(a);
+        box.append(p);
+      }
+      li.append(pill, box);
+      return li;
+    }));
+    const vuoto = document.getElementById('idee-vuote');
+    if (vuoto) vuoto.hidden = !(d.status === 'ok' && rows.length === 0);
+  });
+
+  dash.draw('piano', (el) => {
+    const p = dash.data('piano');
+    const rows = p.status === 'ok' ? p.data : [];
+    el.replaceChildren(...rows.map((r) => {
+      const where = 'id=' + window.rpEnc(r.id);
+      const li = document.createElement('li');
+      li.className = 'rp-todo';
+      const pill = window.rpPill(r.stato);
+      pill.dataset.source = 'piano'; pill.dataset.field = 'stato'; pill.dataset.where = where;
+      const box = document.createElement('div');
+      const t = document.createElement('strong');
+      t.dataset.source = 'piano'; t.dataset.field = 'passo'; t.dataset.where = where;
+      t.textContent = r.passo + ' (' + r.chi + ')';
+      const q = document.createElement('p');
+      q.dataset.source = 'piano'; q.dataset.field = 'dettaglio'; q.dataset.where = where;
+      q.textContent = r.dettaglio;
+      box.append(t, q);
+      li.append(pill, box);
+      return li;
+    }));
+  });
+
+  dash.draw('voti-top', (el) => {
+    const v = dash.data('voti_ai');
+    const rows = (v.status === 'ok' ? v.data : []).slice(0, 5);
+    el.replaceChildren(...rows.map((r) => {
+      const li = document.createElement('li');
+      li.className = 'rp-todo';
+      const pill = window.rpPill(String(r.voto), +r.voto >= 8 ? 'rp-ok' : +r.voto >= 7 ? 'rp-warn' : 'rp-muted');
+      pill.dataset.source = 'voti_ai'; pill.dataset.field = 'voto'; pill.dataset.where = 'id=' + window.rpEnc(r.id);
+      const box = document.createElement('div');
+      const t = document.createElement('strong');
+      if (/^https?:\/\//.test(r.link || '')) {
+        const a = document.createElement('a');
+        a.href = r.link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = r.titolo;
+        a.style.fontSize = 'inherit';
+        t.append(a);
+      } else {
+        t.textContent = r.titolo;
+      }
+      const p = document.createElement('p');
+      p.textContent = r.perche + ' · ' + window.rpQuando(r.data);
+      box.append(t, p);
+      li.append(pill, box);
+      return li;
+    }));
+    const vuoto = document.getElementById('voti-vuoti');
+    if (vuoto) vuoto.hidden = !(v.status === 'ok' && rows.length === 0);
+  });
+
+  dash.draw('libri', (el) => {
+    const l = dash.data('libri');
+    const rows = l.status === 'ok' ? l.data : [];
+    el.replaceChildren(...rows.map((r) => {
+      const where = 'id=' + window.rpEnc(r.id);
+      const card = document.createElement('div');
+      card.className = 'rp-book';
+      card.id = 'libro-' + r.id;
+      if (/^data:image\//.test(r.copertina || '')) {
+        const img = document.createElement('img');
+        img.src = r.copertina; img.alt = 'Copertina di ' + r.titolo;
+        card.append(img);
+      } else {
+        card.append(document.createElement('div'));
+      }
+      const box = document.createElement('div');
+      const h = document.createElement('h3');
+      h.dataset.source = 'libri'; h.dataset.field = 'titolo'; h.dataset.where = where;
+      h.textContent = r.titolo + ' · ' + r.sottotitolo;
+      const st = window.rpPill(r.stato);
+      st.dataset.source = 'libri'; st.dataset.field = 'stato'; st.dataset.where = where;
+      const riga = (etichetta, valore, campo) => {
+        const p = document.createElement('p');
+        const b = document.createElement('b');
+        b.textContent = etichetta;
+        const s = document.createElement('span');
+        s.dataset.source = 'libri'; s.dataset.field = campo; s.dataset.where = where;
+        s.textContent = valore || 'non ancora';
+        p.append(b, s);
+        return p;
+      };
+      box.append(h, st, riga('Prezzo: ', r.prezzo, 'prezzo'), riga('Classifica Amazon: ', r.bsr, 'bsr'), riga('Recensioni: ', r.recensioni, 'recensioni'));
+      if (/^https?:\/\//.test(r.link || '')) {
+        const p = document.createElement('p');
+        const a = document.createElement('a');
+        a.href = r.link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Pagina Amazon';
+        a.style.color = 'inherit';
+        p.append(a);
+        box.append(p);
+      }
+      if (r.nota) {
+        const n = document.createElement('p');
+        n.dataset.source = 'libri'; n.dataset.field = 'nota'; n.dataset.where = where;
+        n.textContent = r.nota;
+        box.append(n);
+      }
+      card.append(box);
+      return card;
+    }));
+  });
+
+  dash.draw('libro-primo', (el) => {
+    const d = dash.data('idee_libri');
+    const r = (d.status === 'ok' ? d.data : []).find((x) => x.prima === 'sì');
+    el.textContent = r ? r.idea : (d.status === 'ok' ? 'ancora nessuna' : '—');
+  });
+  dash.draw('idee-libri', (tbody) => {
+    const d = dash.data('idee_libri');
+    const rows = d.status === 'ok' ? d.data : [];
+    tbody.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = window.rpEnc(r.id);
+      tr.append(window.rpCella(r.idea, 'rp-what'), window.rpCella(r.pubblico), window.rpCella(r.domanda), window.rpCella(r.concorrenza), window.rpCella(r.stagione, 'rp-nowrap'), window.rpCella(r.perche, 'rp-detail'));
+      return tr;
+    }));
+    const vuoto = document.getElementById('idee-libri-vuote');
+    if (vuoto) vuoto.hidden = !(d.status === 'ok' && rows.length === 0);
+  });
+
+  // Salute del PC
+  const rpSalute = () => { const s = dash.data('salute'); return s.status === 'ok' && s.data[0] ? s.data[0] : null; };
+  const rpTonoSalute = (l) => (l === 'ok' ? 'rp-ok' : l === 'attenzione' ? 'rp-warn' : l === 'nessun dato' ? 'rp-muted' : 'rp-bad');
+  dash.onData(() => {
+    const r = rpSalute();
+    document.querySelectorAll('#allarme-salute').forEach((p) => {
+      p.hidden = !r || r.livello === 'ok' || r.livello === 'nessun dato';
+      p.classList.toggle('rp-warn-box', !!r && r.livello === 'attenzione');
+    });
+  });
+  dash.draw('salute-livello', (el) => {
+    const r = rpSalute();
+    el.textContent = r ? r.livello : '—';
+    el.classList.remove('rp-ok', 'rp-warn', 'rp-bad', 'rp-muted');
+    if (r) el.classList.add(rpTonoSalute(r.livello));
+  });
+  dash.draw('salute-campo', (el) => { const r = rpSalute(); const v = r ? r[el.dataset.campo] : null; el.textContent = v == null || v === '' ? '—' : (el.dataset.campo === 'quando' ? window.rpQuando(String(v)) : String(v).replace('.', ',')); });
+  dash.draw('salute-temp', (el) => { const r = rpSalute(); const v = r ? r[el.dataset.campo] : null; el.textContent = v == null || v === '' ? 'non letta' : Math.round(+v) + ' °C'; });
+  dash.draw('salute-pct', (el) => { const r = rpSalute(); const v = r ? r[el.dataset.campo] : null; el.textContent = v == null || v === '' ? '—' : Math.round(+v) + '%'; });
+  dash.draw('salute-eventi', (tbody) => {
+    const e = dash.data('salute_eventi');
+    const rows = e.status === 'ok' ? e.data : [];
+    tbody.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = window.rpEnc(r.id);
+      const t = document.createElement('td');
+      t.append(window.rpPill(r.tipo, r.tipo === 'ripreso' ? 'rp-ok' : r.tipo === 'attenzione' ? 'rp-warn' : 'rp-bad'));
+      tr.append(window.rpCella(window.rpQuando(r.quando), 'rp-nowrap'), t, window.rpCella(r.testo, 'rp-what'));
+      return tr;
+    }));
+    const vuoto = document.getElementById('salute-eventi-vuoti');
+    if (vuoto) vuoto.hidden = !(e.status === 'ok' && rows.length === 0);
+  });
+  // Grafico a linee generico per lo storico della salute (24 ore). serie: [[campo, colore, etichetta]], soglie: [[valore, etichetta]]
+  window.rpLinee = (box, serie, unita, soglie, vuoto) => {
+    const d = dash.data('salute_storico');
+    if (window.rpFallito(box, d.status)) return;
+    const rows = d.data.filter((r) => serie.some(([c]) => r[c] != null && r[c] !== ''));
+    if (!rows.length) { const p = document.createElement('p'); p.className = 'rp-empty'; p.textContent = vuoto; box.replaceChildren(p); return; }
+    const W = Math.max(box.clientWidth, 260), H = 190, m = {t: 12, r: 8, b: 22, l: 34};
+    const tempo = (s) => new Date(s.replace(' ', 'T'));
+    const x = d3.scaleTime().domain(d3.extent(rows, (r) => tempo(r.quando))).range([m.l, W - m.r]);
+    const valori = rows.flatMap((r) => serie.map(([c]) => +r[c]).filter((v) => !isNaN(v))).concat((soglie || []).map((s) => s[0]));
+    const y = d3.scaleLinear().domain([Math.min(0, d3.min(valori)), Math.max(10, d3.max(valori) * 1.05)]).nice(4).range([H - m.b, m.t]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', serie.map((s) => s[2]).join(' e ') + ' nelle ultime 24 ore');
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat((v) => v + unita)).call((g) => g.select('.domain').remove());
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.max(2, Math.floor(W / 90))).tickFormat(d3.timeFormat('%H:%M')).tickSizeOuter(0));
+    (soglie || []).forEach(([v, et]) => {
+      svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(v)).attr('y2', y(v)).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '4 4');
+      svg.append('text').attr('class', 'rp-lab').attr('x', W - m.r).attr('y', y(v) - 4).attr('text-anchor', 'end').text(et);
+    });
+    serie.forEach(([c, col]) => {
+      const pts = rows.filter((r) => r[c] != null && r[c] !== '');
+      svg.append('path').datum(pts).attr('d', d3.line().x((r) => x(tempo(r.quando))).y((r) => y(+r[c]))).style('fill', 'none').style('stroke', col).style('stroke-width', 2);
+    });
+    const tip = window.rpTip(box);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [px] = d3.pointer(ev);
+        const t = x.invert(px);
+        const r = rows.reduce((a, b) => (Math.abs(tempo(b.quando) - t) < Math.abs(tempo(a.quando) - t) ? b : a));
+        tip.show(r.quando.slice(11) + ' · ' + serie.map(([c, , et]) => et + ' ' + (r[c] == null || r[c] === '' ? '—' : Math.round(+r[c]) + unita)).join(' · '), ev);
+      }).on('pointerleave', tip.hide);
+    const vecchio = box.querySelector('svg');
+    if (vecchio) vecchio.replaceWith(svg.node()); else box.replaceChildren(svg.node(), ...box.querySelectorAll('.rp-tip'));
+  };
+  dash.draw('grafico-temp', (box) => window.rpLinee(box, [['cpu_temp_max', 'var(--color-bad)', 'processore'], ['ssd_temp_max', 'var(--color-warn)', 'SSD']], ' °C',
+    [[85, 'alta 85 °C'], [95, 'ferma tutto 95 °C']], 'Temperature non ancora leggibili: serve LibreHardwareMonitor avviato come amministratore.'));
+  dash.draw('grafico-ventole', (box) => window.rpLinee(box, [['ventola1_min', 'var(--color-bad)', 'processore'], ['ventola2_min', 'var(--cds-chart-muted)', 'case']], ' giri', [[100, 'allarme sotto 100 giri']],
+    'Giri delle ventole non ancora leggibili: serve LibreHardwareMonitor avviato.'));
+  dash.draw('grafico-carico', (box) => window.rpLinee(box, [['cpu_carico', 'var(--color-fg)', 'processore'], ['ram_uso_pct', 'var(--cds-chart-muted)', 'memoria']], '%', [], 'Ancora nessuna lettura.'));
+
+  // Errori
+  const rpChiuso = (s) => ['risolto', 'chiuso'].includes((s || '').toLowerCase());
+  const rpTonoErrore = (s) => (rpChiuso(s) ? 'rp-ok' : s === 'serve Luca' ? 'rp-bad' : s === 'sotto controllo' ? 'rp-muted' : 'rp-warn');
+  dash.draw('errori-aperti', (el) => {
+    const e = dash.data('errori');
+    el.textContent = e.status === 'ok' ? String(e.data.filter((r) => !rpChiuso(r.stato) && r.stato !== 'sotto controllo').length) : '—';
+  });
+  dash.draw('errori-stato', (el) => {
+    const e = dash.data('errori');
+    el.textContent = e.status === 'ok' ? String(e.data.filter((r) => r.stato === el.dataset.stato).length) : '—';
+  });
+  dash.draw('errori', (tbody) => {
+    const e = dash.data('errori');
+    const peso = {'serve Luca': 0, 'in prova': 1, 'aperto': 1, 'sotto controllo': 2, 'risolto': 3, 'chiuso': 4};
+    const rows = (e.status === 'ok' ? e.data : []).slice().sort((a, b) => (peso[a.stato] ?? 1) - (peso[b.stato] ?? 1));
+    tbody.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = window.rpEnc(r.id);
+      const st = document.createElement('td');
+      st.append(window.rpPill(r.stato, rpTonoErrore(r.stato)));
+      tr.append(st, window.rpCella(r.errore + (r.area ? ' · ' + r.area : ''), 'rp-what'), window.rpCella(r.causa, 'rp-detail'),
+        window.rpCella(r.soluzione, 'rp-detail'), window.rpCella(window.rpQuando(r.ultima_volta), 'rp-nowrap'));
+      return tr;
+    }));
+  });
+  dash.draw('errori-giorno', (tbody) => {
+    const e = dash.data('errori_giorno');
+    const rows = e.status === 'ok' ? e.data : [];
+    const out = [];
+    let giorno = null;
+    rows.forEach((r) => {
+      if (r.data !== giorno) {
+        giorno = r.data;
+        const h = document.createElement('tr');
+        h.className = 'rp-day';
+        const c = document.createElement('td');
+        c.colSpan = 3;
+        c.textContent = window.rpData(r.data);
+        h.append(c);
+        out.push(h);
+      }
+      const tr = document.createElement('tr');
+      tr.dataset.key = window.rpEnc(r.id);
+      tr.append(window.rpCella(r.fonte, 'rp-nowrap'), window.rpCella(r.errore, 'rp-what'), window.rpCella(String(r.volte), 'rp-nowrap'));
+      out.push(tr);
+    });
+    tbody.replaceChildren(...out);
+    const vuoto = document.getElementById('errori-giorno-vuoti');
+    if (vuoto) vuoto.hidden = !(e.status === 'ok' && rows.length === 0);
+  });
+  dash.calc('errori_per_giorno', {
+    inputs: ['errori_giorno'],
+    title: 'Errori diversi per giorno',
+    description: 'Quanti errori diversi ci sono stati ogni giorno negli ultimi 7 giorni (non quante volte).',
+    fn: (righe) => {
+      const per = d3.rollup(righe, (v) => v.length, (r) => r.data);
+      return Array.from(per, ([data, errori]) => ({data, errori})).sort((a, b) => a.data.localeCompare(b.data));
+    }
+  });
+  dash.draw('grafico-errori', (box) => {
+    const d = dash.data('errori_per_giorno');
+    if (window.rpFallito(box, d.status === 'ok' && Array.isArray(d.data) ? 'ok' : (d.status === 'error' ? 'error' : 'loading'))) return;
+    const rows = d.data;
+    if (!rows.length) { box.replaceChildren(); return; }
+    const W = Math.max(box.clientWidth, 260), H = 150, m = {t: 18, r: 4, b: 22, l: 4};
+    const x = d3.scaleBand().domain(rows.map((r) => r.data)).range([m.l, W - m.r]).padding(0.3);
+    const y = d3.scaleLinear().domain([0, d3.max(rows, (r) => r.errori) || 1]).range([H - m.b, m.t]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+      .attr('aria-label', 'Numero di errori diversi per giorno, ultimi 7 giorni');
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`)
+      .call(d3.axisBottom(x).tickSize(0).tickPadding(6).tickFormat((g) => { const p = g.split('-'); return (+p[2]) + '/' + (+p[1]); }));
+    const tip = window.rpTip(box);
+    rows.forEach((r) => {
+      svg.append('rect').attr('x', x(r.data)).attr('width', x.bandwidth()).attr('y', y(r.errori)).attr('height', y(0) - y(r.errori)).style('fill', 'var(--color-bad)');
+      if (x.bandwidth() >= 22) svg.append('text').attr('class', 'rp-val').attr('x', x(r.data) + x.bandwidth() / 2).attr('y', y(r.errori) - 4).attr('text-anchor', 'middle').text(r.errori);
+      svg.append('rect').attr('x', x(r.data)).attr('width', x.bandwidth()).attr('y', m.t).attr('height', H - m.b - m.t).style('fill', 'transparent')
+        .on('pointermove', (ev) => tip.show(window.rpData(r.data) + ': ' + r.errori + ' errori diversi', ev)).on('pointerleave', tip.hide);
+    });
+    const vecchio = box.querySelector('svg');
+    if (vecchio) vecchio.replaceWith(svg.node()); else box.replaceChildren(svg.node(), ...box.querySelectorAll('.rp-tip'));
+  });
+
+  // Tabelle
+  dash.draw('automazioni', (tbody) => {
+    const a = dash.data('automazioni');
+    const rows = a.status === 'ok' ? a.data : [];
+    tbody.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = window.rpEnc(r.nome);
+      const stato = document.createElement('td');
+      stato.append(window.rpPill(r.stato));
+      tr.append(window.rpCella(r.nome, 'rp-nowrap'), stato, window.rpCella(r.quando), window.rpCella(window.rpQuando(r.ultimo) || '—', 'rp-nowrap'), window.rpCella(/^\d{4}-/.test(r.prossimo) ? window.rpQuando(r.prossimo) : (r.prossimo || '—'), 'rp-nowrap'), window.rpCella(r.nota, 'rp-detail'));
+      return tr;
+    }));
+  });
+
+  dash.draw('coda', (tbody) => {
+    const c = dash.data('coda_strutture');
+    const rows = c.status === 'ok' ? c.data : [];
+    tbody.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = window.rpEnc(r.id);
+      tr.append(window.rpCella(window.rpQuando(r.trovata), 'rp-nowrap'), window.rpCella(r.zona, 'rp-nowrap'),
+        window.rpCella(r.paese, 'rp-nowrap'), window.rpLink(r.nome, r.sito, 'rp-what'),
+        window.rpCella(r.tipo || '—', 'rp-nowrap'), window.rpLink(r.email, r.fonte, 'rp-nowrap'),
+        window.rpCella(r.foto_grandi == null ? '?' : String(r.foto_grandi), 'rp-nowrap'));
+      return tr;
+    }));
+    const vuoto = document.getElementById('coda-vuota');
+    if (vuoto) vuoto.hidden = !(c.status === 'ok' && rows.length === 0);
+  });
+
+  dash.draw('attivita', (tbody) => {
+    const c = dash.data('coda_attivita');
+    const rows = c.status === 'ok' ? c.data : [];
+    tbody.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = window.rpEnc(r.id);
+      tr.append(window.rpCella(window.rpQuando(r.trovata), 'rp-nowrap'), window.rpCella(r.zona, 'rp-nowrap'),
+        window.rpCella(r.gruppo, 'rp-nowrap'), window.rpCella(r.settore), window.rpLink(r.nome, r.sito, 'rp-what'),
+        window.rpLink(r.email, r.fonte, 'rp-nowrap'));
+      return tr;
+    }));
+    const vuoto = document.getElementById('attivita-vuote');
+    if (vuoto) vuoto.hidden = !(c.status === 'ok' && rows.length === 0);
+  });
+
+  // Offerte: una tabella per sezione (data-sezione), la consigliata in cima, il ruolo apre l'annuncio.
+  dash.draw('offerte', (tbody) => {
+    const o = dash.data('offerte');
+    const sez = tbody.dataset.sezione || '';
+    const rows = (o.status === 'ok' ? o.data : []).filter((r) => r.sezione === sez);
+    tbody.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = window.rpEnc(r.id);
+      const ruolo = window.rpLink(r.ruolo, r.link, 'rp-what');
+      if (r.consigliata === 'sì') ruolo.append(' ', window.rpPill('prima', 'rp-ok'));
+      const celle = [window.rpCella(window.rpQuando(r.data), 'rp-nowrap'), ruolo, window.rpCella(r.azienda), window.rpCella(r.citta)];
+      if (tbody.dataset.conLingua) celle.push(window.rpCella(r.lingua || '—', 'rp-nowrap'));
+      celle.push(window.rpCella(r.stipendio || '—'), window.rpCella(r.esperienza || '—'), window.rpCella(r.tipo || '—'), window.rpCella(r.perche, 'rp-detail'));
+      tr.append(...celle);
+      return tr;
+    }));
+    document.querySelectorAll('[data-vuoto-offerte]').forEach((p) => {
+      if (p.dataset.vuotoOfferte === sez) p.hidden = !(o.status === 'ok' && rows.length === 0);
+    });
+  });
+  dash.draw('conta-offerte', (el) => {
+    const o = dash.data('offerte');
+    el.textContent = o.status === 'ok' ? String(o.data.filter((r) => r.sezione === el.dataset.sezione).length) : '—';
+  });
+  // "Quale offerta guardare per prima": il testo è un link all'annuncio.
+  dash.draw('consiglio', (el) => {
+    const o = dash.data('offerte');
+    const r = (o.status === 'ok' ? o.data : []).find((x) => x.sezione === el.dataset.sezione && x.consigliata === 'sì');
+    if (!r) { el.textContent = o.status === 'ok' ? 'nessuna per ora' : '—'; return; }
+    const testo = r.ruolo + ', ' + r.azienda + (r.citta ? ' (' + r.citta + ')' : '');
+    if (/^https?:\/\//.test(r.link || '')) {
+      const a = document.createElement('a');
+      a.href = r.link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = testo + ' ↗';
+      a.style.color = 'inherit';
+      el.replaceChildren(a);
+    } else {
+      el.textContent = testo;
+    }
+  });
+
+  // Sotto-schede del lavoro: Italia, Estero, Spazio.
+  window.rpSotto = (id) => {
+    const bott = document.querySelectorAll('.rp-tab[data-sotto]');
+    let ok = false;
+    bott.forEach((b) => { if (b.dataset.sotto === id) ok = true; });
+    if (!ok) id = 'italia';
+    bott.forEach((b) => {
+      const on = b.dataset.sotto === id;
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      b.setAttribute('tabindex', on ? '0' : '-1');
+      const p = document.getElementById('lavoro-' + b.dataset.sotto);
+      if (p) p.hidden = !on;
+    });
+  };
+  document.querySelectorAll('.rp-tab[data-sotto]').forEach((b) => b.addEventListener('click', () => window.rpSotto(b.dataset.sotto)));
+  { const h = (location.hash || '').replace('#', ''); window.rpSotto(['italia', 'estero', 'spazio'].includes(h) ? h : 'italia'); }
+  // Il consiglio di una sezione apre anche la sua sotto-scheda.
+  document.querySelectorAll('[data-draw="consiglio"]').forEach((el) => {
+    const li = el.closest('li');
+    if (li) li.addEventListener('click', (ev) => { if (!ev.target.closest('a')) window.rpSotto(el.dataset.sezione.toLowerCase()); });
+  });
+
+  dash.draw('idee-archivio', (tbody) => {
+    const d = dash.data('idee');
+    const rows = (d.status === 'ok' ? d.data : []).filter((r) => r.aperta !== 'sì');
+    tbody.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = window.rpEnc(r.id);
+      const stato = document.createElement('td');
+      stato.append(window.rpPill(r.stato, /^fatta/i.test(r.stato) ? 'rp-ok' : 'rp-muted'));
+      tr.append(window.rpCella(window.rpQuando(r.data), 'rp-nowrap'), window.rpLink(r.cosa, r.link, 'rp-what'), stato, window.rpCella(r.perche, 'rp-detail'));
+      return tr;
+    }));
+    const vuoto = document.getElementById('archivio-vuoto');
+    if (vuoto) vuoto.hidden = !(d.status === 'ok' && rows.length === 0);
+  });
+
+  dash.draw('diario', (tbody) => {
+    const a = dash.data('azioni');
+    const aree = (tbody.dataset.area || '').split(',').map((x) => x.trim()).filter(Boolean);
+    const max = +tbody.dataset.max || 500;
+    const conArea = !tbody.dataset.senzaArea;
+    const colonne = conArea ? 5 : 4;
+    const rows = (a.status === 'ok' ? a.data : []).filter((r) => !aree.length || aree.includes(r.area)).slice(0, max);
+    const out = [];
+    let giorno = null;
+    rows.forEach((r) => {
+      if (r.data !== giorno) {
+        giorno = r.data;
+        const h = document.createElement('tr');
+        h.className = 'rp-day';
+        const c = document.createElement('td');
+        c.colSpan = colonne;
+        c.textContent = window.rpData(r.data);
+        h.append(c);
+        out.push(h);
+      }
+      const tr = document.createElement('tr');
+      tr.dataset.key = window.rpEnc(r.id);
+      const cosa = window.rpLink(r.cosa, /^https:\/\//.test(r.link || '') ? r.link : '', 'rp-what');
+      const esito = document.createElement('td');
+      esito.append(window.rpPill(r.esito));
+      const celle = [window.rpCella(r.ora || '—', 'rp-nowrap')];
+      if (conArea) celle.push(window.rpCella(r.area, 'rp-nowrap'));
+      celle.push(cosa, esito, window.rpCella(r.dettaglio, 'rp-detail'));
+      tr.append(...celle);
+      out.push(tr);
+    });
+    tbody.replaceChildren(...out);
+    const chiave = tbody.dataset.area || '';
+    document.querySelectorAll('[data-vuoto]').forEach((p) => {
+      if (p.dataset.vuoto === chiave) p.hidden = !(a.status === 'ok' && rows.length === 0);
+    });
+  });
+
+  // Grafici
+  window.rpTip = (box) => {
+    let tip = box.querySelector('.rp-tip');
+    if (!tip) { tip = document.createElement('div'); tip.className = 'rp-tip'; tip.hidden = true; box.append(tip); }
+    return {
+      show: (testo, ev) => {
+        const r = box.getBoundingClientRect();
+        tip.textContent = testo;
+        tip.hidden = false;
+        const x = Math.min(Math.max(ev.clientX - r.left + 10, 0), Math.max(r.width - tip.offsetWidth, 0));
+        tip.style.left = x + 'px';
+        tip.style.top = Math.max(ev.clientY - r.top - 36, 0) + 'px';
+      },
+      hide: () => { tip.hidden = true; }
+    };
+  };
+  window.rpFallito = (box, stato) => {
+    if (stato === 'error') { const p = document.createElement('p'); p.className = 'rp-empty'; p.textContent = 'Dati non caricati.'; box.replaceChildren(p); return true; }
+    if (stato !== 'ok') { box.replaceChildren(document.createTextNode('—')); return true; }
+    return false;
+  };
+
+  dash.draw('grafico-giorni', (box) => {
+    const d = dash.data('per_giorno');
+    if (window.rpFallito(box, d.status === 'ok' && Array.isArray(d.data) ? 'ok' : (d.status === 'error' ? 'error' : 'loading'))) return;
+    const rows = d.data;
+    const W = Math.max(box.clientWidth, 260), H = 190, m = {t: 18, r: 4, b: 22, l: 26};
+    const x = d3.scaleBand().domain(rows.map((r) => r.giorno)).range([m.l, W - m.r]).padding(0.25);
+    const max = d3.max(rows, (r) => r.completate + r.altro + r.problemi) || 1;
+    const y = d3.scaleLinear().domain([0, max]).nice(4).range([H - m.b, m.t]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+      .attr('aria-label', 'Azioni per giorno negli ultimi 14 giorni: completate, altro e problemi');
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat(d3.format('d')))
+      .call((g) => g.select('.domain').remove());
+    const passo = Math.ceil(rows.length / Math.max(Math.floor((W - m.l) / 60), 1));
+    const conValori = x.bandwidth() >= 22;
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`)
+      .call(d3.axisBottom(x).tickSize(0).tickPadding(6).tickValues(rows.filter((r, i) => i % passo === 0 || i === rows.length - 1).map((r) => r.giorno))
+        .tickFormat((g) => { const p = g.split('-'); return (+p[2]) + '/' + (+p[1]); }));
+    const serie = [['completate', 'var(--color-ok)'], ['altro', 'var(--cds-chart-muted)'], ['problemi', 'var(--color-bad)']];
+    const tip = window.rpTip(box);
+    rows.forEach((r) => {
+      let base = 0;
+      serie.forEach(([k, col]) => {
+        const v = r[k];
+        if (!v) return;
+        svg.append('rect').attr('x', x(r.giorno)).attr('width', x.bandwidth()).attr('y', y(base + v)).attr('height', y(base) - y(base + v)).style('fill', col);
+        base += v;
+      });
+      if (base && conValori) svg.append('text').attr('class', 'rp-val').attr('x', x(r.giorno) + x.bandwidth() / 2).attr('y', y(base) - 4).attr('text-anchor', 'middle').text(base);
+      svg.append('rect').attr('x', x(r.giorno)).attr('width', x.bandwidth()).attr('y', m.t).attr('height', H - m.b - m.t).style('fill', 'transparent')
+        .on('pointermove', (ev) => tip.show(window.rpData(r.giorno) + ': ' + r.completate + ' completate, ' + r.altro + ' altro, ' + r.problemi + ' problemi', ev))
+        .on('pointerleave', tip.hide);
+    });
+    const vecchio = box.querySelector('svg');
+    if (vecchio) vecchio.replaceWith(svg.node()); else box.replaceChildren(svg.node(), ...box.querySelectorAll('.rp-tip'));
+  });
+
+  dash.draw('grafico-annunci', (box) => {
+    const d = dash.data('annunci');
+    if (window.rpFallito(box, d.status)) return;
+    const rows = d.data.map((r) => ({sezione: r.sezione, raccolti: +r.raccolti || 0, votati: +r.votati || 0, alti: +r.alti || 0}));
+    const W = Math.max(box.clientWidth, 260), riga = 46, m = {t: 4, r: 40, b: 4, l: 64};
+    const H = m.t + m.b + riga * rows.length;
+    const x = d3.scaleLinear().domain([0, d3.max(rows, (r) => r.raccolti) || 1]).range([m.l, W - m.r]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+      .attr('aria-label', 'Annunci raccolti per sezione e quanti hanno voto 7 o più');
+    const tip = window.rpTip(box);
+    rows.forEach((r, i) => {
+      const y0 = m.t + i * riga;
+      svg.append('text').attr('class', 'rp-lab').attr('x', 0).attr('y', y0 + 17).text(r.sezione);
+      svg.append('rect').attr('x', m.l).attr('y', y0 + 4).attr('height', 18).attr('width', Math.max(x(r.raccolti) - m.l, 1)).style('fill', 'var(--cds-chart-muted)');
+      svg.append('rect').attr('x', m.l).attr('y', y0 + 4).attr('height', 18).attr('width', Math.max(x(r.alti) - m.l, r.alti ? 2 : 0)).style('fill', 'var(--color-ok)');
+      svg.append('text').attr('class', 'rp-val').attr('x', x(r.raccolti) + 6).attr('y', y0 + 17).text(r.raccolti);
+      svg.append('text').attr('class', 'rp-lab').attr('x', m.l).attr('y', y0 + 38)
+        .text(r.votati ? r.alti + ' con voto 7+ su ' + r.votati + ' votati' : 'non ancora votati');
+      svg.append('rect').attr('x', 0).attr('y', y0).attr('width', W).attr('height', riga).style('fill', 'transparent')
+        .on('pointermove', (ev) => tip.show(r.sezione + ': ' + r.raccolti + ' raccolti, ' + r.votati + ' votati, ' + r.alti + ' con voto 7+', ev))
+        .on('pointerleave', tip.hide);
+    });
+    const vecchio = box.querySelector('svg');
+    if (vecchio) vecchio.replaceWith(svg.node()); else box.replaceChildren(svg.node(), ...box.querySelectorAll('.rp-tip'));
+  });
+
+  dash.draw('grafico-voti', (box) => {
+    const d = dash.data('voti_dist');
+    if (window.rpFallito(box, d.status)) return;
+    const rows = d.data.map((r) => ({voto: String(r.voto), notizie: +r.notizie || 0}));
+    const W = Math.max(box.clientWidth, 260), H = 190, m = {t: 18, r: 4, b: 22, l: 4};
+    const x = d3.scaleBand().domain(rows.map((r) => r.voto)).range([m.l, W - m.r]).padding(0.2);
+    const y = d3.scaleLinear().domain([0, d3.max(rows, (r) => r.notizie) || 1]).range([H - m.b, m.t]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+      .attr('aria-label', 'Numero di notizie per ogni voto da 0 a 10 negli ultimi 7 giorni');
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickSize(0).tickPadding(6));
+    const tip = window.rpTip(box);
+    rows.forEach((r) => {
+      const col = +r.voto >= 8 ? 'var(--color-ok)' : +r.voto >= 7 ? 'var(--color-warn)' : dash.colors[0];
+      svg.append('rect').attr('x', x(r.voto)).attr('width', x.bandwidth()).attr('y', y(r.notizie)).attr('height', y(0) - y(r.notizie)).style('fill', col);
+      if (r.notizie) svg.append('text').attr('class', 'rp-val').attr('x', x(r.voto) + x.bandwidth() / 2).attr('y', y(r.notizie) - 4).attr('text-anchor', 'middle').text(r.notizie);
+      svg.append('rect').attr('x', x(r.voto)).attr('width', x.bandwidth()).attr('y', m.t).attr('height', H - m.b - m.t).style('fill', 'transparent')
+        .on('pointermove', (ev) => tip.show('Voto ' + r.voto + ': ' + r.notizie + ' notizie', ev)).on('pointerleave', tip.hide);
+    });
+    const vecchio = box.querySelector('svg');
+    if (vecchio) vecchio.replaceWith(svg.node()); else box.replaceChildren(svg.node(), ...box.querySelectorAll('.rp-tip'));
+  });
+
+})();
+</script>
+</div>
+<script>rpAvvia();</script>
+</body>
+</html>
