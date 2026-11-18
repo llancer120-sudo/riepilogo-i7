@@ -76,12 +76,63 @@
     });
     const ai = document.getElementById('frase-ai');
     if (ai) {
-      const f = pacchetto && pacchetto.ai && pacchetto.ai.testo;
-      ai.hidden = !f;
+      const a = pacchetto && pacchetto.ai;
+      ai.hidden = !(a && a.testo);
       const t = ai.querySelector('[data-ai="testo"]');
-      if (t) t.textContent = f || '';
+      if (t) t.textContent = (a && a.testo) || '';
+      const s = ai.querySelector('[data-ai="stato"]');
+      if (s) {
+        const st = (a && a.stato) || '';
+        s.textContent = {ok: 'tutto ok', attenzione: 'da guardare', problema: 'problema'}[st] || st;
+        s.className = 'rp-pill ' + ({ok: 'rp-ok', attenzione: 'rp-warn', problema: 'rp-bad'}[st] || 'rp-muted');
+        s.hidden = !st;
+      }
+      const q = ai.querySelector('[data-ai="quando"]');
+      if (q) q.textContent = a && a.quando ? ' (controllo delle ' + String(a.quando).slice(11, 16) + ')' : '';
     }
+    const box = document.getElementById('controlli');
+    if (box) {
+      const lista = (pacchetto && pacchetto.controlli) || [];
+      box.hidden = !lista.length;
+      const dove = box.querySelector('[data-controlli]');
+      if (dove) {
+        dove.replaceChildren(...lista.map((c) => {
+          const el = document.createElement('div');
+          el.className = 'rp-st ' + ({ok: 'rp-ok', attenzione: 'rp-warn', problema: 'rp-bad'}[c.stato] || 'rp-muted');
+          const dot = document.createElement('span'); dot.className = 'rp-dot';
+          const testo = document.createElement('span');
+          const n = document.createElement('span'); n.className = 'rp-st-name'; n.textContent = c.nome;
+          const w = document.createElement('span'); w.className = 'rp-st-when'; w.textContent = ' · ' + c.ultimo;
+          testo.append(n, w);
+          el.append(dot, testo);
+          return el;
+        }));
+      }
+    }
+    controllaEta();
   }
+
+  // Avviso se l'i7 smette di pubblicare: la pagina non mostra mai dati vecchi senza dirlo.
+  const MAX_MIN = 45;
+  let pubblicato = null;
+  function controllaEta() {
+    const av = document.getElementById('avviso-vecchio');
+    if (!av) return;
+    const t = av.querySelector('[data-avviso]');
+    let msg = '';
+    if (stato === 'error') {
+      msg = 'Non riesco a leggere i dati pubblicati dall\'i7 (' + messaggio + '). Se dura, controlla l\'attività "Sito gratis" sull\'i7.';
+    } else if (pubblicato) {
+      const min = (Date.now() - pubblicato.getTime()) / 60000;
+      if (min > MAX_MIN) {
+        const quanto = min < 120 ? Math.round(min) + ' minuti' : min < 2880 ? Math.round(min / 60) + ' ore' : Math.round(min / 1440) + ' giorni';
+        msg = 'L\'i7 non pubblica da ' + quanto + ': i dati qui sotto sono vecchi. Controlla che il PC sia acceso e che l\'attività "Sito gratis" giri.';
+      }
+    }
+    av.hidden = !msg;
+    if (t) t.textContent = msg;
+  }
+  setInterval(controllaEta, 60000);
 
   window.dash = {
     loader(id, o) { loaders[id] = o; },
@@ -150,7 +201,8 @@
       let busta = null;
       try { busta = await prendi('dati/dati.cifrati.json'); } catch (e) { if (e.http !== 404) throw e; }
       if (busta) {
-        if (busta.versione && busta.versione === ultimaVersione) return;
+        if (busta.pubblicato) { const d = new Date(busta.pubblicato); if (!isNaN(d)) pubblicato = d; }
+        if (busta.versione && busta.versione === ultimaVersione) { controllaEta(); return; }
         let pw = pwSalvata();
         let sbagliata = false;
         for (;;) {
@@ -167,9 +219,9 @@
           prendi('dati/riepilogo.json'),
           prendi('dati/salute.json').catch(() => null)
         ]);
-        let ai = null;
-        try { ai = await prendi('dati/ai.json'); } catch (e) { /* facoltativo */ }
-        nuovo = {riepilogo, salute, ai};
+        let extra = {};
+        try { extra = await prendi('dati/ai.json') || {}; } catch (e) { /* facoltativo */ }
+        nuovo = {riepilogo, salute, ai: extra.ai || null, controlli: extra.controlli || [], giri: extra.giri || null};
       }
       pacchetto = nuovo;
       stato = 'ok';

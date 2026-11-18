@@ -196,7 +196,9 @@
     <h1 class="rp-title">Riepilogo i7</h1>
     <p class="rp-lede" id="obiettivo"><b>Obiettivo della squadra: 1.000.000 €.</b> Luca e Claude, primi della famiglia ad arrivarci. È una maratona: un traguardo piccolo alla volta, insieme.</p>
     <p class="rp-lede">Aggiornato il <b data-draw="aggiornato" data-source="info" data-field="aggiornato" data-row="0">—</b>. In breve: <b data-draw="n-dafare" data-source="da_fare">—</b> cose aspettano te, questo mese il risultato è <b data-draw="conti" data-campo="risultato" data-source="conti" data-field="risultato" data-row="0">—</b> €, <b data-draw="auto-ok" data-source="automazioni">—</b> automazioni vanno bene e gli errori aperti sono <b data-draw="errori-aperti" data-source="errori">—</b>.</p>
-    <p class="rp-lede" id="frase-ai" hidden><b>L'AI locale dice:</b> <span data-ai="testo"></span></p>
+    <p class="rp-allarme" id="avviso-vecchio" hidden><b>Attenzione.</b> <span data-avviso></span></p>
+    <p class="rp-lede" id="frase-ai" hidden><b>Controllo dell'AI locale:</b> <span class="rp-pill" data-ai="stato" hidden></span> <span data-ai="testo"></span><span class="rp-muted" data-ai="quando"></span></p>
+    <details class="rp-more" id="controlli" hidden><summary>Sta lavorando tutto? <span class="rp-sub">ultimo segno di vita di ogni programma; la salute si aggiorna ogni 15 minuti, il resto e il controllo ogni 3 ore</span></summary><div class="rp-status" data-controlli></div></details>
     <p class="rp-allarme" id="allarme-salute" hidden>Salute del PC: <b data-draw="salute-livello" data-source="salute" data-field="livello" data-row="0">—</b>. <span data-draw="salute-campo" data-campo="problemi" data-source="salute" data-field="problemi" data-row="0">—</span> Apri la scheda Salute PC.</p>
   </header>
 
@@ -685,7 +687,7 @@
   <details class="rp-foot" id="come-funziona">
     <summary>Come funziona questa pagina</summary>
     <ul>
-      <li>Questa è la versione gratuita (GitHub Pages): i dati li pubblica il PC i7 da solo ogni 30 minuti, senza Claude, e la frase in cima la scrive l'AI locale. La pagina si ricarica da sola ogni 5 minuti. <a href="#" onclick="rpEsci(); return false;">Esci (dimentica la password)</a>.</li>
+      <li>Questa è la versione gratuita (GitHub Pages): la pubblica il PC i7 da solo, senza Claude. Salute del PC ogni 15 minuti; tutto il resto e il controllo dell'AI locale ogni 3 ore. Se l'i7 non pubblica da più di 45 minuti compare un avviso rosso in cima. La pagina si ricarica da sola ogni 5 minuti. <a href="#" onclick="rpEsci(); return false;">Esci (dimentica la password)</a>.</li>
       <li>Ogni azione fatta sull'i7 finisce nel diario della sua scheda.</li>
       <li>I dati si ricaricano alla fine di ogni giro e chat, e ogni 4 ore con il mini-giro (alle 2, 10, 14, 18 e 22).</li>
       <li>Il numero accanto a ogni scheda conta le azioni degli ultimi 7 giorni.</li>
