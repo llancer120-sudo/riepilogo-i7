@@ -109,7 +109,57 @@
         }));
       }
     }
+    disegnaEmergenza();
     controllaEta();
+  }
+
+  // ---------- pulsanti di emergenza (18/11/2026): Spegni / Riavvia l'i7 ----------
+  // Il comando va su ntfy firmato con la password del sito; sull'i7 lo esegue tools\emergenza\emergenza.py
+  // (ogni minuto) con shutdown /f: nessuna domanda sul PC.
+  let pwAttuale = null;
+  const hex = (buf) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
+  async function mandaComando(azione, topic, esito) {
+    const enc = new TextEncoder();
+    const chiaveRaw = await crypto.subtle.digest('SHA-256', enc.encode('emergenza-i7|' + pwAttuale));
+    const chiave = await crypto.subtle.importKey('raw', chiaveRaw, {name: 'HMAC', hash: 'SHA-256'}, false, ['sign']);
+    const ts = Math.floor(Date.now() / 1000);
+    const nonce = hex(crypto.getRandomValues(new Uint8Array(12)));
+    const firma = hex(await crypto.subtle.sign('HMAC', chiave, enc.encode(azione + '|' + ts + '|' + nonce)));
+    const r = await fetch('https://ntfy.sh/' + encodeURIComponent(topic), {method: 'POST', body: azione + '|' + ts + '|' + nonce + '|' + firma});
+    if (!r.ok) throw new Error('ntfy ' + r.status);
+    esito.textContent = (azione === 'spegni' ? 'Comando SPEGNI inviato: l\'i7 si spegne entro 1 minuto.' : 'Comando RIAVVIA inviato: l\'i7 si riavvia entro 1 minuto.');
+  }
+  function disegnaEmergenza() {
+    const em = pacchetto && pacchetto.emergenza;
+    let box = document.getElementById('emergenza');
+    if (!em || !em.topic || !pwAttuale) { if (box) box.hidden = true; return; }
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'emergenza';
+      box.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0;';
+      const tit = document.createElement('span'); tit.textContent = 'Emergenza i7:'; tit.style.fontWeight = '600';
+      const esito = document.createElement('span'); esito.className = 'rp-muted'; esito.style.flexBasis = '100%';
+      const bottone = (azione, testo, domanda) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = testo;
+        b.style.cssText = 'padding:8px 14px;border-radius:8px;border:1px solid var(--color-bad);background:transparent;color:var(--color-bad);font:inherit;font-weight:600;cursor:pointer;';
+        b.onclick = async () => {
+          if (!confirm(domanda)) return;
+          b.disabled = true; esito.textContent = 'Invio…';
+          try { await mandaComando(azione, box.dataset.topic, esito); } catch (e) { esito.textContent = 'Comando non inviato (' + (e.message || e) + '): riprova.'; }
+          b.disabled = false;
+        };
+        return b;
+      };
+      box.append(tit,
+        bottone('spegni', 'Spegni il PC', 'Sei sicuro che vuoi spegnere l\'i7?\n\nSi spegne entro 1 minuto, chiudendo tutto, e resta spento finché qualcuno non preme il tasto di accensione.'),
+        bottone('riavvia', 'Riavvia il PC', 'Sei sicuro che vuoi riavviare l\'i7?\n\nSi riavvia entro 1 minuto, chiudendo tutto.'),
+        esito);
+      const dopo = document.getElementById('controlli') || document.getElementById('frase-ai');
+      if (dopo && dopo.parentNode) dopo.parentNode.insertBefore(box, dopo.nextSibling); else document.body.prepend(box);
+    }
+    box.dataset.topic = em.topic;
+    box.hidden = false;
   }
 
   // Avviso se l'i7 smette di pubblicare: la pagina non mostra mai dati vecchi senza dirlo.
@@ -213,6 +263,7 @@
           }
           try { nuovo = await decifra(busta, pw); break; } catch (e) { dimenticaPw(); pw = null; sbagliata = true; }
         }
+        pwAttuale = pw;
         ultimaVersione = busta.versione || null;
       } else {
         const [riepilogo, salute] = await Promise.all([
