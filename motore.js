@@ -244,6 +244,8 @@
   });
 
   window.rpAvvia = () => {
+    // App installabile sul telefono (come Allenamento): funziona anche senza rete con gli ultimi dati.
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* va lo stesso, solo senza offline */ });
     larghezza = window.innerWidth;
     disegna();          // prima i segnaposto "—"
     carica();

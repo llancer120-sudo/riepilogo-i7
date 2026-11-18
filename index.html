@@ -5,7 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Riepilogo i7</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23c96442'/><text x='16' y='22' font-size='15' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'>i7</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1b19" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Riepilogo i7">
 <style>
   /* Colori e misure che sul cruscotto di claude.ai dà la piattaforma. Chiaro e scuro. */
   :root {
@@ -70,7 +78,16 @@
   }
   html { -webkit-text-size-adjust: 100%; }
   body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); }
-  #dash-root { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; box-sizing: border-box; }
+  /* Telefono: margini di 16px e spazio per notch e barra in basso quando è aperta come app. PC: più larga. */
+  #dash-root { max-width: 1480px; margin: 0 auto; box-sizing: border-box;
+    padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(48px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left)); }
+  @media (min-width: 900px) { #dash-root { padding: 32px 40px 64px; } }
+  @media (max-width: 600px) {
+    /* Sul telefono le schede scorrono di lato e restano attaccate in alto. */
+    #dash-root .rp-tabs { position: sticky; top: 0; z-index: 3; background: var(--color-bg); padding-top: env(safe-area-inset-top); margin-top: calc(-1 * env(safe-area-inset-top)); }
+    #dash-root .rp-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #dash-root .rp-num { font-size: 1.5rem; }
+  }
   #dash-root *, #dash-root *::before, #dash-root *::after { box-sizing: border-box; }
   .dash-skeleton { display: inline-block; min-width: 3ch; border-radius: 6px; background: linear-gradient(90deg, var(--color-border-line), var(--color-panel), var(--color-border-line)); background-size: 200% 100%; animation: rp-luce 1.2s linear infinite; color: transparent; }
   @keyframes rp-luce { to { background-position: -200% 0; } }
