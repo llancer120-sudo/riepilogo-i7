@@ -204,6 +204,25 @@
   .rp-mostra { align-self: flex-start; }
   .rp-subtabs { border-bottom-style: dashed; }
   .rp-subtabs .rp-tab { font-size: var(--cds-font-size-caption); padding: 6px 12px; }
+  .rp-chiamate { display: flex; flex-direction: column; gap: var(--cds-gap-md); }
+  .rp-chiamata { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: var(--cds-pad-md); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+  .rp-chiamata-testa { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--cds-gap-sm); }
+  .rp-chiamata-testa strong { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+  .rp-chiamata p { margin: 0; line-height: 1.5; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); overflow-wrap: anywhere; }
+  .rp-chiamata p b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+  .rp-chiamata a { color: inherit; }
+  .rp-tel { display: inline-block; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); font-variant-numeric: tabular-nums; text-decoration: underline; text-underline-offset: 3px; }
+  .rp-scheda { border-top: 1px solid var(--color-border-line); padding-top: var(--cds-gap-sm); }
+  .rp-scheda > summary { cursor: pointer; font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); }
+  .rp-scheda h3 { margin: var(--cds-gap-sm) 0 2px; font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); color: var(--color-fg); }
+  .rp-scheda ul { margin: 0; padding-left: 1.2em; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; }
+  .rp-scheda p { white-space: pre-line; }
+  .rp-chiamata textarea { width: 100%; box-sizing: border-box; min-height: 64px; font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: 8px; padding: 8px; resize: vertical; }
+  .rp-bottoni { display: flex; gap: var(--cds-gap-sm); flex-wrap: wrap; align-items: center; }
+  .rp-bottoni button { appearance: none; font: inherit; font-weight: var(--cds-font-weight-medium); padding: 8px 16px; border-radius: 8px; background: transparent; cursor: pointer; border: 1px solid currentColor; min-width: 64px; }
+  .rp-bottoni .rp-si { color: var(--color-ok); }
+  .rp-bottoni .rp-no { color: var(--color-bad); }
+  .rp-bottoni button:disabled { opacity: .5; cursor: default; }
   .rp-todo strong a { text-decoration: underline; text-underline-offset: 3px; }
   .rp-todo strong a:hover { text-decoration-thickness: 2px; }
   .rp-neg { color: var(--color-bad); }
@@ -226,6 +245,7 @@
     <button class="rp-tab" role="tab" id="tab-panoramica" data-tab="panoramica" aria-controls="panoramica" aria-selected="true">Panoramica</button>
     <button class="rp-tab" role="tab" id="tab-salute" data-tab="salute" aria-controls="salute" aria-selected="false">Salute PC <span class="rp-count" data-draw="salute-livello" data-source="salute" data-field="livello" data-row="0">—</span></button>
     <button class="rp-tab" role="tab" id="tab-email" data-tab="email" aria-controls="email" aria-selected="false">Email <span class="rp-count" data-draw="conta-tab" data-area="Email" data-source="per_area" data-field="azioni" data-where="area=Email">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-chiamate" data-tab="chiamate" aria-controls="chiamate" aria-selected="false">Chiamate <span class="rp-count" data-draw="conta-chiamate" data-source="chiamate">—</span></button>
     <button class="rp-tab" role="tab" id="tab-instagram" data-tab="instagram" aria-controls="instagram" aria-selected="false">Instagram <span class="rp-count" data-draw="conta-tab" data-area="Instagram" data-source="per_area" data-field="azioni" data-where="area=Instagram">—</span></button>
     <button class="rp-tab" role="tab" id="tab-linkedin" data-tab="linkedin" aria-controls="linkedin" aria-selected="false">LinkedIn <span class="rp-count" data-draw="conta-tab" data-area="LinkedIn" data-source="per_area" data-field="azioni" data-where="area=LinkedIn">—</span></button>
     <button class="rp-tab" role="tab" id="tab-lavoro" data-tab="lavoro" aria-controls="lavoro" aria-selected="false">Lavoro</button>
@@ -430,6 +450,22 @@
         </table>
       </div>
       <p class="rp-empty" id="attivita-vuote" hidden>Ancora nessuna attività in lista.</p>
+    </details>
+  </section>
+
+  <!-- CHIAMATE (19/11/2026): attività che chiama Luca; ✓ = email di presentazione il giorno dopo, ✗ = scartata -->
+  <section class="rp-panel" id="chiamate" role="tabpanel" aria-labelledby="tab-chiamate" hidden>
+    <div class="rp-sec">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Da chiamare</h2>
+        <p class="rp-sub">Al massimo 3 attività scelte dal giro, più una quarta facoltativa (officine o altro): decidi tu se chiamarla. Apri la scheda chiamata prima di telefonare. Dopo la chiamata scrivi le note e premi <b>✓</b>: il giorno dopo il giro manda l'email di presentazione con il riassunto della chiamata. <b>✗</b> la scarta e non succede niente.</p>
+      </div>
+      <div class="rp-chiamate" data-draw="chiamate" data-source="chiamate" data-vista="aperte"></div>
+      <p class="rp-empty" id="chiamate-vuote" hidden>Nessuna attività da chiamare adesso: il giro ne prepara di nuove domattina.</p>
+    </div>
+    <details class="rp-more">
+      <summary>Già decise <span class="rp-sub">ultimi 14 giorni</span></summary>
+      <div class="rp-chiamate" data-draw="chiamate" data-source="chiamate" data-vista="chiuse"></div>
     </details>
   </section>
 
@@ -742,6 +778,7 @@
   dash.loader('errori', {description: 'Prende dal file il registro degli errori (errori.json): causa, soluzione e stato.', fn: ({answer}) => ({columns: ['id', 'errore', 'area', 'prima_volta', 'ultima_volta', 'volte', 'causa', 'soluzione', 'stato'], rows: answer.errori || []})});
   dash.loader('errori_giorno', {description: 'Prende dal file gli errori di ogni giorno, raccolti da diario e registri dei programmi.', fn: ({answer}) => ({columns: ['id', 'data', 'fonte', 'errore', 'volte'], rows: answer.errori_giorno || []})});
   dash.loader('idee_libri', {description: 'Prende dal file le idee per libri nuovi trovate dal giro.', fn: ({answer}) => ({columns: ['id', 'data', 'idea', 'pubblico', 'domanda', 'concorrenza', 'perche', 'stagione', 'stato', 'prima'], rows: answer.idee_libri || []})});
+  dash.loader('chiamate', {description: 'Prende dal file le attività che Luca chiama, con la scheda chiamata e l\'esito.', fn: ({answer}) => ({columns: ['id', 'aggiunta', 'tipo', 'nome', 'settore', 'zona', 'telefono', 'sito', 'email', 'perche', 'chi_sono', 'trovato', 'offerta', 'apertura', 'domande', 'obiezioni', 'chiusura', 'word', 'stato', 'note', 'deciso'], rows: answer.chiamate || []})});
 
   const rpSettimana = (info) => {
     const fine = (info[0] && info[0].aggiornato ? info[0].aggiornato.slice(0, 10) : '');
@@ -1381,6 +1418,108 @@
       tr.append(window.rpCella(r.nome, 'rp-nowrap'), stato, window.rpCella(r.quando), window.rpCella(window.rpQuando(r.ultimo) || '—', 'rp-nowrap'), window.rpCella(/^\d{4}-/.test(r.prossimo) ? window.rpQuando(r.prossimo) : (r.prossimo || '—'), 'rp-nowrap'), window.rpCella(r.nota, 'rp-detail'));
       return tr;
     }));
+  });
+
+  // ---------- Chiamate (19/11/2026) ----------
+  // ✓ / ✗ e note: sul sito gratuito vanno all'i7 cifrati (motore.js, window.rpEsitoChiamata);
+  // qui su claude.ai, se la pagina può scrivere, nella raccolta "chiamate_esiti" che legge il giro.
+  window.rpInAttesa = (() => { try { return JSON.parse(localStorage.getItem('rp-chiamate-inviate') || '{}'); } catch (e) { return {}; } })();
+  window.rpSegnaInviato = (id, esito) => {
+    window.rpInAttesa[id] = {esito, quando: Date.now()};
+    try { localStorage.setItem('rp-chiamate-inviate', JSON.stringify(window.rpInAttesa)); } catch (e) { /* niente memoria */ }
+  };
+  window.rpMandaEsito = async (id, esito, note) => {
+    if (typeof window.rpEsitoChiamata === 'function') return window.rpEsitoChiamata(id, esito, note);
+    const db = window.claude && window.claude.use ? await window.claude.use('db') : null;
+    if (!db) throw new Error('da questa pagina non si può: usa il sito gratuito (l\'app sul telefono)');
+    await db.collection('chiamate_esiti').doc(String(id)).set({id: String(id), esito, note, quando: new Date().toISOString()});
+  };
+  dash.draw('conta-chiamate', (el) => {
+    const c = dash.data('chiamate');
+    el.textContent = c.status === 'ok' ? window.rpNum(c.data.filter((r) => r.stato === 'da chiamare' && !window.rpInAttesa[r.id]).length) : '—';
+  });
+  dash.draw('chiamate', (box) => {
+    const c = dash.data('chiamate');
+    const rows = c.status === 'ok' ? c.data : [];
+    const aperte = box.dataset.vista === 'aperte';
+    const lista = rows.filter((r) => (r.stato === 'da chiamare') === aperte)
+      .sort((a, b) => (a.tipo === 'quarta') - (b.tipo === 'quarta') || String(b.deciso || '').localeCompare(String(a.deciso || '')));
+    const testo = (tag, t, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; e.textContent = t; return e; };
+    const campo = (titolo, valore) => {
+      if (!valore) return [];
+      const righe = String(valore).split('\n').filter(Boolean);
+      const h = testo('h3', titolo);
+      if (righe.length > 1) { const ul = document.createElement('ul'); righe.forEach((r) => ul.append(testo('li', r.replace(/^[-•]\s*/, '')))); return [h, ul]; }
+      return [h, testo('p', righe[0] || '')];
+    };
+    box.replaceChildren(...lista.map((r) => {
+      const card = document.createElement('article');
+      card.className = 'rp-chiamata';
+      const testa = document.createElement('div'); testa.className = 'rp-chiamata-testa';
+      testa.append(testo('strong', r.nome));
+      if (r.tipo === 'quarta') testa.append(window.rpPill('facoltativa', 'rp-muted'));
+      const inviato = window.rpInAttesa[r.id];
+      if (!aperte) testa.append(window.rpPill(r.stato, r.stato === 'scartata' ? 'rp-muted' : 'rp-ok'));
+      else if (inviato) testa.append(window.rpPill(inviato.esito === 'si' ? '✓ inviato, lo prende il giro' : '✗ inviato, la scarta il giro', 'rp-warn'));
+      card.append(testa);
+      card.append(testo('p', [r.settore, r.zona].filter(Boolean).join(' · ')));
+      const contatti = document.createElement('p');
+      if (r.telefono) {
+        String(r.telefono).split(/;\s*/).forEach((t, i) => {
+          const a = document.createElement('a'); a.className = 'rp-tel'; a.href = 'tel:' + t.replace(/[^\d+]/g, ''); a.textContent = t;
+          if (i) contatti.append(' · ');
+          contatti.append(a);
+        });
+      }
+      if (/^https?:\/\//.test(r.sito || '')) {
+        const s = document.createElement('a'); s.href = r.sito; s.target = '_blank'; s.rel = 'noopener'; s.textContent = 'sito';
+        contatti.append(r.telefono ? ' · ' : '', s);
+      }
+      card.append(contatti);
+      if (r.perche) { const p = document.createElement('p'); const b = testo('b', 'Perché chiamarli: '); p.append(b, r.perche); card.append(p); }
+      const scheda = document.createElement('details'); scheda.className = 'rp-scheda';
+      scheda.append(testo('summary', 'Scheda chiamata: cosa dire'));
+      scheda.append(...campo('Chi sono', r.chi_sono), ...campo('Cosa abbiamo trovato', r.trovato), ...campo('Cosa gli offriamo', r.offerta),
+        ...campo('Come apri la chiamata', r.apertura), ...campo('Domande da fare', r.domande), ...campo('Se dicono…', r.obiezioni),
+        ...campo('Come chiudi', r.chiusura));
+      if (r.word) scheda.append(testo('p', 'Documento completo: ' + r.word));
+      card.append(scheda);
+      if (!aperte) {
+        if (r.note) { const p = document.createElement('p'); p.append(testo('b', 'Note: '), r.note); card.append(p); }
+        if (r.deciso) card.append(testo('p', 'Deciso il ' + window.rpQuando(r.deciso)));
+        return card;
+      }
+      const note = document.createElement('textarea');
+      note.placeholder = 'Note della chiamata: con chi hai parlato, cosa vi siete detti, cosa vogliono…';
+      note.setAttribute('aria-label', 'Note della chiamata con ' + r.nome);
+      const chiave = 'rp-nota-' + r.id;
+      try { note.value = localStorage.getItem(chiave) || ''; } catch (e) { /* niente */ }
+      note.addEventListener('input', () => { try { localStorage.setItem(chiave, note.value); } catch (e) { /* niente */ } });
+      const bott = document.createElement('div'); bott.className = 'rp-bottoni';
+      const esito = testo('span', '', 'rp-sub');
+      const premi = (valore, domanda) => async () => {
+        if (!confirm(domanda)) return;
+        si.disabled = no.disabled = true; esito.textContent = 'Invio…';
+        try {
+          await window.rpMandaEsito(r.id, valore, note.value.slice(0, 1500));
+          window.rpSegnaInviato(r.id, valore);
+          esito.textContent = valore === 'si' ? 'Fatto: domani parte l\'email di presentazione.' : 'Fatto: scartata.';
+          testa.append(window.rpPill(valore === 'si' ? '✓ inviato, lo prende il giro' : '✗ inviato, la scarta il giro', 'rp-warn'));
+        } catch (e) {
+          esito.textContent = 'Non inviato: ' + (e.message || e);
+          si.disabled = no.disabled = false;
+        }
+      };
+      const si = testo('button', '✓', 'rp-si'); si.type = 'button'; si.title = 'Chiamata fatta: domani email di presentazione'; si.setAttribute('aria-label', 'Chiamata fatta con ' + r.nome + ': manda domani l\'email di presentazione');
+      const no = testo('button', '✗', 'rp-no'); no.type = 'button'; no.title = 'Scarta'; no.setAttribute('aria-label', 'Scarta ' + r.nome);
+      si.onclick = premi('si', 'Chiamata con ' + r.nome + ' fatta?\n\nDomani il giro manda l\'email di presentazione con il riassunto della chiamata e le tue note.');
+      no.onclick = premi('no', 'Scartare ' + r.nome + '?\n\nNon succede niente e non la contattiamo più.');
+      if (inviato) { si.disabled = no.disabled = true; }
+      bott.append(si, no, esito);
+      card.append(note, bott);
+      return card;
+    }));
+    if (aperte) { const v = document.getElementById('chiamate-vuote'); if (v) v.hidden = !(c.status === 'ok' && lista.length === 0); }
   });
 
   dash.draw('coda', (tbody) => {

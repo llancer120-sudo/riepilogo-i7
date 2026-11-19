@@ -162,6 +162,22 @@
     box.hidden = false;
   }
 
+  // ---------- esiti della scheda Chiamate (19/11/2026): ✓ / ✗ e note ----------
+  // Cifrati con AES-GCM (chiave SHA256("chiamate-i7|" + password del sito)) e mandati su ntfy, nel canale segreto
+  // che arriva solo dentro i dati cifrati. Sull'i7 li legge tools\chiamate\esiti.py ogni 5 minuti.
+  window.rpEsitoChiamata = async (id, esito, note) => {
+    const ch = pacchetto && pacchetto.chiamate;
+    if (!ch || !ch.topic || !pwAttuale) throw new Error('canale delle chiamate non pronto: ricarica la pagina');
+    const enc = new TextEncoder();
+    const chiave = await crypto.subtle.importKey('raw', await crypto.subtle.digest('SHA-256', enc.encode('chiamate-i7|' + pwAttuale)), 'AES-GCM', false, ['encrypt']);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const corpo = JSON.stringify({id: String(id), esito, note: String(note || ''), ts: Math.floor(Date.now() / 1000), nonce: hex(crypto.getRandomValues(new Uint8Array(12)))});
+    const cifrato = await crypto.subtle.encrypt({name: 'AES-GCM', iv}, chiave, enc.encode(corpo));
+    const b64 = (u8) => btoa(String.fromCharCode(...new Uint8Array(u8)));
+    const r = await fetch('https://ntfy.sh/' + encodeURIComponent(ch.topic), {method: 'POST', body: 'chiamata|' + b64(iv) + '|' + b64(cifrato)});
+    if (!r.ok) throw new Error('ntfy ' + r.status);
+  };
+
   // Avviso se l'i7 smette di pubblicare: la pagina non mostra mai dati vecchi senza dirlo.
   const MAX_MIN = 45;
   let pubblicato = null;
