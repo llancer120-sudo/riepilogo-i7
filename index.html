@@ -223,6 +223,18 @@
   .rp-bottoni .rp-si { color: var(--color-ok); }
   .rp-bottoni .rp-no { color: var(--color-bad); }
   .rp-bottoni button:disabled { opacity: .5; cursor: default; }
+  .rp-doc-apri { appearance: none; font: inherit; font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: 8px; padding: 8px 12px; cursor: pointer; align-self: flex-start; }
+  .rp-doc { position: fixed; inset: 0; z-index: 20; overflow-y: auto; background: var(--color-bg, var(--color-panel)); padding: 16px; -webkit-overflow-scrolling: touch; }
+  .rp-doc[hidden] { display: none; }
+  .rp-doc-in { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 6px; padding-bottom: 48px; }
+  .rp-doc-barra { position: sticky; top: -16px; margin: -16px -16px 0; padding: 12px 16px; background: var(--color-bg, var(--color-panel)); border-bottom: 1px solid var(--color-border-line); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .rp-doc-barra button { appearance: none; font: inherit; font-weight: var(--cds-font-weight-medium); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); cursor: pointer; }
+  .rp-doc h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 12px 0 0; line-height: 1.2; }
+  .rp-doc h2 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: 14px 0 2px; padding-top: 10px; border-top: 1px solid var(--color-border-line); }
+  .rp-doc p, .rp-doc li { font-size: var(--cds-font-size-body); line-height: 1.55; color: var(--color-fg); margin: 0; overflow-wrap: anywhere; }
+  .rp-doc ul, .rp-doc ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+  .rp-doc .rp-sub { font-size: var(--cds-font-size-caption); }
+  .rp-doc a { color: inherit; }
   .rp-todo strong a { text-decoration: underline; text-underline-offset: 3px; }
   .rp-todo strong a:hover { text-decoration-thickness: 2px; }
   .rp-neg { color: var(--color-bad); }
@@ -458,7 +470,7 @@
     <div class="rp-sec">
       <div class="rp-sec-head">
         <h2 class="rp-h2">Da chiamare</h2>
-        <p class="rp-sub">Al massimo 3 attività scelte dal giro, più una quarta facoltativa (officine o altro): decidi tu se chiamarla. Apri la scheda chiamata prima di telefonare. Dopo la chiamata scrivi le note e premi <b>✓</b>: il giorno dopo il giro manda l'email di presentazione con il riassunto della chiamata. <b>✗</b> la scarta e non succede niente.</p>
+        <p class="rp-sub">Al massimo 3 attività scelte dal giro, più una quarta facoltativa (officine o altro): decidi tu se chiamarla. Prima di telefonare apri la scheda chiamata. Dopo la chiamata scrivi le note e premi <b>✓</b>: il giorno dopo il giro manda l'email di presentazione con il riassunto della chiamata. <b>✗</b> la scarta. In tutti e due i casi l'attività sparisce da qui.</p>
       </div>
       <div class="rp-chiamate" data-draw="chiamate" data-source="chiamate" data-vista="aperte"></div>
       <p class="rp-empty" id="chiamate-vuote" hidden>Nessuna attività da chiamare adesso: il giro ne prepara di nuove domattina.</p>
@@ -1434,33 +1446,91 @@
     if (!db) throw new Error('da questa pagina non si può: usa il sito gratuito (l\'app sul telefono)');
     await db.collection('chiamate_esiti').doc(String(id)).set({id: String(id), esito, note, quando: new Date().toISOString()});
   };
-  dash.draw('conta-chiamate', (el) => {
+  // Le note di ✓/✗ già mandati restano in memoria al massimo 3 giorni (poi l'i7 li ha applicati da tempo).
+  Object.keys(window.rpInAttesa).forEach((k) => { if (Date.now() - (window.rpInAttesa[k].quando || 0) > 3 * 864e5) delete window.rpInAttesa[k]; });
+  window.rpContaChiamate = () => {
     const c = dash.data('chiamate');
-    el.textContent = c.status === 'ok' ? window.rpNum(c.data.filter((r) => r.stato === 'da chiamare' && !window.rpInAttesa[r.id]).length) : '—';
-  });
+    const n = c.status === 'ok' ? c.data.filter((r) => r.stato === 'da chiamare' && !window.rpInAttesa[r.id]).length : null;
+    document.querySelectorAll('[data-draw="conta-chiamate"]').forEach((el) => { el.textContent = n == null ? '—' : window.rpNum(n); });
+  };
+  dash.draw('conta-chiamate', () => window.rpContaChiamate());
+
+  // Documento completo della chiamata, a tutto schermo (si legge dal telefono; niente file da scaricare).
+  window.rpApriDoc = (r) => {
+    let doc = document.getElementById('rp-doc');
+    if (!doc) {
+      doc = document.createElement('div');
+      doc.id = 'rp-doc'; doc.className = 'rp-doc'; doc.hidden = true;
+      doc.setAttribute('role', 'dialog'); doc.setAttribute('aria-modal', 'true');
+      document.body.append(doc);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !doc.hidden) window.rpChiudiDoc(); });
+    }
+    const el = (tag, t, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; if (t != null) e.textContent = t; return e; };
+    const righe = (v) => String(v || '').split('\n').filter(Boolean).map((x) => x.replace(/^[-•]\s*/, ''));
+    const sezione = (titolo, v, numerata) => {
+      const rr = righe(v);
+      if (!rr.length) return [];
+      if (rr.length === 1 && !numerata) return [el('h2', titolo), el('p', rr[0])];
+      const l = el(numerata ? 'ol' : 'ul');
+      rr.forEach((x) => l.append(el('li', x)));
+      return [el('h2', titolo), l];
+    };
+    const barra = el('div', null, 'rp-doc-barra');
+    const chiudi = el('button', '← Indietro'); chiudi.type = 'button'; chiudi.onclick = () => window.rpChiudiDoc();
+    barra.append(chiudi, el('span', 'Scheda chiamata', 'rp-sub'));
+    const dentro = el('div', null, 'rp-doc-in');
+    dentro.append(barra, el('h1', r.nome), el('p', [r.settore, r.zona].filter(Boolean).join(' · '), 'rp-sub'));
+    if (r.tipo === 'quarta') dentro.append(el('p', 'Quarta attività, facoltativa: decidi tu se chiamarla.', 'rp-sub'));
+    const contatti = el('p');
+    String(r.telefono || '').split(/;\s*/).filter(Boolean).forEach((t, i) => {
+      const a = el('a', t, 'rp-tel'); a.href = 'tel:' + t.replace(/[^\d+]/g, '');
+      if (i) contatti.append(' · ');
+      contatti.append(a);
+    });
+    dentro.append(contatti);
+    const info = el('p', null, 'rp-sub');
+    if (/^https?:\/\//.test(r.sito || '')) { const s = el('a', r.sito); s.href = r.sito; s.target = '_blank'; s.rel = 'noopener'; info.append('Sito: ', s, ' · '); }
+    info.append('Email: ' + (r.email || 'non pubblicata, chiedila durante la chiamata'));
+    dentro.append(info);
+    dentro.append(...sezione('Perché chiamarli', r.perche), ...sezione('Chi sono', r.chi_sono), ...sezione('Cosa abbiamo trovato', r.trovato),
+      ...sezione('Cosa gli offriamo', r.offerta), ...sezione('Come apri la chiamata', r.apertura), ...sezione('Domande da fare', r.domande, true),
+      ...sezione('Se dicono…', r.obiezioni), ...sezione('Come chiudi', r.chiusura));
+    dentro.append(el('h2', 'Dopo la chiamata'), el('p', 'Torna indietro, scrivi le note (con chi hai parlato, l\'email, cosa vogliono) e premi ✓: domani parte l\'email di presentazione. Oppure ✗: la scartiamo e non la contattiamo più. In tutti e due i casi sparisce dalla lista.'));
+    doc.replaceChildren(dentro);
+    doc.hidden = false;
+    doc.scrollTop = 0;
+    document.documentElement.style.overflow = 'hidden';
+    chiudi.focus();
+  };
+  window.rpChiudiDoc = () => {
+    const doc = document.getElementById('rp-doc');
+    if (doc) doc.hidden = true;
+    document.documentElement.style.overflow = '';
+  };
   dash.draw('chiamate', (box) => {
     const c = dash.data('chiamate');
     const rows = c.status === 'ok' ? c.data : [];
     const aperte = box.dataset.vista === 'aperte';
-    const lista = rows.filter((r) => (r.stato === 'da chiamare') === aperte)
+    // Da chiamare: solo quelle senza ✓/✗. Appena premi ✓ o ✗ l'attività sparisce da qui (anche prima che l'i7 la applichi).
+    const lista = rows.filter((r) => aperte ? (r.stato === 'da chiamare' && !window.rpInAttesa[r.id]) : (r.stato !== 'da chiamare' || window.rpInAttesa[r.id]))
       .sort((a, b) => (a.tipo === 'quarta') - (b.tipo === 'quarta') || String(b.deciso || '').localeCompare(String(a.deciso || '')));
     const testo = (tag, t, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; e.textContent = t; return e; };
-    const campo = (titolo, valore) => {
-      if (!valore) return [];
-      const righe = String(valore).split('\n').filter(Boolean);
-      const h = testo('h3', titolo);
-      if (righe.length > 1) { const ul = document.createElement('ul'); righe.forEach((r) => ul.append(testo('li', r.replace(/^[-•]\s*/, '')))); return [h, ul]; }
-      return [h, testo('p', righe[0] || '')];
-    };
     box.replaceChildren(...lista.map((r) => {
       const card = document.createElement('article');
       card.className = 'rp-chiamata';
       const testa = document.createElement('div'); testa.className = 'rp-chiamata-testa';
       testa.append(testo('strong', r.nome));
+      if (!aperte) {
+        // Già decise: solo nome, esito e note (la scheda non serve più).
+        const inviato = window.rpInAttesa[r.id];
+        const stato = r.stato !== 'da chiamare' ? r.stato : (inviato.esito === 'si' ? '✓ in arrivo all\'i7' : '✗ in arrivo all\'i7');
+        testa.append(window.rpPill(stato, r.stato === 'scartata' || (inviato && inviato.esito === 'no') ? 'rp-muted' : 'rp-ok'));
+        card.append(testa);
+        if (r.note) { const p = document.createElement('p'); p.append(testo('b', 'Note: '), r.note); card.append(p); }
+        if (r.deciso) card.append(testo('p', 'Deciso il ' + window.rpQuando(r.deciso)));
+        return card;
+      }
       if (r.tipo === 'quarta') testa.append(window.rpPill('facoltativa', 'rp-muted'));
-      const inviato = window.rpInAttesa[r.id];
-      if (!aperte) testa.append(window.rpPill(r.stato, r.stato === 'scartata' ? 'rp-muted' : 'rp-ok'));
-      else if (inviato) testa.append(window.rpPill(inviato.esito === 'si' ? '✓ inviato, lo prende il giro' : '✗ inviato, la scarta il giro', 'rp-warn'));
       card.append(testa);
       card.append(testo('p', [r.settore, r.zona].filter(Boolean).join(' · ')));
       const contatti = document.createElement('p');
@@ -1477,20 +1547,11 @@
       }
       card.append(contatti);
       if (r.perche) { const p = document.createElement('p'); const b = testo('b', 'Perché chiamarli: '); p.append(b, r.perche); card.append(p); }
-      const scheda = document.createElement('details'); scheda.className = 'rp-scheda';
-      scheda.append(testo('summary', 'Scheda chiamata: cosa dire'));
-      scheda.append(...campo('Chi sono', r.chi_sono), ...campo('Cosa abbiamo trovato', r.trovato), ...campo('Cosa gli offriamo', r.offerta),
-        ...campo('Come apri la chiamata', r.apertura), ...campo('Domande da fare', r.domande), ...campo('Se dicono…', r.obiezioni),
-        ...campo('Come chiudi', r.chiusura));
-      if (r.word) scheda.append(testo('p', 'Documento completo: ' + r.word));
-      card.append(scheda);
-      if (!aperte) {
-        if (r.note) { const p = document.createElement('p'); p.append(testo('b', 'Note: '), r.note); card.append(p); }
-        if (r.deciso) card.append(testo('p', 'Deciso il ' + window.rpQuando(r.deciso)));
-        return card;
-      }
+      const apri = testo('button', '📄 Apri la scheda chiamata', 'rp-doc-apri'); apri.type = 'button';
+      apri.onclick = () => window.rpApriDoc(r);
+      card.append(apri);
       const note = document.createElement('textarea');
-      note.placeholder = 'Note della chiamata: con chi hai parlato, cosa vi siete detti, cosa vogliono…';
+      note.placeholder = 'Note della chiamata: con chi hai parlato, email, cosa vi siete detti, cosa vogliono…';
       note.setAttribute('aria-label', 'Note della chiamata con ' + r.nome);
       const chiave = 'rp-nota-' + r.id;
       try { note.value = localStorage.getItem(chiave) || ''; } catch (e) { /* niente */ }
@@ -1503,8 +1564,14 @@
         try {
           await window.rpMandaEsito(r.id, valore, note.value.slice(0, 1500));
           window.rpSegnaInviato(r.id, valore);
+          try { localStorage.removeItem(chiave); } catch (e) { /* niente */ }
           esito.textContent = valore === 'si' ? 'Fatto: domani parte l\'email di presentazione.' : 'Fatto: scartata.';
-          testa.append(window.rpPill(valore === 'si' ? '✓ inviato, lo prende il giro' : '✗ inviato, la scarta il giro', 'rp-warn'));
+          setTimeout(() => {
+            card.remove();
+            window.rpContaChiamate();
+            const v = document.getElementById('chiamate-vuote');
+            if (v && !box.children.length) v.hidden = false;
+          }, 1200);
         } catch (e) {
           esito.textContent = 'Non inviato: ' + (e.message || e);
           si.disabled = no.disabled = false;
@@ -1512,9 +1579,8 @@
       };
       const si = testo('button', '✓', 'rp-si'); si.type = 'button'; si.title = 'Chiamata fatta: domani email di presentazione'; si.setAttribute('aria-label', 'Chiamata fatta con ' + r.nome + ': manda domani l\'email di presentazione');
       const no = testo('button', '✗', 'rp-no'); no.type = 'button'; no.title = 'Scarta'; no.setAttribute('aria-label', 'Scarta ' + r.nome);
-      si.onclick = premi('si', 'Chiamata con ' + r.nome + ' fatta?\n\nDomani il giro manda l\'email di presentazione con il riassunto della chiamata e le tue note.');
-      no.onclick = premi('no', 'Scartare ' + r.nome + '?\n\nNon succede niente e non la contattiamo più.');
-      if (inviato) { si.disabled = no.disabled = true; }
+      si.onclick = premi('si', 'Chiamata con ' + r.nome + ' fatta?\n\nDomani il giro manda l\'email di presentazione con il riassunto della chiamata e le tue note. L\'attività sparisce dalla lista.');
+      no.onclick = premi('no', 'Scartare ' + r.nome + '?\n\nNon la contattiamo più e sparisce dalla lista.');
       bott.append(si, no, esito);
       card.append(note, bott);
       return card;
