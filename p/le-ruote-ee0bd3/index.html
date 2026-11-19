@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Le Ruote Ciclocaffè · Bologna (proposta di sito)</title>
+<meta name="description" content="Bici e caffè in via Massarenti 105 a Bologna: officina, gravel e bikepacking, cargo bike, caffè e birra. Proposta di sito preparata da Mila Studio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --carta: #f6f1e7; --inchiostro: #1f2a24; --muto: #5d665f; --verde: #2f5d46; --verde-chiaro: #dfe9e2;
+    --caffe: #8a4b2a; --linea: #d9d0bf; --bianco: #fffdf8;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--carta); color: var(--inchiostro); font: 400 17px/1.6 Inter, system-ui, sans-serif; }
+  a { color: inherit; }
+  .avviso { background: var(--inchiostro); color: #f6f1e7; font-size: 13px; text-align: center; padding: 8px 16px; }
+  .avviso b { color: #ffd9a8; }
+  header { max-width: 1080px; margin: 0 auto; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .logo { font-family: Fraunces, Georgia, serif; font-weight: 800; font-size: 22px; letter-spacing: -.01em; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .logo svg { width: 38px; height: 38px; }
+  nav a { text-decoration: none; margin-left: 18px; font-weight: 500; font-size: 15px; color: var(--muto); }
+  nav a:hover { color: var(--inchiostro); }
+  @media (max-width: 640px) { nav { display: none; } }
+  .eroe { max-width: 1080px; margin: 0 auto; padding: 40px 20px 56px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
+  @media (max-width: 820px) { .eroe { grid-template-columns: 1fr; padding-top: 16px; } }
+  .eroe h1 { font-family: Fraunces, Georgia, serif; font-weight: 800; font-size: clamp(40px, 7vw, 72px); line-height: 1.02; margin: 0 0 18px; letter-spacing: -.02em; }
+  .eroe h1 em { font-style: normal; color: var(--verde); }
+  .eroe p { font-size: 19px; color: var(--muto); margin: 0 0 26px; max-width: 34ch; }
+  .bottoni { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 999px; font-weight: 600; text-decoration: none; border: 2px solid var(--inchiostro); }
+  .btn.pieno { background: var(--inchiostro); color: var(--carta); }
+  .disegno { background: var(--verde-chiaro); border-radius: 28px; aspect-ratio: 1 / 1; display: grid; place-items: center; position: relative; overflow: hidden; }
+  .disegno svg { width: 86%; }
+  .disegno .tag { position: absolute; bottom: 18px; left: 18px; background: var(--bianco); border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  section { max-width: 1080px; margin: 0 auto; padding: 56px 20px; }
+  h2 { font-family: Fraunces, Georgia, serif; font-size: clamp(28px, 4.5vw, 40px); line-height: 1.1; margin: 0 0 10px; letter-spacing: -.01em; }
+  .sotto { color: var(--muto); margin: 0 0 30px; max-width: 60ch; }
+  .griglia { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 820px) { .griglia { grid-template-columns: 1fr; } }
+  .carta { background: var(--bianco); border: 1px solid var(--linea); border-radius: 20px; padding: 24px; }
+  .carta .ico { width: 44px; height: 44px; border-radius: 12px; background: var(--verde-chiaro); display: grid; place-items: center; margin-bottom: 14px; font-size: 22px; }
+  .carta h3 { margin: 0 0 6px; font-size: 19px; }
+  .carta p { margin: 0; color: var(--muto); font-size: 16px; }
+  .fascia { background: var(--verde); color: var(--carta); }
+  .fascia .sotto { color: #cfe0d6; }
+  .persone { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+  .persona { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 999px; padding: 8px 16px; font-weight: 600; }
+  .voto { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .voto strong { font-family: Fraunces, Georgia, serif; font-size: 64px; line-height: 1; }
+  .faq details { background: var(--bianco); border: 1px solid var(--linea); border-radius: 16px; padding: 16px 20px; margin-bottom: 10px; }
+  .faq summary { cursor: pointer; font-weight: 600; }
+  .faq p { margin: 10px 0 0; color: var(--muto); }
+  .contatti { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 820px) { .contatti { grid-template-columns: 1fr; } }
+  .contatti .carta a { font-weight: 600; }
+  footer { border-top: 1px solid var(--linea); max-width: 1080px; margin: 0 auto; padding: 24px 20px 48px; color: var(--muto); font-size: 14px; }
+  .proposta { background: #fff3df; border: 1px solid #f0d3a6; border-radius: 16px; padding: 16px 20px; color: var(--inchiostro); font-size: 15px; margin-top: 16px; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["BicycleStore", "CafeOrCoffeeShop"],
+  "name": "Le Ruote Ciclocaffè",
+  "description": "Bici e caffè a Bologna: officina per riparazioni e montaggi, gravel, bikepacking e adventure cycling, cargo bike, abbigliamento e attrezzatura, caffè e birra, eventi e uscite in bici.",
+  "address": {"@type": "PostalAddress", "streetAddress": "Via Giuseppe Massarenti 105", "postalCode": "40138", "addressLocality": "Bologna", "addressRegion": "BO", "addressCountry": "IT"},
+  "telephone": "+39 051 6012949",
+  "email": "info@le-ruote.it",
+  "sameAs": ["https://www.instagram.com/leruote_ciclocaffe/"],
+  "servesCuisine": "Caffè, birra, vegan friendly"
+}
+</script>
+</head>
+<body>
+<div class="avviso">Questa è una <b>proposta di sito</b> preparata da Mila Studio per Le Ruote Ciclocaffè. Non è il sito ufficiale.</div>
+
+<header>
+  <a class="logo" href="#">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="12" cy="32" r="9" fill="none" stroke="#2f5d46" stroke-width="3"/><circle cx="36" cy="32" r="9" fill="none" stroke="#2f5d46" stroke-width="3"/><path d="M12 32 L20 18 L30 18 L36 32 M20 18 L24 32 L30 18" fill="none" stroke="#1f2a24" stroke-width="3" stroke-linejoin="round"/><path d="M27 10 h7 v4 a4 4 0 0 1-4 4 h-0 a4 4 0 0 1-3-4z" fill="#8a4b2a"/></svg>
+    Le Ruote
+  </a>
+  <nav><a href="#cosa">Cosa facciamo</a><a href="#chi">Chi siamo</a><a href="#domande">Domande</a><a href="#dove">Dove siamo</a></nav>
+</header>
+
+<div class="eroe">
+  <div>
+    <h1>Bici e caffè,<br><em>in via Massarenti.</em></h1>
+    <p>Officina, gravel e bikepacking, cargo bike, e un caffè o una birra mentre sistemiamo la tua bici. A Bologna, zona San Vitale–Massarenti.</p>
+    <div class="bottoni">
+      <a class="btn pieno" href="tel:+390516012949">📞 Chiama</a>
+      <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Le+Ruote+Ciclocaff%C3%A8+Via+Massarenti+105+Bologna" target="_blank" rel="noopener">📍 Come arrivare</a>
+    </div>
+  </div>
+  <div class="disegno" aria-hidden="true">
+    <svg viewBox="0 0 320 240">
+      <circle cx="80" cy="160" r="52" fill="none" stroke="#2f5d46" stroke-width="8"/>
+      <circle cx="240" cy="160" r="52" fill="none" stroke="#2f5d46" stroke-width="8"/>
+      <circle cx="80" cy="160" r="6" fill="#1f2a24"/><circle cx="240" cy="160" r="6" fill="#1f2a24"/>
+      <path d="M80 160 L132 76 L204 76 L240 160 M132 76 L156 160 L204 76 M156 160 L80 160" fill="none" stroke="#1f2a24" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M124 64 h22 M198 60 l10 16 h18" stroke="#1f2a24" stroke-width="8" stroke-linecap="round" fill="none"/>
+      <g transform="translate(250 20)"><path d="M0 18 h40 v22 a20 20 0 0 1-20 20 a20 20 0 0 1-20-20z" fill="#8a4b2a"/><path d="M40 24 a10 10 0 0 1 0 20" fill="none" stroke="#8a4b2a" stroke-width="6"/><path d="M10 2 q6 6 0 12 M22 2 q6 6 0 12" stroke="#5d665f" stroke-width="3" fill="none" stroke-linecap="round"/></g>
+    </svg>
+    <span class="tag">☕ + 🚲 via Massarenti 105</span>
+  </div>
+</div>
+
+<section id="cosa">
+  <h2>Cosa facciamo</h2>
+  <p class="sotto">Una ciclofficina vera, con un bancone del caffè dentro. Ripariamo, montiamo e consigliamo: dalla bici di tutti i giorni alla gravel per il viaggio lungo.</p>
+  <div class="griglia">
+    <div class="carta"><div class="ico">🔧</div><h3>Officina</h3><p>Riparazioni e montaggi: ripariamo e costruiamo biciclette, dalla città al viaggio.</p></div>
+    <div class="carta"><div class="ico">🗺️</div><h3>Gravel e bikepacking</h3><p>Bici, borse e attrezzatura per l'adventure cycling e il campeggio in bici, con i consigli di chi i viaggi li fa davvero.</p></div>
+    <div class="carta"><div class="ico">📦</div><h3>Cargo bike</h3><p>Per la spesa, i bambini o il lavoro in città. Ti aiutiamo a scegliere quella giusta e la teniamo in forma.</p></div>
+    <div class="carta"><div class="ico">☕</div><h3>Caffè e birra</h3><p>Un caffè la mattina, una birra dopo il giro. Anche vegan friendly.</p></div>
+    <div class="carta"><div class="ico">🧢</div><h3>Abbigliamento</h3><p>Abbigliamento per la bici e per il dopo-bici, attrezzatura da viaggio e da campeggio.</p></div>
+    <div class="carta"><div class="ico">🚴</div><h3>Eventi e uscite</h3><p>Giri in compagnia, serate e percorsi come la Ciclovia delle Acque. Il noleggio bici è in arrivo.</p></div>
+  </div>
+</section>
+
+<section class="fascia" id="chi">
+  <div>
+    <h2>Chi siamo</h2>
+    <p class="sotto">Siamo Michele, Beatrice e Tonino. In via Massarenti 105 ripariamo e costruiamo biciclette, e intanto facciamo il caffè. Non è solo un negozio: è un posto dove chi va in bici a Bologna si ferma, chiede, racconta il prossimo viaggio.</p>
+    <div class="persone"><span class="persona">Michele</span><span class="persona">Beatrice</span><span class="persona">Tonino</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="voto"><strong>4,9</strong><div><b>su Facebook</b><br><span class="sotto" style="margin:0">Il 98% di chi ci ha recensito ci consiglia.</span></div></div>
+</section>
+
+<section id="domande" class="faq">
+  <h2>Domande frequenti</h2>
+  <p class="sotto">Le domande che ci fanno più spesso. Le stesse che oggi le persone chiedono anche a Google e a ChatGPT.</p>
+  <details><summary>Dove posso far riparare la bici a Bologna, zona Massarenti?</summary><p>Da noi, in via Giuseppe Massarenti 105. Chiamaci allo 051 601 2949 per sapere i tempi.</p></details>
+  <details><summary>Sistemate anche bici gravel e da viaggio?</summary><p>Sì: gravel, bikepacking e adventure cycling sono la nostra passione. Ti aiutiamo anche a preparare la bici e le borse per il viaggio.</p></details>
+  <details><summary>Vendete o sistemate cargo bike?</summary><p>Sì, le cargo bike sono tra le cose che seguiamo di più. Passa a provarle o chiamaci.</p></details>
+  <details><summary>Posso prendere un caffè anche se non ho la bici da sistemare?</summary><p>Certo. Caffè, birra e qualcosa di vegan friendly: entra pure.</p></details>
+  <details><summary>Fate noleggio di bici?</summary><p>Il noleggio è in arrivo: seguici su Instagram per sapere quando parte.</p></details>
+</section>
+
+<section id="dove">
+  <h2>Dove siamo</h2>
+  <div class="contatti">
+    <div class="carta">
+      <h3>Le Ruote Ciclocaffè</h3>
+      <p>Via Giuseppe Massarenti 105<br>40138 Bologna</p>
+      <p style="margin-top:12px"><a href="https://www.google.com/maps/search/?api=1&amp;query=Le+Ruote+Ciclocaff%C3%A8+Via+Massarenti+105+Bologna" target="_blank" rel="noopener">Apri in Google Maps →</a></p>
+    </div>
+    <div class="carta">
+      <h3>Contatti</h3>
+      <p>Telefono: <a href="tel:+390516012949">051 601 2949</a><br>Email: <a href="mailto:info@le-ruote.it">info@le-ruote.it</a><br>Instagram: <a href="https://www.instagram.com/leruote_ciclocaffe/" target="_blank" rel="noopener">@leruote_ciclocaffe</a></p>
+      <p style="margin-top:12px;font-size:14px">Orari: da aggiungere insieme (nella proposta non li abbiamo inventati).</p>
+    </div>
+  </div>
+  <div class="proposta"><b>Per Le Ruote:</b> questa pagina usa solo le informazioni che avete già pubblicato (Facebook, Instagram, elenchi). Al posto dei disegni vanno le vostre foto. Avete già il dominio <b>le-ruote.it</b>, che oggi mostra solo la pagina vuota del fornitore: il sito potrebbe andare lì. Dentro c'è anche la scheda con i dati in forma leggibile da Google e dalle AI (schema.org), che aiuta a comparire quando qualcuno chiede "ciclofficina a Bologna".</div>
+</section>
+
+<footer>
+  Proposta di sito preparata da <b>Mila Studio</b> (Luca Baresi) per Le Ruote Ciclocaffè, novembre 2026. Non è il sito ufficiale e non è indicizzato dai motori di ricerca.
+</footer>
+</body>
+</html>
