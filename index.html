@@ -431,12 +431,42 @@
         <div class="rp-tile"><span class="rp-tile-label">Strutture in coda</span><span class="rp-num" data-draw="righe" data-fonte="coda_strutture" data-source="coda_strutture">—</span><span class="rp-tile-win">pronte per le prossime email</span></div>
       </div>
     </div>
+    <!-- Sotto-schede (19/11/2026, Luca): le attività a cui mandiamo il sito di esempio e le altre email. -->
+    <nav class="rp-tabs rp-subtabs" role="tablist" aria-label="Sezioni delle email">
+      <button class="rp-tab" role="tab" id="sub-email-siti" data-sotto-email="siti" aria-controls="email-siti" aria-selected="true">Siti di esempio <span class="rp-count" data-draw="conta-chiamate" data-tipo="sito" data-source="chiamate">—</span></button>
+      <button class="rp-tab" role="tab" id="sub-email-altre" data-sotto-email="altre" aria-controls="email-altre" aria-selected="false">Altre email</button>
+    </nav>
+    <div id="email-siti" role="tabpanel" aria-labelledby="sub-email-siti">
+      <div class="rp-sec">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Attività senza sito</h2>
+          <p class="rp-sub">Gli prepariamo un sito di esempio e glielo mandiamo per email. Qui hai numero e scheda chiamata, come nella scheda Chiamate. Dopo la telefonata scrivi le note e premi <b>✓</b> se sono interessati (il giro prepara il seguito, i prezzi li decidi tu) o <b>✗</b> se non vogliono (non gli scriviamo più). Se non rispondono al telefono non premere niente.</p>
+        </div>
+        <div class="rp-chiamate" data-draw="chiamate" data-source="chiamate" data-vista="aperte" data-tipo="sito" data-vuoto-id="siti-vuoti"></div>
+        <p class="rp-empty" id="siti-vuoti" hidden>Nessuna attività da chiamare adesso: il giro ne aggiunge quando prepara un nuovo sito di esempio.</p>
+      </div>
+      <details class="rp-more">
+        <summary>Già decise <span class="rp-sub">ultimi 14 giorni</span></summary>
+        <div class="rp-chiamate" data-draw="chiamate" data-source="chiamate" data-vista="chiuse" data-tipo="sito"></div>
+      </details>
+      <details class="rp-more">
+        <summary>Diario dei siti di esempio <span class="rp-sub">ultimi 7 giorni</span></summary>
+        <div class="rp-scroll">
+          <table class="rp-table" data-source="azioni" data-row-key="id">
+            <thead><tr><th data-field="ora">Ora</th><th data-field="cosa">Cosa</th><th data-field="esito">Esito</th><th data-field="dettaglio">Dettaglio</th></tr></thead>
+            <tbody data-draw="diario" data-area="Email" data-senza-area="1" data-max="40" data-cerca="sit[oi] di esempio" data-vuoto-chiave="Email-siti"></tbody>
+          </table>
+        </div>
+        <p class="rp-empty" data-vuoto="Email-siti" hidden>Ancora niente nel diario dei siti di esempio.</p>
+      </details>
+    </div>
+    <div id="email-altre" role="tabpanel" aria-labelledby="sub-email-altre" hidden>
     <details class="rp-more">
-      <summary>Diario delle email <span class="rp-sub">ultimi 7 giorni</span></summary>
+      <summary>Diario delle email <span class="rp-sub">ultimi 7 giorni, senza i siti di esempio</span></summary>
       <div class="rp-scroll">
         <table class="rp-table" data-source="azioni" data-row-key="id">
           <thead><tr><th data-field="ora">Ora</th><th data-field="cosa">Cosa</th><th data-field="esito">Esito</th><th data-field="dettaglio">Dettaglio</th></tr></thead>
-          <tbody data-draw="diario" data-area="Email" data-senza-area="1" data-max="40"></tbody>
+          <tbody data-draw="diario" data-area="Email" data-senza-area="1" data-max="40" data-escludi="sit[oi] di esempio"></tbody>
         </table>
       </div>
       <p class="rp-empty" data-vuoto="Email" hidden>Ancora nessuna email registrata sull'i7.</p>
@@ -463,6 +493,7 @@
       </div>
       <p class="rp-empty" id="attivita-vuote" hidden>Ancora nessuna attività in lista.</p>
     </details>
+    </div>
   </section>
 
   <!-- CHIAMATE (19/11/2026): attività che chiama Luca; ✓ = email di presentazione il giorno dopo, ✗ = scartata -->
@@ -1450,8 +1481,9 @@
   Object.keys(window.rpInAttesa).forEach((k) => { if (Date.now() - (window.rpInAttesa[k].quando || 0) > 3 * 864e5) delete window.rpInAttesa[k]; });
   window.rpContaChiamate = () => {
     const c = dash.data('chiamate');
-    const n = c.status === 'ok' ? c.data.filter((r) => r.stato === 'da chiamare' && !window.rpInAttesa[r.id]).length : null;
-    document.querySelectorAll('[data-draw="conta-chiamate"]').forEach((el) => { el.textContent = n == null ? '—' : window.rpNum(n); });
+    // tipo "sito" (siti di esempio) si conta nella scheda Email, il resto nella scheda Chiamate.
+    const conta = (sito) => c.status === 'ok' ? c.data.filter((r) => r.stato === 'da chiamare' && !window.rpInAttesa[r.id] && (r.tipo === 'sito') === sito).length : null;
+    document.querySelectorAll('[data-draw="conta-chiamate"]').forEach((el) => { const n = conta(el.dataset.tipo === 'sito'); el.textContent = n == null ? '—' : window.rpNum(n); });
   };
   dash.draw('conta-chiamate', () => window.rpContaChiamate());
 
@@ -1492,10 +1524,18 @@
     if (/^https?:\/\//.test(r.sito || '')) { const s = el('a', r.sito); s.href = r.sito; s.target = '_blank'; s.rel = 'noopener'; info.append('Sito: ', s, ' · '); }
     info.append('Email: ' + (r.email || 'non pubblicata, chiedila durante la chiamata'));
     dentro.append(info);
+    if (r.tipo === 'sito') {
+      const s = el('p');
+      if (/^https:\/\//.test(r.sito_demo || '')) { const a = el('a', 'Apri il sito di esempio ↗'); a.href = r.sito_demo; a.target = '_blank'; a.rel = 'noopener'; s.append(a, ' · '); }
+      s.append(r.email_stato || '');
+      dentro.append(s);
+    }
     dentro.append(...sezione('Perché chiamarli', r.perche), ...sezione('Chi sono', r.chi_sono), ...sezione('Cosa abbiamo trovato', r.trovato),
       ...sezione('Cosa gli offriamo', r.offerta), ...sezione('Come apri la chiamata', r.apertura), ...sezione('Domande da fare', r.domande, true),
       ...sezione('Se dicono…', r.obiezioni), ...sezione('Come chiudi', r.chiusura));
-    dentro.append(el('h2', 'Dopo la chiamata'), el('p', 'Torna indietro, scrivi le note (con chi hai parlato, l\'email, cosa vogliono) e premi ✓: domani parte l\'email di presentazione. Oppure ✗: la scartiamo e non la contattiamo più. In tutti e due i casi sparisce dalla lista.'));
+    dentro.append(el('h2', 'Dopo la chiamata'), el('p', r.tipo === 'sito'
+      ? 'Torna indietro, scrivi le note (con chi hai parlato, l\'email giusta, cosa vogliono, il prezzo se ne avete parlato) e premi ✓ se sono interessati: il giro prepara il seguito (sito o proposta) e te lo fa approvare. ✗ se non vogliono: niente più email né promemoria. Se non rispondono non premere niente.'
+      : 'Torna indietro, scrivi le note (con chi hai parlato, l\'email, cosa vogliono) e premi ✓: domani parte l\'email di presentazione. Oppure ✗: la scartiamo e non la contattiamo più. In tutti e due i casi sparisce dalla lista.'));
     doc.replaceChildren(dentro);
     doc.hidden = false;
     doc.scrollTop = 0;
@@ -1511,8 +1551,12 @@
     const c = dash.data('chiamate');
     const rows = c.status === 'ok' ? c.data : [];
     const aperte = box.dataset.vista === 'aperte';
+    const siti = box.dataset.tipo === 'sito';
+    const vuoto = () => document.getElementById(box.dataset.vuotoId || 'chiamate-vuote');
     // Da chiamare: solo quelle senza ✓/✗. Appena premi ✓ o ✗ l'attività sparisce da qui (anche prima che l'i7 la applichi).
-    const lista = rows.filter((r) => aperte ? (r.stato === 'da chiamare' && !window.rpInAttesa[r.id]) : (r.stato !== 'da chiamare' || window.rpInAttesa[r.id]))
+    // Le attività dei siti di esempio (tipo "sito") stanno solo in Email > Siti di esempio.
+    const lista = rows.filter((r) => (r.tipo === 'sito') === siti)
+      .filter((r) => aperte ? (r.stato === 'da chiamare' && !window.rpInAttesa[r.id]) : (r.stato !== 'da chiamare' || window.rpInAttesa[r.id]))
       .sort((a, b) => (a.tipo === 'quarta') - (b.tipo === 'quarta') || String(b.deciso || '').localeCompare(String(a.deciso || '')));
     const testo = (tag, t, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; e.textContent = t; return e; };
     box.replaceChildren(...lista.map((r) => {
@@ -1545,7 +1589,12 @@
         const s = document.createElement('a'); s.href = r.sito; s.target = '_blank'; s.rel = 'noopener'; s.textContent = 'sito';
         contatti.append(r.telefono ? ' · ' : '', s);
       }
+      if (/^https:\/\//.test(r.sito_demo || '')) {
+        const s = document.createElement('a'); s.href = r.sito_demo; s.target = '_blank'; s.rel = 'noopener'; s.textContent = 'sito di esempio ↗';
+        contatti.append(contatti.childNodes.length ? ' · ' : '', s);
+      }
       card.append(contatti);
+      if (r.email_stato) { const p = document.createElement('p'); p.append(testo('b', /inviata/.test(r.email_stato) ? '✉️ ' : '🛠️ '), r.email_stato); card.append(p); }
       if (r.perche) { const p = document.createElement('p'); const b = testo('b', 'Perché chiamarli: '); p.append(b, r.perche); card.append(p); }
       const apri = testo('button', '📄 Apri la scheda chiamata', 'rp-doc-apri'); apri.type = 'button';
       apri.onclick = () => window.rpApriDoc(r);
@@ -1565,11 +1614,11 @@
           await window.rpMandaEsito(r.id, valore, note.value.slice(0, 1500));
           window.rpSegnaInviato(r.id, valore);
           try { localStorage.removeItem(chiave); } catch (e) { /* niente */ }
-          esito.textContent = valore === 'si' ? 'Fatto: domani parte l\'email di presentazione.' : 'Fatto: scartata.';
+          esito.textContent = valore === 'si' ? (siti ? 'Fatto: il giro prepara il seguito.' : 'Fatto: domani parte l\'email di presentazione.') : 'Fatto: scartata.';
           setTimeout(() => {
             card.remove();
             window.rpContaChiamate();
-            const v = document.getElementById('chiamate-vuote');
+            const v = vuoto();
             if (v && !box.children.length) v.hidden = false;
           }, 1200);
         } catch (e) {
@@ -1579,13 +1628,18 @@
       };
       const si = testo('button', '✓', 'rp-si'); si.type = 'button'; si.title = 'Chiamata fatta: domani email di presentazione'; si.setAttribute('aria-label', 'Chiamata fatta con ' + r.nome + ': manda domani l\'email di presentazione');
       const no = testo('button', '✗', 'rp-no'); no.type = 'button'; no.title = 'Scarta'; no.setAttribute('aria-label', 'Scarta ' + r.nome);
-      si.onclick = premi('si', 'Chiamata con ' + r.nome + ' fatta?\n\nDomani il giro manda l\'email di presentazione con il riassunto della chiamata e le tue note. L\'attività sparisce dalla lista.');
-      no.onclick = premi('no', 'Scartare ' + r.nome + '?\n\nNon la contattiamo più e sparisce dalla lista.');
+      if (siti) { si.title = 'Interessati: il giro prepara il seguito'; si.setAttribute('aria-label', r.nome + ' è interessata: il giro prepara il seguito'); }
+      si.onclick = premi('si', siti
+        ? r.nome + ' è interessata?\n\nIl giro prepara il seguito con le tue note (il sito di esempio se non l\'hanno ancora, oppure la proposta con il tuo prezzo) e te lo fa approvare prima di mandarlo. L\'attività sparisce dalla lista.'
+        : 'Chiamata con ' + r.nome + ' fatta?\n\nDomani il giro manda l\'email di presentazione con il riassunto della chiamata e le tue note. L\'attività sparisce dalla lista.');
+      no.onclick = premi('no', siti
+        ? 'Scartare ' + r.nome + '?\n\nNon gli mandiamo più email né promemoria e sparisce dalla lista.'
+        : 'Scartare ' + r.nome + '?\n\nNon la contattiamo più e sparisce dalla lista.');
       bott.append(si, no, esito);
       card.append(note, bott);
       return card;
     }));
-    if (aperte) { const v = document.getElementById('chiamate-vuote'); if (v) v.hidden = !(c.status === 'ok' && lista.length === 0); }
+    if (aperte) { const v = vuoto(); if (v) v.hidden = !(c.status === 'ok' && lista.length === 0); }
   });
 
   dash.draw('coda', (tbody) => {
@@ -1675,6 +1729,19 @@
   };
   document.querySelectorAll('.rp-tab[data-sotto]').forEach((b) => b.addEventListener('click', () => window.rpSotto(b.dataset.sotto)));
   { const h = (location.hash || '').replace('#', ''); window.rpSotto(['italia', 'estero', 'spazio'].includes(h) ? h : 'italia'); }
+  // Sotto-schede delle email (19/11/2026): Siti di esempio, Altre email.
+  window.rpSottoEmail = (id) => {
+    document.querySelectorAll('.rp-tab[data-sotto-email]').forEach((b) => {
+      const on = b.dataset.sottoEmail === id;
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      b.setAttribute('tabindex', on ? '0' : '-1');
+      const p = document.getElementById('email-' + b.dataset.sottoEmail);
+      if (p) p.hidden = !on;
+    });
+    try { localStorage.setItem('rp-sotto-email', id); } catch (e) { /* niente */ }
+  };
+  document.querySelectorAll('.rp-tab[data-sotto-email]').forEach((b) => b.addEventListener('click', () => window.rpSottoEmail(b.dataset.sottoEmail)));
+  { let s = 'siti'; try { s = localStorage.getItem('rp-sotto-email') || 'siti'; } catch (e) { /* niente */ } window.rpSottoEmail(s === 'altre' ? 'altre' : 'siti'); }
   // Il consiglio di una sezione apre anche la sua sotto-scheda.
   document.querySelectorAll('[data-draw="consiglio"]').forEach((el) => {
     const li = el.closest('li');
@@ -1702,7 +1769,12 @@
     const max = +tbody.dataset.max || 500;
     const conArea = !tbody.dataset.senzaArea;
     const colonne = conArea ? 5 : 4;
-    const rows = (a.status === 'ok' ? a.data : []).filter((r) => !aree.length || aree.includes(r.area)).slice(0, max);
+    // data-cerca / data-escludi: filtro sul testo (Email > Siti di esempio e Altre email).
+    const testoRiga = (r) => (r.cosa || '') + ' ' + (r.dettaglio || '');
+    const cerca = tbody.dataset.cerca ? new RegExp(tbody.dataset.cerca, 'i') : null;
+    const escludi = tbody.dataset.escludi ? new RegExp(tbody.dataset.escludi, 'i') : null;
+    const rows = (a.status === 'ok' ? a.data : []).filter((r) => !aree.length || aree.includes(r.area))
+      .filter((r) => (!cerca || cerca.test(testoRiga(r))) && (!escludi || !escludi.test(testoRiga(r)))).slice(0, max);
     const out = [];
     let giorno = null;
     rows.forEach((r) => {
@@ -1728,7 +1800,7 @@
       out.push(tr);
     });
     tbody.replaceChildren(...out);
-    const chiave = tbody.dataset.area || '';
+    const chiave = tbody.dataset.vuotoChiave || tbody.dataset.area || '';
     document.querySelectorAll('[data-vuoto]').forEach((p) => {
       if (p.dataset.vuoto === chiave) p.hidden = !(a.status === 'ok' && rows.length === 0);
     });
