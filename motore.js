@@ -294,9 +294,46 @@
     attesa = setTimeout(disegna, 150);
   });
 
+  // ---------- pulsante "Installa app" (19/11/2026) ----------
+  // Android/Chrome/Edge: usa la finestra di installazione del browser (beforeinstallprompt).
+  // iPhone/iPad e browser senza quella finestra: mostra in due righe come aggiungerla alla schermata Home.
+  // Sparisce quando la pagina è già aperta come app.
+  let richiestaInstall = null;
+  const giaApp = () => (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  function pulsanteInstalla() {
+    if (giaApp() || document.getElementById('installa')) return;
+    const box = document.createElement('div');
+    box.id = 'installa';
+    box.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0;';
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = 'Installa app';
+    b.style.cssText = 'padding:8px 14px;border-radius:8px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;font-weight:600;cursor:pointer;';
+    const aiuto = document.createElement('span');
+    aiuto.className = 'rp-muted'; aiuto.style.flexBasis = '100%'; aiuto.hidden = true;
+    b.onclick = async () => {
+      if (richiestaInstall) {
+        richiestaInstall.prompt();
+        try { const r = await richiestaInstall.userChoice; if (r && r.outcome === 'accepted') box.remove(); } catch (e) { /* niente */ }
+        richiestaInstall = null;
+        return;
+      }
+      const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      aiuto.textContent = ios
+        ? 'Su iPhone: apri questa pagina in Safari, tocca il tasto Condividi (il quadrato con la freccia in su) e poi "Aggiungi alla schermata Home".'
+        : 'Apri il menu del browser (i tre puntini ⋮) e scegli "Installa app" oppure "Aggiungi a schermata Home". In Chrome compare dopo qualche secondo sulla pagina.';
+      aiuto.hidden = false;
+    };
+    box.append(b, aiuto);
+    const tit = document.querySelector('#intestazione .rp-title');
+    if (tit && tit.parentNode) tit.parentNode.insertBefore(box, tit.nextSibling); else document.body.prepend(box);
+  }
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); richiestaInstall = e; pulsanteInstalla(); });
+  window.addEventListener('appinstalled', () => { const x = document.getElementById('installa'); if (x) x.remove(); });
+
   window.rpAvvia = () => {
     // App installabile sul telefono (come Allenamento): funziona anche senza rete con gli ultimi dati.
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* va lo stesso, solo senza offline */ });
+    pulsanteInstalla();
     larghezza = window.innerWidth;
     disegna();          // prima i segnaposto "—"
     carica();
