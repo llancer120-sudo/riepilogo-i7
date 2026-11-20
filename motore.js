@@ -14,6 +14,8 @@
 
   // Quale file usa ogni dato. Tutto il resto viene da riepilogo.json.
   const DA_SALUTE = ['salute', 'salute_storico', 'salute_eventi'];
+  // 20/11/2026: la salute del PC i9 la pubblica l'i9 stesso in dati/i9.cifrati.json (stessa password).
+  const DA_I9 = ['salute_i9', 'salute_i9_storico'];
   const OGNI_MS = 5 * 60 * 1000;
   const CHIAVE_PW = 'riepilogo-i7-password';
 
@@ -47,7 +49,7 @@
       return r;
     }
     if (stato !== 'ok') return vuoto(stato, messaggio);
-    const file = DA_SALUTE.includes(id) ? pacchetto.salute : pacchetto.riepilogo;
+    const file = DA_SALUTE.includes(id) ? pacchetto.salute : DA_I9.includes(id) ? pacchetto.i9 : pacchetto.riepilogo;
     if (!file) return vuoto('missing', 'File non pubblicato');
     let r;
     try {
@@ -118,48 +120,78 @@
   // (ogni minuto) con shutdown /f: nessuna domanda sul PC.
   let pwAttuale = null;
   const hex = (buf) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
-  async function mandaComando(azione, topic, esito) {
+  // 20/11/2026: anche l'i9. Ogni PC ha il suo canale (i7: dentro i dati dell'i7; i9: dentro dati/i9.cifrati.json)
+  // e la sua firma ("emergenza-i7|" o "emergenza-i9|" + password): un comando per un PC non vale per l'altro.
+  // Sull'i9 lo esegue emergenza-i9.py (RadarSoldi-i9\emergenza), che gira solo mentre l'i9 è acceso.
+  async function mandaComando(azione, topic, esito, pc) {
+    pc = pc || 'i7';
     const enc = new TextEncoder();
-    const chiaveRaw = await crypto.subtle.digest('SHA-256', enc.encode('emergenza-i7|' + pwAttuale));
+    const chiaveRaw = await crypto.subtle.digest('SHA-256', enc.encode('emergenza-' + pc + '|' + pwAttuale));
     const chiave = await crypto.subtle.importKey('raw', chiaveRaw, {name: 'HMAC', hash: 'SHA-256'}, false, ['sign']);
     const ts = Math.floor(Date.now() / 1000);
     const nonce = hex(crypto.getRandomValues(new Uint8Array(12)));
     const firma = hex(await crypto.subtle.sign('HMAC', chiave, enc.encode(azione + '|' + ts + '|' + nonce)));
     const r = await fetch('https://ntfy.sh/' + encodeURIComponent(topic), {method: 'POST', body: azione + '|' + ts + '|' + nonce + '|' + firma});
     if (!r.ok) throw new Error('ntfy ' + r.status);
-    esito.textContent = (azione === 'spegni' ? 'Comando SPEGNI inviato: l\'i7 si spegne entro 1 minuto.' : 'Comando RIAVVIA inviato: l\'i7 si riavvia entro 1 minuto.');
+    esito.textContent = (azione === 'spegni' ? 'Comando SPEGNI inviato: l\'' + pc + ' si spegne entro 1 minuto.' : 'Comando RIAVVIA inviato: l\'' + pc + ' si riavvia entro 1 minuto.');
+  }
+  // L'i9 è spento se la sua ultima lettura ha più di 25 minuti: allora i suoi pulsanti non servono.
+  function i9Spento() {
+    const r = pacchetto && pacchetto.i9 && (pacchetto.i9.salute_i9 || [])[0];
+    if (!r || !r.quando) return true;
+    return Date.now() - new Date(String(r.quando).replace(' ', 'T')) > 25 * 60 * 1000;
+  }
+  function rigaEmergenza(pc) {
+    const box = document.createElement('div');
+    box.id = 'emergenza-' + pc;
+    box.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0;';
+    const tit = document.createElement('span'); tit.textContent = 'Emergenza ' + pc + ':'; tit.style.fontWeight = '600';
+    const esito = document.createElement('span'); esito.className = 'rp-muted'; esito.style.flexBasis = '100%';
+    const bottone = (azione, testo, domanda) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = testo; b.dataset.azione = azione;
+      b.style.cssText = 'padding:8px 14px;border-radius:8px;border:1px solid var(--color-bad);background:transparent;color:var(--color-bad);font:inherit;font-weight:600;cursor:pointer;';
+      b.onclick = async () => {
+        if (!confirm(domanda)) return;
+        b.disabled = true; esito.textContent = 'Invio…';
+        try { await mandaComando(azione, box.dataset.topic, esito, pc); } catch (e) { esito.textContent = 'Comando non inviato (' + (e.message || e) + '): riprova.'; }
+        b.disabled = false;
+      };
+      return b;
+    };
+    box.append(tit,
+      bottone('spegni', 'Spegni PC ' + pc, 'Sei sicuro che vuoi spegnere l\'' + pc + '?\n\nSi spegne entro 1 minuto, chiudendo tutto, e resta spento finché qualcuno non preme il tasto di accensione.'),
+      bottone('riavvia', 'Riavvia PC ' + pc, 'Sei sicuro che vuoi riavviare l\'' + pc + '?\n\nSi riavvia entro 1 minuto, chiudendo tutto.'),
+      esito);
+    return box;
   }
   function disegnaEmergenza() {
-    const em = pacchetto && pacchetto.emergenza;
-    let box = document.getElementById('emergenza');
-    if (!em || !em.topic || !pwAttuale) { if (box) box.hidden = true; return; }
-    if (!box) {
-      box = document.createElement('div');
-      box.id = 'emergenza';
-      box.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0;';
-      const tit = document.createElement('span'); tit.textContent = 'Emergenza i7:'; tit.style.fontWeight = '600';
-      const esito = document.createElement('span'); esito.className = 'rp-muted'; esito.style.flexBasis = '100%';
-      const bottone = (azione, testo, domanda) => {
-        const b = document.createElement('button');
-        b.type = 'button'; b.textContent = testo;
-        b.style.cssText = 'padding:8px 14px;border-radius:8px;border:1px solid var(--color-bad);background:transparent;color:var(--color-bad);font:inherit;font-weight:600;cursor:pointer;';
-        b.onclick = async () => {
-          if (!confirm(domanda)) return;
-          b.disabled = true; esito.textContent = 'Invio…';
-          try { await mandaComando(azione, box.dataset.topic, esito); } catch (e) { esito.textContent = 'Comando non inviato (' + (e.message || e) + '): riprova.'; }
-          b.disabled = false;
-        };
-        return b;
-      };
-      box.append(tit,
-        bottone('spegni', 'Spegni il PC', 'Sei sicuro che vuoi spegnere l\'i7?\n\nSi spegne entro 1 minuto, chiudendo tutto, e resta spento finché qualcuno non preme il tasto di accensione.'),
-        bottone('riavvia', 'Riavvia il PC', 'Sei sicuro che vuoi riavviare l\'i7?\n\nSi riavvia entro 1 minuto, chiudendo tutto.'),
-        esito);
-      const dopo = document.getElementById('controlli') || document.getElementById('frase-ai');
-      if (dopo && dopo.parentNode) dopo.parentNode.insertBefore(box, dopo.nextSibling); else document.body.prepend(box);
-    }
-    box.dataset.topic = em.topic;
-    box.hidden = false;
+    const vecchio = document.getElementById('emergenza');
+    if (vecchio && !vecchio.dataset.pc) vecchio.remove();
+    const canali = {
+      i7: pacchetto && pacchetto.emergenza,
+      i9: pacchetto && pacchetto.i9 && pacchetto.i9.emergenza
+    };
+    let prima = document.getElementById('controlli') || document.getElementById('frase-ai');
+    ['i7', 'i9'].forEach((pc) => {
+      const em = canali[pc];
+      let box = document.getElementById('emergenza-' + pc);
+      if (!em || !em.topic || !pwAttuale) { if (box) box.hidden = true; return; }
+      if (!box) {
+        box = rigaEmergenza(pc);
+        if (prima && prima.parentNode) prima.parentNode.insertBefore(box, prima.nextSibling); else document.body.prepend(box);
+      }
+      prima = box;
+      box.dataset.topic = em.topic;
+      box.hidden = false;
+      if (pc === 'i9') { // spento: pulsanti grigi, tanto non c'è nessuno ad ascoltare
+        const spento = i9Spento();
+        box.querySelectorAll('button').forEach((b) => { b.disabled = spento; b.style.opacity = spento ? '0.4' : '1'; });
+        const es = box.querySelector('.rp-muted');
+        if (spento && !es.textContent) es.textContent = 'L\'i9 è spento: i pulsanti funzionano solo quando è acceso.';
+        if (!spento && es.textContent.startsWith('L\'i9 è spento')) es.textContent = '';
+      }
+    });
   }
 
   // ---------- esiti della scheda Chiamate (19/11/2026): ✓ / ✗ e note ----------
@@ -266,9 +298,12 @@
       let nuovo;
       let busta = null;
       try { busta = await prendi('dati/dati.cifrati.json'); } catch (e) { if (e.http !== 404) throw e; }
+      let bustaI9 = null; // facoltativa: l'i9 la pubblica solo quando è acceso
+      try { bustaI9 = await prendi('dati/i9.cifrati.json'); } catch (e) { /* manca o non leggibile: niente dati i9 */ }
       if (busta) {
         if (busta.pubblicato) { const d = new Date(busta.pubblicato); if (!isNaN(d)) pubblicato = d; }
-        if (busta.versione && busta.versione === ultimaVersione) { controllaEta(); return; }
+        const versione = (busta.versione || '') + '|' + ((bustaI9 && bustaI9.versione) || '');
+        if (busta.versione && versione === ultimaVersione) { controllaEta(); return; }
         let pw = pwSalvata();
         let sbagliata = false;
         for (;;) {
@@ -280,7 +315,9 @@
           try { nuovo = await decifra(busta, pw); break; } catch (e) { dimenticaPw(); pw = null; sbagliata = true; }
         }
         pwAttuale = pw;
-        ultimaVersione = busta.versione || null;
+        ultimaVersione = busta.versione ? versione : null;
+        nuovo.i9 = null;
+        if (bustaI9) { try { nuovo.i9 = await decifra(bustaI9, pw); } catch (e) { console.error('Dati i9 non decifrati', e); } }
       } else {
         const [riepilogo, salute] = await Promise.all([
           prendi('dati/riepilogo.json'),
@@ -288,7 +325,7 @@
         ]);
         let extra = {};
         try { extra = await prendi('dati/ai.json') || {}; } catch (e) { /* facoltativo */ }
-        nuovo = {riepilogo, salute, ai: extra.ai || null, controlli: extra.controlli || [], giri: extra.giri || null};
+        nuovo = {riepilogo, salute, ai: extra.ai || null, controlli: extra.controlli || [], giri: extra.giri || null, i9: null};
       }
       pacchetto = nuovo;
       stato = 'ok';

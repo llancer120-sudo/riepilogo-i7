@@ -255,7 +255,8 @@
 
   <nav class="rp-tabs" role="tablist" aria-label="Schede">
     <button class="rp-tab" role="tab" id="tab-panoramica" data-tab="panoramica" aria-controls="panoramica" aria-selected="true">Panoramica</button>
-    <button class="rp-tab" role="tab" id="tab-salute" data-tab="salute" aria-controls="salute" aria-selected="false">Salute PC <span class="rp-count" data-draw="salute-livello" data-source="salute" data-field="livello" data-row="0">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-salute" data-tab="salute" aria-controls="salute" aria-selected="false">Salute PC i7 <span class="rp-count" data-draw="salute-livello" data-source="salute" data-field="livello" data-row="0">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-salute9" data-tab="salute9" aria-controls="salute9" aria-selected="false">Salute PC i9 <span class="rp-count" data-draw="i9-stato" data-source="salute_i9" data-field="livello" data-row="0">—</span></button>
     <button class="rp-tab" role="tab" id="tab-email" data-tab="email" aria-controls="email" aria-selected="false">Email <span class="rp-count" data-draw="conta-tab" data-area="Email" data-source="per_area" data-field="azioni" data-where="area=Email">—</span></button>
     <button class="rp-tab" role="tab" id="tab-chiamate" data-tab="chiamate" aria-controls="chiamate" aria-selected="false">Chiamate <span class="rp-count" data-draw="conta-chiamate" data-source="chiamate">—</span></button>
     <button class="rp-tab" role="tab" id="tab-instagram" data-tab="instagram" aria-controls="instagram" aria-selected="false">Instagram <span class="rp-count" data-draw="conta-tab" data-area="Instagram" data-source="per_area" data-field="azioni" data-where="area=Instagram">—</span></button>
@@ -414,6 +415,42 @@
         </table>
       </div>
       <p class="rp-empty" id="salute-eventi-vuoti" hidden>Nessun evento: tutto normale.</p>
+    </div>
+  </section>
+
+  <!-- SALUTE PC i9 (20/11/2026): i dati li pubblica l'i9 da solo, solo quando è acceso -->
+  <section class="rp-panel" id="salute9" role="tabpanel" aria-labelledby="tab-salute9" hidden>
+    <div class="rp-sec">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Salute del PC i9</h2>
+        <p class="rp-sub">L'i9 non resta sempre acceso: quando lo accendi, il programma "Salute i9" legge i dati ogni 5 minuti e li pubblica qui ogni 15. Se l'ultima lettura ha più di 25 minuti, l'i9 è spento e vedi gli ultimi valori letti. Questo programma non ferma niente: guarda e basta. Ultima lettura: <b data-draw="i9-campo" data-campo="quando" data-source="salute_i9" data-field="quando" data-row="0">—</b>.</p>
+      </div>
+      <p class="rp-empty" id="i9-mai" hidden>L'i9 non ha ancora pubblicato niente. Si vede qui dopo che il Claude dell'i9 ha installato il programma "Salute i9" (istruzioni sul NAS, cartella pc-i9\salute).</p>
+      <div class="rp-tiles">
+        <div class="rp-tile"><span class="rp-tile-label">Stato</span><span class="rp-num" data-draw="i9-stato" data-source="salute_i9" data-field="livello" data-row="0">—</span><span class="rp-tile-win" data-draw="i9-campo" data-campo="problemi" data-source="salute_i9" data-field="problemi" data-row="0">—</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Scheda video (GTX 1650)</span><span class="rp-num" data-draw="i9-temp" data-campo="gpu_temp" data-source="salute_i9" data-field="gpu_temp" data-row="0">—</span><span class="rp-tile-win">alta da 85 °C, critica da 93 °C</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Processore</span><span class="rp-num" data-draw="i9-temp" data-campo="cpu_temp" data-source="salute_i9" data-field="cpu_temp" data-row="0">—</span><span class="rp-tile-win">alta da 85 °C, critica da 95 °C</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Carico processore</span><span class="rp-num" data-draw="i9-pct" data-campo="cpu_carico" data-source="salute_i9" data-field="cpu_carico" data-row="0">—</span><span class="rp-tile-win">scheda video <span data-draw="i9-pct" data-campo="gpu_carico" data-source="salute_i9" data-field="gpu_carico" data-row="0">—</span>, memoria <span data-draw="i9-pct" data-campo="ram_uso_pct" data-source="salute_i9" data-field="ram_uso_pct" data-row="0">—</span></span></div>
+      </div>
+      <p class="rp-sub">Memoria della scheda video: <span data-draw="i9-campo" data-campo="vram_usata_mb" data-source="salute_i9" data-field="vram_usata_mb" data-row="0">—</span> MB usati su <span data-draw="i9-campo" data-campo="vram_totale_mb" data-source="salute_i9" data-field="vram_totale_mb" data-row="0">—</span>. Ventola della scheda: <span data-draw="i9-campo" data-campo="gpu_ventola_pct" data-source="salute_i9" data-field="gpu_ventola_pct" data-row="0">—</span>%. Disco C libero: <span data-draw="i9-campo" data-campo="disco_C_libero_gb" data-source="salute_i9" data-field="disco_C_libero_gb" data-row="0">—</span> GB, disco D libero: <span data-draw="i9-campo" data-campo="disco_D_libero_gb" data-source="salute_i9" data-field="disco_D_libero_gb" data-row="0">—</span> GB. Acceso da <span data-draw="i9-campo" data-campo="acceso_da_ore" data-source="salute_i9" data-field="acceso_da_ore" data-row="0">—</span> ore.</p>
+    </div>
+    <div class="rp-grid2">
+      <div class="rp-sec">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Temperature, ultime 24 ore</h2>
+          <p class="rp-sub">Massimo ogni 10 minuti, solo mentre l'i9 è acceso.</p>
+        </div>
+        <div class="rp-legend"><span style="--sw: var(--color-bad)">scheda video</span><span style="--sw: var(--color-warn)">processore</span></div>
+        <div class="rp-chart" data-draw="grafico-i9-temp" data-source="salute_i9_storico"></div>
+      </div>
+      <div class="rp-sec">
+        <div class="rp-sec-head">
+          <h2 class="rp-h2">Carico, ultime 24 ore</h2>
+          <p class="rp-sub">Media ogni 10 minuti, in percentuale.</p>
+        </div>
+        <div class="rp-legend"><span style="--sw: var(--color-fg)">processore</span><span style="--sw: var(--color-bad)">scheda video</span><span style="--sw: var(--cds-chart-muted)">memoria</span></div>
+        <div class="rp-chart" data-draw="grafico-i9-carico" data-source="salute_i9_storico"></div>
+      </div>
     </div>
   </section>
 
@@ -815,6 +852,8 @@
   dash.loader('libri', {description: 'Prende dal file i libri KDP (DINO) con copertina, stato e prezzo.', fn: ({answer}) => ({columns: ['id', 'titolo', 'sottotitolo', 'stato', 'prezzo', 'link', 'bsr', 'recensioni', 'nota', 'copertina'], rows: answer.libri || []})});
   dash.loader('salute', {description: 'Prende dal file l\'ultima lettura della salute del PC (temperature, ventole, carico, problemi).', fn: ({answer}) => ({columns: ['quando', 'livello', 'cpu_temp', 'ssd_temp', 'scheda_temp', 'cpu_carico', 'ram_uso_pct', 'ventole', 'ventole_ferme', 'sensori', 'disco_C_libero_gb', 'problemi'], rows: answer.salute || []})});
   dash.loader('salute_storico', {description: 'Prende dal file le letture delle ultime 24 ore a gruppi di 10 minuti (media, massimo e minimo; ventole in giri al minuto).', fn: ({answer}) => ({columns: ['quando', 'cpu_temp', 'cpu_temp_max', 'ssd_temp', 'ssd_temp_max', 'cpu_carico', 'cpu_carico_max', 'ram_uso_pct', 'ram_uso_pct_max', 'ventola1_min', 'ventola2_min'], rows: answer.salute_storico || []})});
+  dash.loader('salute_i9', {description: 'Prende dal file dell\'i9 (dati/i9.cifrati.json) l\'ultima lettura della salute del PC i9.', fn: ({answer}) => ({columns: ['quando', 'livello', 'problemi', 'cpu_temp', 'gpu_temp', 'cpu_carico', 'gpu_carico', 'ram_uso_pct', 'vram_usata_mb', 'vram_totale_mb', 'gpu_ventola_pct', 'disco_C_libero_gb', 'disco_D_libero_gb', 'acceso_da_ore'], rows: answer.salute_i9 || []})});
+  dash.loader('salute_i9_storico', {description: 'Prende dal file dell\'i9 le letture delle ultime 24 ore a gruppi di 10 minuti.', fn: ({answer}) => ({columns: ['quando', 'cpu_temp', 'cpu_temp_max', 'gpu_temp', 'gpu_temp_max', 'cpu_carico', 'gpu_carico', 'ram_uso_pct'], rows: answer.salute_i9_storico || []})});
   dash.loader('storico', {description: 'Prende dal file i numeri chiave di ogni giorno (email, risposte, post, offerte, annunci buoni, contatti pronti).', fn: ({answer}) => ({columns: ['giorno', 'email_inviate', 'risposte', 'post', 'offerte', 'errori', 'azioni', 'annunci_buoni', 'idee_aperte', 'attivita_coda', 'strutture_coda'], rows: answer.storico || []})});
   dash.loader('temi', {description: 'Prende dal file i 5 temi più presenti nelle notizie del radar negli ultimi 7 giorni (da tendenze.md).', fn: ({answer}) => ({columns: ['tema', 'notizie', 'crescita', 'esempio'], rows: answer.temi || []})});
   dash.loader('salute_eventi', {description: 'Prende dal file gli ultimi eventi del monitor (allarmi, fermi, ripartenze).', fn: ({answer}) => ({columns: ['id', 'quando', 'tipo', 'testo'], rows: answer.salute_eventi || []})});
@@ -1329,8 +1368,8 @@
     if (vuoto) vuoto.hidden = !(e.status === 'ok' && rows.length === 0);
   });
   // Grafico a linee generico per lo storico della salute (24 ore). serie: [[campo, colore, etichetta]], soglie: [[valore, etichetta]]
-  window.rpLinee = (box, serie, unita, soglie, vuoto) => {
-    const d = dash.data('salute_storico');
+  window.rpLinee = (box, serie, unita, soglie, vuoto, fonte) => {
+    const d = dash.data(fonte || 'salute_storico');
     if (window.rpFallito(box, d.status)) return;
     const rows = d.data.filter((r) => serie.some(([c]) => r[c] != null && r[c] !== ''));
     if (!rows.length) { const p = document.createElement('p'); p.className = 'rp-empty'; p.textContent = vuoto; box.replaceChildren(p); return; }
@@ -1366,6 +1405,26 @@
   dash.draw('grafico-ventole', (box) => window.rpLinee(box, [['ventola1_min', 'var(--color-bad)', 'processore'], ['ventola2_min', 'var(--cds-chart-muted)', 'case']], ' giri', [[100, 'allarme sotto 100 giri']],
     'Giri delle ventole non ancora leggibili: serve LibreHardwareMonitor avviato.'));
   dash.draw('grafico-carico', (box) => window.rpLinee(box, [['cpu_carico', 'var(--color-fg)', 'processore'], ['ram_uso_pct', 'var(--cds-chart-muted)', 'memoria']], '%', [], 'Ancora nessuna lettura.'));
+
+  // Salute PC i9 (20/11/2026): pubblicata dall'i9 quando è acceso; oltre 25 minuti senza letture = spento
+  const rpI9 = () => { const s = dash.data('salute_i9'); return s.status === 'ok' && s.data[0] ? s.data[0] : null; };
+  const rpI9Spento = (r) => !r || (Date.now() - new Date(String(r.quando).replace(' ', 'T'))) > 25 * 60 * 1000;
+  dash.onData(() => { const m = document.getElementById('i9-mai'); if (m) m.hidden = !!rpI9(); });
+  dash.draw('i9-stato', (el) => {
+    const r = rpI9();
+    el.classList.remove('rp-ok', 'rp-warn', 'rp-bad', 'rp-muted');
+    if (!r) { el.textContent = '—'; el.classList.add('rp-muted'); return; }
+    if (rpI9Spento(r)) { el.textContent = 'spento'; el.classList.add('rp-muted'); return; }
+    el.textContent = r.livello;
+    el.classList.add(rpTonoSalute(r.livello));
+  });
+  dash.draw('i9-campo', (el) => { const r = rpI9(); const v = r ? r[el.dataset.campo] : null; el.textContent = v == null || v === '' ? '—' : (el.dataset.campo === 'quando' ? window.rpQuando(String(v)) : String(v).replace('.', ',')); });
+  dash.draw('i9-temp', (el) => { const r = rpI9(); const v = r ? r[el.dataset.campo] : null; el.textContent = v == null || v === '' ? 'non letta' : Math.round(+v) + ' °C'; });
+  dash.draw('i9-pct', (el) => { const r = rpI9(); const v = r ? r[el.dataset.campo] : null; el.textContent = v == null || v === '' ? '—' : Math.round(+v) + '%'; });
+  dash.draw('grafico-i9-temp', (box) => window.rpLinee(box, [['gpu_temp_max', 'var(--color-bad)', 'scheda video'], ['cpu_temp_max', 'var(--color-warn)', 'processore']], ' °C',
+    [[85, 'alta 85 °C']], 'Nessuna lettura nelle ultime 24 ore: l\'i9 era spento.', 'salute_i9_storico'));
+  dash.draw('grafico-i9-carico', (box) => window.rpLinee(box, [['cpu_carico', 'var(--color-fg)', 'processore'], ['gpu_carico', 'var(--color-bad)', 'scheda video'], ['ram_uso_pct', 'var(--cds-chart-muted)', 'memoria']], '%', [],
+    'Nessuna lettura nelle ultime 24 ore: l\'i9 era spento.', 'salute_i9_storico'));
 
   // Errori
   const rpChiuso = (s) => ['risolto', 'chiuso'].includes((s || '').toLowerCase());
