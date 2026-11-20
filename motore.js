@@ -241,6 +241,8 @@
     colors: ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--chart-6)'],
     setLink(id) { try { history.replaceState(null, '', '#' + id); } catch (e) { location.hash = id; } },
     refresh() { carica(); },
+    // 20/11/2026: ridisegna senza ricaricare, per i grafici di una scheda appena aperta (prima era nascosta: larghezza 0)
+    ridisegna() { disegna(); },
     params() { return {}; },
     setParams() {},
     resetParams() {}

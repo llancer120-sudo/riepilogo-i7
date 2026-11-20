@@ -1005,6 +1005,8 @@
       if (p) p.hidden = !on;
     });
     if (conLink) dash.setLink(id);
+    // i grafici disegnati mentre la scheda era nascosta hanno la larghezza sbagliata: li rifaccio ora che si vede
+    if (dash.ridisegna) setTimeout(() => dash.ridisegna(), 0);
   };
   document.querySelectorAll('.rp-tab[data-tab]').forEach((t) => {
     t.addEventListener('click', () => window.rpApri(t.dataset.tab, true));
@@ -1385,7 +1387,10 @@
     if (!rows.length) { const p = document.createElement('p'); p.className = 'rp-empty'; p.textContent = vuoto; box.replaceChildren(p); return; }
     const W = Math.max(box.clientWidth, 260), H = 190, m = {t: 12, r: 8, b: 22, l: 34};
     const tempo = (s) => new Date(s.replace(' ', 'T'));
-    const x = d3.scaleTime().domain(d3.extent(rows, (r) => tempo(r.quando))).range([m.l, W - m.r]);
+    // 20/11/2026: con una sola lettura (es. l'i9 appena acceso) allargo l'asse di 10 minuti per parte e disegno i punti
+    let est = d3.extent(rows, (r) => tempo(r.quando));
+    if (+est[0] === +est[1]) est = [new Date(+est[0] - 600000), new Date(+est[1] + 600000)];
+    const x = d3.scaleTime().domain(est).range([m.l, W - m.r]);
     const valori = rows.flatMap((r) => serie.map(([c]) => +r[c]).filter((v) => !isNaN(v))).concat((soglie || []).map((s) => s[0]));
     const y = d3.scaleLinear().domain([Math.min(0, d3.min(valori)), Math.max(10, d3.max(valori) * 1.05)]).nice(4).range([H - m.b, m.t]);
     const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', serie.map((s) => s[2]).join(' e ') + ' nelle ultime 24 ore');
@@ -1398,6 +1403,7 @@
     serie.forEach(([c, col]) => {
       const pts = rows.filter((r) => r[c] != null && r[c] !== '');
       svg.append('path').datum(pts).attr('d', d3.line().x((r) => x(tempo(r.quando))).y((r) => y(+r[c]))).style('fill', 'none').style('stroke', col).style('stroke-width', 2);
+      if (rows.length <= 6) pts.forEach((r) => svg.append('circle').attr('cx', x(tempo(r.quando))).attr('cy', y(+r[c])).attr('r', 3.5).style('fill', col));
     });
     const tip = window.rpTip(box);
     svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
