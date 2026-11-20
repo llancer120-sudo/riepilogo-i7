@@ -374,8 +374,8 @@
       </div>
       <div class="rp-tiles">
         <div class="rp-tile"><span class="rp-tile-label">Stato</span><span class="rp-num" data-draw="salute-livello" data-source="salute" data-field="livello" data-row="0">—</span><span class="rp-tile-win" data-draw="salute-campo" data-campo="problemi" data-source="salute" data-field="problemi" data-row="0">—</span></div>
-        <div class="rp-tile"><span class="rp-tile-label">Processore</span><span class="rp-num" data-draw="salute-temp" data-campo="cpu_temp" data-source="salute" data-field="cpu_temp" data-row="0">—</span><span class="rp-tile-win">alta da 85 °C, ferma tutto a 95 °C</span></div>
-        <div class="rp-tile"><span class="rp-tile-label">Disco SSD</span><span class="rp-num" data-draw="salute-temp" data-campo="ssd_temp" data-source="salute" data-field="ssd_temp" data-row="0">—</span><span class="rp-tile-win">alta da 65 °C, ferma tutto a 75 °C</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Processore</span><span class="rp-num" data-draw="salute-temp" data-campo="cpu_temp" data-source="salute" data-field="cpu_temp" data-row="0">—</span><span class="rp-tile-win">freno da 72 °C, alta da 75 °C, ferma tutto a 80 °C</span></div>
+        <div class="rp-tile"><span class="rp-tile-label">Disco SSD</span><span class="rp-num" data-draw="salute-temp" data-campo="ssd_temp" data-source="salute" data-field="ssd_temp" data-row="0">—</span><span class="rp-tile-win">alta da 52 °C, ferma tutto a 56 °C</span></div>
         <div class="rp-tile"><span class="rp-tile-label">Carico processore</span><span class="rp-num" data-draw="salute-pct" data-campo="cpu_carico" data-source="salute" data-field="cpu_carico" data-row="0">—</span><span class="rp-tile-win">memoria usata <span data-draw="salute-pct" data-campo="ram_uso_pct" data-source="salute" data-field="ram_uso_pct" data-row="0">—</span></span></div>
       </div>
       <p class="rp-sub">Ventole: <span data-draw="salute-campo" data-campo="ventole" data-source="salute" data-field="ventole" data-row="0">—</span>. Disco C libero: <span data-draw="salute-campo" data-campo="disco_C_libero_gb" data-source="salute" data-field="disco_C_libero_gb" data-row="0">—</span> GB.</p>
@@ -1411,7 +1411,7 @@
     if (vecchio) vecchio.replaceWith(svg.node()); else box.replaceChildren(svg.node(), ...box.querySelectorAll('.rp-tip'));
   };
   dash.draw('grafico-temp', (box) => window.rpLinee(box, [['cpu_temp_max', 'var(--color-bad)', 'processore'], ['ssd_temp_max', 'var(--color-warn)', 'SSD']], ' °C',
-    [[85, 'alta 85 °C'], [95, 'ferma tutto 95 °C']], 'Temperature non ancora leggibili: serve LibreHardwareMonitor avviato come amministratore.'));
+    [[75, 'alta 75 °C'], [80, 'ferma tutto 80 °C']], 'Temperature non ancora leggibili: serve LibreHardwareMonitor avviato come amministratore.'));
   dash.draw('grafico-ventole', (box) => window.rpLinee(box, [['ventola1_min', 'var(--color-bad)', 'processore'], ['ventola2_min', 'var(--cds-chart-muted)', 'case']], ' giri', [[100, 'allarme sotto 100 giri']],
     'Giri delle ventole non ancora leggibili: serve LibreHardwareMonitor avviato.'));
   dash.draw('grafico-carico', (box) => window.rpLinee(box, [['cpu_carico', 'var(--color-fg)', 'processore'], ['ram_uso_pct', 'var(--cds-chart-muted)', 'memoria']], '%', [], 'Ancora nessuna lettura.'));
