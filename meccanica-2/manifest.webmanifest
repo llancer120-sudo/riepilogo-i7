@@ -1,0 +1,16 @@
+{
+  "name": "Meccanica 2",
+  "short_name": "Meccanica 2",
+  "description": "Ripasso di meccanica che si adatta al tuo livello. Funziona offline.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1f2b33",
+  "theme_color": "#1f2b33",
+  "lang": "it",
+  "icons": [
+    { "src": "../meccanica/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "../meccanica/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
