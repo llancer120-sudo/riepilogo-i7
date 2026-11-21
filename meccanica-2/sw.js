@@ -1,6 +1,6 @@
 // App "Meccanica 2": funziona offline. Prima la rete (così gli esercizi nuovi arrivano da soli),
 // la copia salvata solo se la rete manca. I progressi NON passano di qui: restano nel telefono.
-const VERSIONE = 'meccanica-2-202611210827';
+const VERSIONE = 'meccanica-2-202611210845';
 const BASE = ['./', 'index.html', 'manifest.webmanifest', '../meccanica/esercizi.js', '../meccanica/app.js', '../meccanica/stile.css',
   '../meccanica/icon-192.png', '../meccanica/icon-512.png', '../meccanica/apple-touch-icon.png'];
 

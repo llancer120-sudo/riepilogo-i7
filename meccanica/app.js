@@ -98,12 +98,14 @@
     if (esito === 'giusto') d = c.tentativi <= 1 && (c.liv === 1 || c.aiuti === 0) ? 0.4 : 0.15;
     else d = -0.35;
     if (c.decisione && c.decisa !== null) d += c.decisa === c.decisione.giusta ? 0.05 : -0.1;
+    const schemaOk = c.schema && c.schemaScelto != null ? (c.schemaScelto === c.schema.giusta ? 1 : 0) : null;
+    if (schemaOk !== null) d += schemaOk ? 0.05 : -0.15; // lo schema è il punto debole da allenare: pesa di più
     if (c.liv === 3 && d > 0) d *= 0.6;
     const prima = livello(c.blocco);
     p.r = Math.max(1, Math.min(3.99, p.r + d));
     p.fatte++;
     if (esito === 'giusto') p.giuste++; else { p.sbagliate++; S.ripassi = S.ripassi.filter((r) => r.id !== c.modello); S.ripassi.push({ id: c.modello, quando: S.storico.length + 3 }); }
-    S.storico.push({ g: oggi(), m: c.modello, b: c.blocco, l: c.liv, e: esito === 'giusto' ? 1 : 0 });
+    S.storico.push({ g: oggi(), m: c.modello, b: c.blocco, l: c.liv, e: esito === 'giusto' ? 1 : 0, s: schemaOk });
     if (S.storico.length > 500) S.storico = S.storico.slice(-500);
     if (!S.giorni.includes(oggi())) S.giorni.push(oggi());
     let novita = '';
@@ -198,6 +200,8 @@
     S.storico.slice(-60).forEach((s) => { if (!s.e) errori[s.m] = (errori[s.m] || 0) + 1; });
     const deboli = Object.entries(errori).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([id]) => M.MODELLI.find((m) => m.id === id)).filter(Boolean);
     const sr = serie();
+    const schemi = S.storico.slice(-40).filter((s) => s.s === 0 || s.s === 1);
+    const schemiTxt = schemi.length >= 3 ? `Schemi giusti nelle ultime ${schemi.length} prove: ${Math.round(schemi.filter((s) => s.s === 1).length / schemi.length * 100)}%.` : '';
     mostra(`<section class="carta">
       <div class="riga-alta"><h1>Ciao${S.nome ? ' ' + esc(S.nome) : ''}</h1><button class="icona" id="impo" aria-label="Impostazioni">${iconaImpo()}</button></div>
       <div class="numeri">
@@ -206,6 +210,7 @@
         <div><b>${sr}</b><span>giorni di fila</span></div>
       </div>
       <button class="pieno grande" id="vai">${S.corrente && !S.corrente.chiuso ? 'Riprendi l\'esercizio' : 'Esercizio'}</button>
+      ${schemiTxt ? `<p class="piccolo">${schemiTxt}</p>` : ''}
       ${deboli.length ? `<p class="piccolo">Dove sbagli più spesso: ${deboli.map((m) => esc(m.titolo)).join(' · ')}. Torneranno con numeri nuovi.</p>` : ''}
     </section>
     <h3 class="titoletto">Il tuo percorso</h3>
@@ -229,17 +234,29 @@
   function esercizio() {
     const c = S.corrente;
     if (!c) { scegli(); return esercizio(); }
-    const aiutiVisti = c.impostazione.slice(0, c.aiuti);
     const mostraSol = c.mostrata || c.risolto;
+    const aspettaSchema = c.schema && c.schemaScelto == null && !mostraSol;
+    const aiutiVisti = aspettaSchema ? [] : c.impostazione.slice(0, c.aiuti);
+    let schemaHtml = '';
+    if (c.schema) {
+      if (aspettaSchema) {
+        schemaHtml = `<div class="decisione"><p class="richiesta">Prima dei conti, schematizza: ${esc(c.schema.domanda)}</p>
+          ${c.schema.opzioni.map((o, i) => `<button class="scelta" data-schema="${i}">${esc(o)}</button>`).join('')}</div>`;
+      } else if (c.schemaScelto != null) {
+        const ok = c.schemaScelto === c.schema.giusta;
+        schemaHtml = `<div class="${ok ? 'ok' : 'avviso'}"><b>${ok ? 'Schema giusto.' : 'Schema sbagliato.'}</b> ${ok ? '' : `Era: "${esc(c.schema.opzioni[c.schema.giusta])}". `}${esc(c.schema.spiega)}</div>`;
+      }
+    }
     mostra(`<section class="carta">
       <div class="riga-alta"><button class="vuoto piccolo-b" id="indietro">← Percorso</button><span class="etichetta liv${c.liv}">${esc(nomeBlocco(c.blocco))} · ${NOMI_LIV[c.liv]}</span></div>
       <h2>${esc(c.titolo)}</h2>
       <p>${esc(c.contesto)}</p>
       <table class="dati">${c.dati.map((d) => `<tr><td>${esc(d[0])}</td><td>${typeof d[1] === 'number' ? f(d[1]) : esc(d[1])} ${esc(d[2])}</td></tr>`).join('')}</table>
-      <p class="richiesta">${esc(c.richiesta)}</p>
+      ${schemaHtml}
+      ${aspettaSchema ? '' : `<p class="richiesta">${esc(c.richiesta)}</p>`}
       ${aiutiVisti.length ? `<ol class="aiuti">${aiutiVisti.map((a) => `<li>${esc(a)}</li>`).join('')}</ol>` : ''}
-      ${!mostraSol && c.aiuti < c.impostazione.length ? `<button class="vuoto" id="aiuto">${c.aiuti ? 'Un altro aiuto' : 'Come si imposta?'}</button>` : ''}
-      ${!mostraSol ? `
+      ${!mostraSol && !aspettaSchema && c.aiuti < c.impostazione.length ? `<button class="vuoto" id="aiuto">${c.aiuti ? 'Un altro aiuto' : 'Come si imposta?'}</button>` : ''}
+      ${!mostraSol && !aspettaSchema ? `
         <div class="risposta"><input id="r" inputmode="decimal" autocomplete="off" placeholder="${esc(c.risposta.nome)} ="><span class="unita">${esc(c.risposta.unita)}</span></div>
         <div id="esito"></div>
         <div class="bottoni"><button class="pieno" id="ok">Controlla</button><button class="vuoto" id="sol">Mostra la soluzione</button></div>` : ''}
@@ -248,6 +265,10 @@
     document.getElementById('indietro').onclick = home;
     const aiuto = document.getElementById('aiuto');
     if (aiuto) aiuto.onclick = () => { c.aiuti++; salva(); esercizio(); };
+    if (aspettaSchema) {
+      $app.querySelectorAll('[data-schema]').forEach((el) => { el.onclick = () => { c.schemaScelto = Number(el.dataset.schema); salva(); esercizio(); }; });
+      return;
+    }
     if (!mostraSol) {
       const inp = document.getElementById('r');
       const controlla = () => {

@@ -14,7 +14,7 @@
     if (!isFinite(x)) return String(x);
     const a = Math.abs(x);
     if (a >= 1000) return Math.round(x).toLocaleString('it-IT');
-    if (a >= 10) return x.toFixed(1).replace('.', ',');
+    if (a >= 10) { const s = x.toFixed(1); return (s.endsWith('.0') ? s.slice(0, -2) : s).replace('.', ','); }
     if (a >= 0.01) return x.toFixed(3).replace(/0+$/, '').replace(/\.$/, '').replace('.', ',');
     if (a === 0) return '0';
     return x.toExponential(2).replace('.', ',');
@@ -28,17 +28,34 @@
   function sceltaCatalogo(lista, x, unita) {
     const g = prossimo(lista, x);
     const i = lista.indexOf(g);
-    const da = Math.max(0, Math.min(i - 1, lista.length - 4));
+    const spost = Math.floor(Math.random() * 4); // la risposta giusta non sta sempre nello stesso posto
+    const da = Math.max(0, Math.min(i - spost, lista.length - 4));
     const opz = lista.slice(da, da + 4);
     return { opzioni: opz.map((v) => f(v) + (unita ? ' ' + unita : '')), giusta: opz.indexOf(g), valore: g };
+  }
+
+  // Il primo valore di catalogo sopra x, scelto a caso tra quello sotto, quello giusto e quello sopra:
+  // così l'esercizio a volte passa e a volte no.
+  function vicino(lista, x) {
+    let i = lista.findIndex((v) => v >= x);
+    if (i < 0) i = lista.length - 1;
+    const scelte = [i - 1, i, i, i + 1].filter((k) => k >= 0 && k < lista.length);
+    return lista[scelte[Math.floor(Math.random() * scelte.length)]];
+  }
+
+  // Domanda di schema: la prima opzione è quella giusta, poi si mescolano.
+  function schema(domanda, opzioni, spiega) {
+    const ordine = opzioni.map((o, i) => [o, i]).sort(() => Math.random() - 0.5);
+    return { domanda, opzioni: ordine.map((x) => x[0]), giusta: ordine.findIndex((x) => x[1] === 0), spiega };
   }
 
   const BLOCCHI = [
     { id: 'b1', nome: 'Basi applicate', dettaglio: 'unità, trigonometria, energia, dilatazioni' },
     { id: 'b2', nome: 'Statica', dettaglio: 'forze, momenti, reazioni vincolari' },
-    { id: 'b3', nome: 'Resistenza dei materiali', dettaglio: 'trazione, torsione, flessione' },
-    { id: 'b5', nome: 'Meccanica applicata', dettaglio: 'trasmissioni, attrito' },
-    { id: 'b6', nome: 'Elementi costruttivi', dettaglio: 'cuscinetti' },
+    { id: 'b3', nome: 'Scienza delle costruzioni applicata', dettaglio: 'perni, leve, ganci, Von Mises, Eulero, frecce, intagli' },
+    { id: 'b4', nome: 'Materiali', dettaglio: 'estensimetri, scelta dell\'acciaio, i due mondi' },
+    { id: 'b5', nome: 'Meccanica applicata', dettaglio: 'trasmissioni, attrito, freni, cinghie, avviamento' },
+    { id: 'b6', nome: 'Elementi costruttivi', dettaglio: 'cuscinetti, viti, saldature, chiavette, molle' },
     { id: 'b7', nome: 'Disegno e tolleranze', dettaglio: 'accoppiamenti, montaggio a caldo' },
     { id: 'b8', nome: 'Termodinamica', dettaglio: 'calore, riscaldamento, raffreddamento' },
   ];
@@ -730,6 +747,1052 @@
       },
     },
   ];
+
+  // =====================================================================================
+  // Dal 21/11/2026: esercizi presi dal corso di Elementi costruttivi (scienza delle costruzioni
+  // applicata: dondolo, perno, maniglia, gancio, pozzo di petrolio, Eulero, intagli, cuscinetti)
+  // e da Meccanica applicata e Termodinamica. Il metodo del professore: diagrammi, punto più
+  // sollecitato, tensione sul componente, confronto con l'ammissibile del materiale ("i due mondi").
+  // =====================================================================================
+  const E_ACC = 210000; // MPa
+  const vm = (s, t) => Math.sqrt(s * s + 3 * t * t);
+
+  MODELLI.push(
+    // ---------------- BLOCCO 3: scienza delle costruzioni applicata ----------------
+    {
+      id: 'perno', blocco: 'b3', titolo: 'Il perno della forchetta regge?',
+      genera(liv, R) {
+        const F = R.tra(4, 30, 1) * 1000, b = R.da([20, 25, 30, 40]), a = R.da([10, 12, 15, 20]), g = 1;
+        const Rs = 355, nu = 2, sa = Rs / nu, ta = sa / 2;
+        const braccio = b / 4 + g + a / 3, M = F / 2 * braccio;
+        const cat = [10, 12, 14, 16, 18, 20, 22, 25, 28, 30, 35, 40];
+        const sch = schema('Come si schematizza il perno nella forchetta?', [
+          'Flessione su 4 punti: due forze F/2 dalla boccola e due reazioni F/2 dai supporti',
+          'Trave appoggiata con F concentrata in mezzo (flessione su 3 punti)',
+          'Mensola incastrata in un supporto della forchetta',
+          'Solo taglio: in un perno la flessione si trascura',
+        ], 'La boccola carica il perno con metà forza a b/4 dal centro. I supporti cedono un poco e si trattano come cerniere, con reazione triangolare: la risultante sta a a/3 dal bordo interno. Il braccio tra le due forze è b/4 + g + a/3. Il perno è tozzo (lungo meno di 5 diametri): taglio e flessione si verificano tutti e due, separati.');
+        const contesto = (d) => `Lo snodo di un cilindro idraulico è una forchetta con un perno${d ? ` Ø${d} mm` : ''}. La testa del cilindro ha una boccola larga ${b} mm e spinge con ${f(F / 1000)} kN. I due supporti della forchetta sono larghi ${a} mm ciascuno, con ${g} mm di gioco dalla boccola. Perno in S355 (Rs = 355 MPa), sicurezza 2.`;
+        if (liv === 3) {
+          const d = Math.cbrt(32 * M / (PI * sa));
+          const sc = sceltaCatalogo(cat, d, 'mm');
+          const p = 2 * F / (a * sc.valore);
+          return {
+            schema: sch, contesto: contesto(0),
+            richiesta: 'Diametro minimo del perno a flessione, in mm. Poi scegli il perno di catalogo.',
+            dati: [['F', F / 1000, 'kN'], ['boccola b', b, 'mm'], ['supporti a', a, 'mm'], ['gioco g', g, 'mm'], ['σ amm', sa, 'MPa']],
+            impostazione: ['Momento massimo (flessione su 4 punti): M = F/2 · (b/4 + g + a/3).', 'Sezione circolare: σ = 32 M / (π d³).', 'd = ∛(32 M / (π σ amm)).', 'Poi controlla anche il taglio e la pressione di contatto: sono tre verifiche separate.'],
+            risposta: { nome: 'd minimo', valore: d, unita: 'mm' },
+            passi: [['Braccio', `${b}/4 + ${g} + ${a}/3`, braccio, 'mm'], ['Momento massimo', `M = ${f(F / 2)} · braccio`, M, 'N·mm'], ['Diametro minimo', `d = ∛(32 M / (π · ${f(sa)}))`, d, 'mm']],
+            decisione: { domanda: 'Che perno scegli?', opzioni: sc.opzioni, giusta: sc.giusta },
+            giudizio: `Almeno Ø${f(d)}: si prende Ø${sc.valore}. Pressione di contatto massima sui supporti: p max = 2F / (a·d) = ${f(p)} MPa. Con boccole in bronzo si sta sotto 25–30 MPa, acciaio su acciaio temprato regge di più: spesso è questa verifica a decidere la larghezza a.`,
+          };
+        }
+        if (liv === 1) {
+          const d = vicino(cat, Math.sqrt(4 * (4 / 3) * (F / 2) / (PI * ta)));
+          const A = PI * d * d / 4, t = (4 / 3) * (F / 2) / A;
+          return {
+            schema: sch, contesto: contesto(d),
+            richiesta: 'Tensione tangenziale massima a taglio nel perno, in MPa.',
+            dati: [['F', F / 1000, 'kN'], ['d', d, 'mm'], ['τ amm (metà di σ amm)', ta, 'MPa']],
+            impostazione: ['Ogni sezione tra boccola e supporto porta un taglio T = F/2.', 'Sulla sezione circolare (Jourawski) il massimo è sull\'asse: τ max = 4/3 · T / A.', 'L\'ammissibile a taglio è metà di quello a trazione (Tresca).'],
+            risposta: { nome: 'τ max', valore: t, unita: 'MPa' },
+            passi: [['Taglio su ogni sezione', `T = ${f(F)} / 2`, F / 2, 'N'], ['Area', `π · ${d}² / 4`, A, 'mm²'], ['τ massima', '4/3 · T / A', t, 'MPa']],
+            decisione: { domanda: 'A taglio il perno va bene?', opzioni: MARGINE, giusta: giustaMargine(ta, t) },
+            giudizio: `${f(t)} MPa contro ${f(ta)} ammessi a taglio. Ricorda i due mondi: a sinistra la tensione sul componente, a destra l'ammissibile del materiale. Poi servono ancora flessione e pressione di contatto.`,
+          };
+        }
+        const d = vicino(cat, Math.cbrt(32 * M / (PI * sa)));
+        const s = 32 * M / (PI * d * d * d);
+        return {
+          schema: sch, contesto: contesto(d),
+          richiesta: 'Tensione massima di flessione nel perno, in MPa.',
+          dati: [['F', F / 1000, 'kN'], ['d', d, 'mm'], ['boccola b', b, 'mm'], ['supporti a', a, 'mm'], ['gioco g', g, 'mm'], ['σ amm', sa, 'MPa']],
+          impostazione: ['Metà struttura: F/2 a b/4 dal centro, reazione F/2 a a/3 dal bordo interno del supporto.', 'Il braccio tra le due è b/4 + g + a/3: M = F/2 · braccio, costante nel tratto centrale.', 'σ = 32 M / (π d³).'],
+          risposta: { nome: 'σ', valore: s, unita: 'MPa' },
+          passi: [['Braccio', `${b}/4 + ${g} + ${a}/3`, braccio, 'mm'], ['Momento massimo', `${f(F / 2)} · ${f(braccio)}`, M, 'N·mm'], ['Tensione di flessione', `32 M / (π · ${d}³)`, s, 'MPa']],
+          decisione: { domanda: 'A flessione il perno va bene?', opzioni: MARGINE, giusta: giustaMargine(sa, s) },
+          giudizio: `${f(s)} MPa contro ${f(sa)}. Il gioco g sembra poco ma entra nel braccio: all'esame va tenuto. Per accorciare il braccio si stringono boccola e supporti, ma poi sale la pressione di contatto.`,
+        };
+      },
+    },
+    {
+      id: 'leva-valvola', blocco: 'b3', titolo: 'La leva della valvola si piega?',
+      genera(liv, R) {
+        const L1 = R.da([100, 120, 150, 200]), L2 = R.da([30, 40, 50, 60]);
+        const sch = schema('Nel perno della leva (il tratto tondo che entra nella valvola) che sollecitazioni ci sono?', [
+          'Flessione e torsione insieme: tensione equivalente di Von Mises',
+          'Solo flessione',
+          'Solo torsione',
+          'Trazione e flessione, che si sommano',
+        ], 'Portando la forza dall\'impugnatura alla base della leva nasce un momento F·L1, che per il perno è torcente. In più la forza flette il perno con braccio L2 fino alla valvola. σ e τ sono massime sulla superficie esterna dello stesso punto e stanno su piani ortogonali: si combinano con Von Mises, σ eq = √(σ² + 3τ²). Vale solo in statica: una leva usata migliaia di volte è un problema di fatica.');
+        const ctx = (F, Ftesto, d) => `Una valvola a sfera si apre con una leva lunga ${L1} mm. La leva è fissata a un perno tondo${d ? ` Ø${d} mm` : ''} che sporge ${L2} mm dal corpo valvola. Quando la valvola è dura, l'operatore spinge in punta alla leva con ${Ftesto}, perpendicolare alla leva e al perno.`;
+        if (liv === 3) {
+          const F = R.tra(300, 900, 50), Rm = R.da([400, 500, 600]), nu = 3, sa = Rm / nu;
+          const Mf = F * L2, Mt = F * L1;
+          const d = Math.cbrt(16 * Math.sqrt(4 * Mf * Mf + 3 * Mt * Mt) / (PI * sa));
+          const sc = sceltaCatalogo([10, 12, 14, 16, 18, 20, 22, 25, 28, 30], d, 'mm');
+          return {
+            schema: sch, contesto: ctx(F, `${f(F)} N`, 0) + ` Acciaio con Rm = ${Rm} MPa, sicurezza 3 sulla rottura.`,
+            richiesta: 'Diametro minimo del perno, in mm.',
+            dati: [['F', F, 'N'], ['L1 leva', L1, 'mm'], ['L2 perno', L2, 'mm'], ['σ amm', sa, 'MPa']],
+            impostazione: ['Nel perno, alla base: M flettente = F · L2, M torcente = F · L1.', 'σ = 32 Mf / (π d³), τ = 16 Mt / (π d³).', 'Von Mises: σ eq = 16 / (π d³) · √(4 Mf² + 3 Mt²).', 'd = ∛(16 √(4 Mf² + 3 Mt²) / (π σ amm)).'],
+            risposta: { nome: 'd minimo', valore: d, unita: 'mm' },
+            passi: [['Momento flettente', `${f(F)} · ${L2}`, Mf, 'N·mm'], ['Momento torcente', `${f(F)} · ${L1}`, Mt, 'N·mm'], ['√(4 Mf² + 3 Mt²)', '', Math.sqrt(4 * Mf * Mf + 3 * Mt * Mt), 'N·mm'], ['Ammissibile', `${Rm} / 3`, sa, 'MPa'], ['Diametro minimo', 'd = ∛(16 · √(...) / (π σ amm))', d, 'mm']],
+            decisione: { domanda: 'Che diametro scegli?', opzioni: sc.opzioni, giusta: sc.giusta },
+            giudizio: `Almeno Ø${f(d)}: si fa Ø${sc.valore}. Qui comanda la torsione (la leva è ${f(L1 / L2)} volte più lunga del perno). Attenzione: il 3 sotto radice moltiplica solo τ², non il momento.`,
+          };
+        }
+        const m = R.da([20, 30, 40, 50]);
+        const F = liv === 1 ? R.tra(200, 500, 50) : m * G;
+        const Mf = F * L2, Mt = F * L1;
+        const Rm = 400, sa = Rm / 3;
+        const d = vicino([10, 12, 14, 16, 18, 20, 22, 25], Math.cbrt(16 * Math.sqrt(4 * Mf * Mf + 3 * Mt * Mt) / (PI * sa)));
+        const s = 32 * Mf / (PI * d ** 3), t = 16 * Mt / (PI * d ** 3), se = vm(s, t);
+        return {
+          schema: sch, contesto: ctx(F, liv === 1 ? `${f(F)} N` : `circa ${m} kg di spinta`, d) + ' Acciaio con Rm = 400 MPa, sicurezza 3: σ amm ≈ 133 MPa.',
+          richiesta: 'Tensione equivalente di Von Mises alla base del perno, in MPa.',
+          dati: [['F', liv === 1 ? F : m, liv === 1 ? 'N' : 'kg'], ['L1 leva', L1, 'mm'], ['L2 perno', L2, 'mm'], ['d perno', d, 'mm']],
+          impostazione: [...(liv === 1 ? [] : ['Prima la forza in N: F = m · g.']), 'Alla base del perno: Mf = F · L2 e Mt = F · L1.', 'σ = 32 Mf / (π d³), τ = 16 Mt / (π d³).', 'σ eq = √(σ² + 3 τ²).'],
+          risposta: { nome: 'σ eq', valore: se, unita: 'MPa' },
+          passi: [...(liv === 1 ? [] : [['Forza', `${m} · 9,81`, F, 'N']]), ['Momento flettente', `F · ${L2}`, Mf, 'N·mm'], ['Momento torcente', `F · ${L1}`, Mt, 'N·mm'], ['σ di flessione', `32 Mf / (π · ${d}³)`, s, 'MPa'], ['τ di torsione', `16 Mt / (π · ${d}³)`, t, 'MPa'], ['Von Mises', '√(σ² + 3τ²)', se, 'MPa']],
+          decisione: { domanda: 'Il perno va bene?', opzioni: MARGINE, giusta: giustaMargine(sa, se) },
+          giudizio: `σ eq = ${f(se)} MPa contro ${f(sa)}. Errore tipico: sommare σ e τ, o mettere il 3 fuori dal quadrato. E la leva (sezione rettangolare) lavora solo a flessione: le sezioni rettangolari non si mettono in torsione.`,
+        };
+      },
+    },
+    {
+      id: 'gancio', blocco: 'b3', titolo: 'Il gancio della gru regge?',
+      genera(liv, R) {
+        const Rc = R.da([40, 50, 60, 80]);
+        const sch = schema('Nella sezione del gancio a 90° dal carico (all\'altezza del centro di curvatura) che tensioni ci sono e come le combini?', [
+          'Sforzo normale e flessione nella stessa direzione: si sommano sul bordo interno',
+          'Flessione e torsione: Von Mises',
+          'Solo taglio',
+          'Sforzo normale e flessione: Von Mises',
+        ], 'Lì la forza P è perpendicolare alla sezione: dà trazione N = P e un momento P·R (il braccio è il raggio). Le due σ hanno la stessa direzione sullo stesso cubetto: si sommano algebricamente, il massimo è sul bordo interno. Von Mises serve solo per tensioni su piani ortogonali (σ con τ). In cima (a 180°) c\'è solo taglio, che in un gancio tozzo va verificato a parte.');
+        const Rm = 600, nu = 5, sa = Rm / nu;
+        const sTot = (P, d) => 4 * P / (PI * d * d) + 32 * P * Rc / (PI * d ** 3);
+        if (liv === 3) {
+          const t = R.da([0.5, 1, 2, 3, 5]), P = t * 1000 * G;
+          let lo = 5, hi = 300;
+          for (let k = 0; k < 80; k++) { const mid = (lo + hi) / 2; if (sTot(P, mid) > sa) lo = mid; else hi = mid; }
+          const d = hi;
+          const sc = sceltaCatalogo([16, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100], d, 'mm');
+          return {
+            schema: sch, contesto: `Devi dimensionare un gancio per ${f(t)} t, a sezione circolare, con raggio di curvatura ${Rc} mm, appeso a un perno. Acciaio con Rm = ${Rm} MPa; c'è gente sotto, quindi sicurezza ${nu} sulla rottura.`,
+            richiesta: 'Diametro minimo della sezione, in mm (verifica a 90°).',
+            dati: [['carico', t, 't'], ['R curvatura', Rc, 'mm'], ['σ amm', sa, 'MPa']],
+            impostazione: ['P = massa · g.', 'Bordo interno a 90°: σ = 4P/(π d²) + 32 P R/(π d³) ≤ σ amm.', 'È un\'equazione di terzo grado in d: prova un d, calcola, correggi (2–3 tentativi bastano).'],
+            risposta: { nome: 'd minimo', valore: d, unita: 'mm' },
+            passi: [['Carico', `${f(t)} · 1000 · 9,81`, P, 'N'], ['Ammissibile', `${Rm} / ${nu}`, sa, 'MPa'], ['Diametro che rende σ = σ amm', '4P/(πd²) + 32PR/(πd³) = σ amm', d, 'mm'], ['Di cui: σ da flessione', '32PR/(πd³)', 32 * P * Rc / (PI * d ** 3), 'MPa']],
+            decisione: { domanda: 'Che diametro scegli?', opzioni: sc.opzioni, giusta: sc.giusta },
+            giudizio: `Almeno Ø${f(d)}: si fa Ø${sc.valore}. La flessione pesa molto più della trazione: per questo i ganci veri hanno sezione a goccia, più larga all'interno, e la punta sottile dove non serve materiale.`,
+          };
+        }
+        const t = R.da([0.5, 1, 1.5, 2, 3]);
+        const P = liv === 1 ? R.tra(5, 30, 1) * 1000 : t * 1000 * G;
+        let dd = 10; while (sTot(P, dd) > sa && dd < 200) dd += 1;
+        const d = vicino([16, 20, 25, 30, 35, 40, 45, 50, 60, 70], dd);
+        const sN = 4 * P / (PI * d * d), sM = 32 * P * Rc / (PI * d ** 3), s = sN + sM;
+        return {
+          schema: sch, contesto: `Un gancio a sezione circolare Ø${d} mm, con raggio di curvatura ${Rc} mm, è appeso a un perno e porta ${liv === 1 ? f(P / 1000) + ' kN' : f(t) + ' t'}. Acciaio Rm = ${Rm} MPa, sicurezza ${nu}: σ amm = ${sa} MPa.`,
+          richiesta: 'Tensione massima nella sezione a 90° (bordo interno), in MPa.',
+          dati: [['P', liv === 1 ? P / 1000 : t, liv === 1 ? 'kN' : 't'], ['d', d, 'mm'], ['R', Rc, 'mm']],
+          impostazione: [...(liv === 1 ? [] : ['P = massa · g (1 t = 1000 kg).']), 'Sforzo normale: σ N = P / A = 4P/(π d²).', 'Flessione con braccio R: σ M = 32 P R / (π d³).', 'Stessa direzione: sul bordo interno si sommano.'],
+          risposta: { nome: 'σ max', valore: s, unita: 'MPa' },
+          passi: [...(liv === 1 ? [] : [['Carico', `${f(t)} · 1000 · 9,81`, P, 'N']]), ['σ da sforzo normale', `4 · P / (π · ${d}²)`, sN, 'MPa'], ['σ da flessione', `32 · P · ${Rc} / (π · ${d}³)`, sM, 'MPa'], ['Bordo interno', 'somma', s, 'MPa']],
+          decisione: { domanda: 'Il gancio va bene?', opzioni: MARGINE, giusta: giustaMargine(sa, s) },
+          giudizio: `${f(s)} MPa contro ${sa}: la flessione vale ${f(sM / sN)} volte la trazione. Lo spostamento massimo invece è nel punto di carico: tensione massima e deformazione massima non stanno nello stesso posto.`,
+        };
+      },
+    },
+    {
+      id: 'eulero', blocco: 'b3', titolo: 'L\'asta compressa sbanda?',
+      genera(liv, R) {
+        const casi = [
+          { b: 1, testo: 'lo stelo di un cilindro idraulico, montato con due snodi a occhiello (uno in fondo, uno sulla testa)', nome: 'cerniera-cerniera' },
+          { b: 2, testo: 'il montante di uno scaffale, incastrato nella piastra a terra e libero in alto, con il carico in testa', nome: 'incastro-libero' },
+          { b: 0.5, testo: 'un puntello saldato a terra e in alto infilato in una guida rigida che non lo lascia ruotare ma scorrere in verticale', nome: 'incastro-incastro scorrevole' },
+          { b: 0.7, testo: 'un\'asta saldata a terra e collegata in alto con un perno a una trave che non si sposta', nome: 'incastro-cerniera' },
+        ];
+        const caso = liv === 1 ? casi[0] : R.da(casi);
+        const sch = schema(`Che lunghezza libera di inflessione ha ${caso.testo}?`, [
+          `L0 = ${f(caso.b)} · L (${caso.nome})`,
+          ...casi.filter((c) => c !== caso).map((c) => `L0 = ${f(c.b)} · L (${c.nome})`),
+        ], 'Cerniera-cerniera è il caso base (β = 1). Mensola incastro-libero: β = 2, carico critico 4 volte più basso. Incastro-incastro: β = 0,5, 4 volte più alto. Incastro-cerniera: β ≈ 0,7. Il carico critico è π² E I / L0²: sbanda nella direzione del momento d\'inerzia minore.');
+        const L = R.da([600, 800, 1000, 1200, 1500, 2000]);
+        if (liv === 3) {
+          const F = R.tra(5, 60, 1) * 1000, nu = 3;
+          const L0 = caso.b * L;
+          const d = Math.pow(64 * nu * F * L0 * L0 / (PI ** 3 * E_ACC), 0.25);
+          const sc = sceltaCatalogo([16, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100], d, 'mm');
+          return {
+            schema: sch, contesto: `Devi dimensionare ${caso.testo}. È un tondo pieno d'acciaio (E = 210 GPa) lungo ${L} mm, compresso con ${f(F / 1000)} kN. Vuoi sicurezza 3 sull'instabilità.`,
+            richiesta: 'Diametro minimo, in mm.',
+            dati: [['F', F / 1000, 'kN'], ['L', L, 'mm'], ['E', 210, 'GPa'], ['sicurezza', nu, '']],
+            impostazione: ['Lunghezza libera: L0 = β · L, con β dai vincoli.', 'Tondo: I = π d⁴ / 64.', 'π² E I / L0² ≥ 3 F, quindi d = (64 · 3F · L0² / (π³ E))^¼.'],
+            risposta: { nome: 'd minimo', valore: d, unita: 'mm' },
+            passi: [['Lunghezza libera', `${f(caso.b)} · ${L}`, L0, 'mm'], ['Carico critico da garantire', `3 · ${f(F)}`, 3 * F, 'N'], ['Diametro minimo', '(64 · 3F · L0² / (π³ · 210000))^¼', d, 'mm'], ['Tensione di compressione (per confronto)', `4F / (π d²)`, 4 * F / (PI * d * d), 'MPa']],
+            decisione: { domanda: 'Che tondo scegli?', opzioni: sc.opzioni, giusta: sc.giusta },
+            giudizio: `Almeno Ø${f(d)}: si fa Ø${sc.valore}. La tensione di compressione è solo ${f(4 * F / (PI * d * d))} MPa: comanda l'instabilità, non la resistenza. È per questo che i piloni sono larghi.`,
+          };
+        }
+        const F = R.tra(5, 50, 1) * 1000;
+        const L0 = caso.b * L;
+        const target = Math.pow(64 * 3 * F * L0 * L0 / (PI ** 3 * E_ACC), 0.25);
+        const d = vicino([16, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80], target);
+        const I = PI * d ** 4 / 64, Pcr = PI * PI * E_ACC * I / (L0 * L0);
+        return {
+          schema: liv === 1 ? null : sch,
+          contesto: `${caso.testo[0].toUpperCase() + caso.testo.slice(1)}: tondo pieno d'acciaio Ø${d} mm, lungo ${L} mm, E = 210 GPa. In esercizio è compresso con ${f(F / 1000)} kN e vuoi sicurezza almeno 3 sull'instabilità.${liv === 1 ? ' Vincoli: cerniera-cerniera (β = 1).' : ''}`,
+          richiesta: 'Carico critico di Eulero, in kN.',
+          dati: [['d', d, 'mm'], ['L', L, 'mm'], ['E', 210, 'GPa'], ['F esercizio', F / 1000, 'kN']],
+          impostazione: ['Momento d\'inerzia del tondo: I = π d⁴ / 64.', 'L0 = β · L.', 'P cr = π² E I / L0² (E in MPa, I in mm⁴, L0 in mm: esce N).'],
+          risposta: { nome: 'P cr', valore: Pcr / 1000, unita: 'kN' },
+          passi: [['Momento d\'inerzia', `π · ${d}⁴ / 64`, I, 'mm⁴'], ['Lunghezza libera', `${f(caso.b)} · ${L}`, L0, 'mm'], ['Carico critico', 'π² · 210000 · I / L0²', Pcr, 'N'], ['In kN', '/ 1000', Pcr / 1000, 'kN'], ['Sicurezza', `P cr / ${f(F)}`, Pcr / F, '']],
+          decisione: { domanda: 'Con sicurezza 3, l\'asta va bene?', opzioni: ['Sì', 'No'], giusta: Pcr / F >= 3 ? 0 : 1 },
+          giudizio: `P cr = ${f(Pcr / 1000)} kN, sicurezza ${f(Pcr / F)}. Il diametro conta alla quarta: +10% di diametro dà +46% di carico critico. Se non basta, a volte conviene una "cintura" (un vincolo laterale a metà): il carico critico diventa 4 volte.`,
+        };
+      },
+    },
+    {
+      id: 'albero-puleggia', blocco: 'b3', titolo: 'L\'albero con la puleggia a sbalzo regge?',
+      genera(liv, R) {
+        const P = R.da([2.2, 3, 4, 5.5, 7.5]), n = R.da([700, 960, 1450]), a = R.da([40, 60, 80, 100]);
+        const w = 2 * PI * n / 60, T = P * 1000 / w * 1000; // N·mm
+        const dp = R.da([100, 125, 160, 200]);
+        const Fc = Math.round(2.5 * (T / (dp / 2)) / 10) * 10; // tiro totale dei due rami
+        const M = Fc * a;
+        const sa = R.da([60, 80]);
+        const sch = schema('L\'albero è su due cuscinetti e la puleggia sta fuori, a sbalzo. Dov\'è il momento flettente massimo?', [
+          'Sul cuscinetto vicino alla puleggia: M = F · a (più la torsione)',
+          'A metà tra i cuscinetti: M = F · L / 4',
+          'Sotto la puleggia',
+          'Non c\'è flessione: la cinghia dà solo torsione',
+        ], 'La cinghia tira l\'albero con la somma dei due rami. Con la puleggia a sbalzo lo schema è una trave su due appoggi con sbalzo: il momento cresce da zero sotto la puleggia fino a F·a sul cuscinetto vicino. Lì c\'è anche tutta la coppia: flessione e torsione insieme, quindi Von Mises.');
+        const ctx = (d) => `Un motore da ${f(P)} kW a ${n} giri/min muove una puleggia Ø${dp} mm calettata a sbalzo, ${a} mm fuori dal cuscinetto. Il tiro totale della cinghia sull'albero (somma dei due rami) è ${f(Fc)} N.${d ? ` L'albero è Ø${d} mm.` : ''} Per fatica e cava della chiavetta usi σ amm = ${sa} MPa.`;
+        if (liv === 3) {
+          const d = Math.cbrt(16 * Math.sqrt(4 * M * M + 3 * T * T) / (PI * sa));
+          const sc = sceltaCatalogo([14, 16, 18, 20, 22, 25, 28, 30, 35, 40, 45, 50], d, 'mm');
+          return {
+            schema: sch, contesto: ctx(0), richiesta: 'Diametro minimo dell\'albero sul cuscinetto, in mm.',
+            dati: [['P', P, 'kW'], ['n', n, 'giri/min'], ['sbalzo a', a, 'mm'], ['tiro F', Fc, 'N'], ['σ amm', sa, 'MPa']],
+            impostazione: ['Coppia: T = P / ω.', 'Sul cuscinetto: M = F · a.', 'Von Mises sull\'albero: d = ∛(16 √(4 M² + 3 T²) / (π σ amm)).'],
+            risposta: { nome: 'd minimo', valore: d, unita: 'mm' },
+            passi: [['Velocità angolare', `2π · ${n} / 60`, w, 'rad/s'], ['Coppia', `${f(P * 1000)} / ω · 1000`, T, 'N·mm'], ['Momento sul cuscinetto', `${f(Fc)} · ${a}`, M, 'N·mm'], ['Diametro minimo', 'd = ∛(16 √(4M² + 3T²) / (π σ amm))', d, 'mm']],
+            decisione: { domanda: 'Che diametro scegli?', opzioni: sc.opzioni, giusta: sc.giusta },
+            giudizio: `Almeno Ø${f(d)}: si fa Ø${sc.valore}. Qui la flessione pesa ${M > T ? 'più' : 'meno'} della torsione: avvicinare la puleggia al cuscinetto è il modo più economico per alleggerire l'albero.`,
+          };
+        }
+        const d = vicino([16, 18, 20, 22, 25, 28, 30, 35, 40, 45], Math.cbrt(16 * Math.sqrt(4 * M * M + 3 * T * T) / (PI * sa)));
+        const s = 32 * M / (PI * d ** 3), t = 16 * T / (PI * d ** 3), se = vm(s, t);
+        if (liv === 1) {
+          return {
+            schema: sch, contesto: `Sull'albero Ø${d} mm, nella sezione del cuscinetto vicino alla puleggia, agiscono un momento flettente di ${f(M / 1000)} N·m e un momento torcente di ${f(T / 1000)} N·m. σ amm = ${sa} MPa.`,
+            richiesta: 'Tensione equivalente di Von Mises, in MPa.',
+            dati: [['d', d, 'mm'], ['M flettente', M / 1000, 'N·m'], ['M torcente', T / 1000, 'N·m'], ['σ amm', sa, 'MPa']],
+            impostazione: ['Porta i momenti in N·mm (× 1000).', 'σ = 32 M / (π d³), τ = 16 T / (π d³).', 'σ eq = √(σ² + 3τ²).'],
+            risposta: { nome: 'σ eq', valore: se, unita: 'MPa' },
+            passi: [['σ di flessione', `32 · ${f(M)} / (π · ${d}³)`, s, 'MPa'], ['τ di torsione', `16 · ${f(T)} / (π · ${d}³)`, t, 'MPa'], ['Von Mises', '√(σ² + 3τ²)', se, 'MPa']],
+            decisione: { domanda: 'L\'albero va bene?', opzioni: MARGINE, giusta: giustaMargine(sa, se) },
+            giudizio: `σ eq = ${f(se)} MPa contro ${sa}. Nota che a parità di momento la τ da torsione è metà della σ da flessione: il 16 contro il 32.`,
+          };
+        }
+        return {
+          schema: sch, contesto: ctx(d), richiesta: 'Tensione equivalente di Von Mises sul cuscinetto, in MPa.',
+          dati: [['P', P, 'kW'], ['n', n, 'giri/min'], ['sbalzo a', a, 'mm'], ['tiro F', Fc, 'N'], ['d', d, 'mm']],
+          impostazione: ['T = P / ω, in N·mm.', 'M = F · a sul cuscinetto.', 'σ = 32 M / (π d³), τ = 16 T / (π d³), σ eq = √(σ² + 3τ²).'],
+          risposta: { nome: 'σ eq', valore: se, unita: 'MPa' },
+          passi: [['Velocità angolare', `2π · ${n} / 60`, w, 'rad/s'], ['Coppia', 'P / ω', T, 'N·mm'], ['Momento flettente', `${f(Fc)} · ${a}`, M, 'N·mm'], ['σ', '32 M / (π d³)', s, 'MPa'], ['τ', '16 T / (π d³)', t, 'MPa'], ['Von Mises', '√(σ² + 3τ²)', se, 'MPa']],
+          decisione: { domanda: 'L\'albero va bene?', opzioni: MARGINE, giusta: giustaMargine(sa, se) },
+          giudizio: `σ eq = ${f(se)} MPa. Il tiro della cinghia (circa 2,5 volte la forza utile) carica l'albero più di quanto si pensi: per questo le pulegge si montano il più vicino possibile al cuscinetto.`,
+        };
+      },
+    },
+    {
+      id: 'intaglio', blocco: 'b3', titolo: 'Lo spallamento dell\'albero è un punto debole?',
+      genera(liv, R) {
+        const tab = [[0.5, 2.3], [1, 1.9], [1.5, 1.75], [2, 1.6], [3, 1.45], [4, 1.35]]; // raggio di raccordo mm -> Kt (D/d = 1,2, flessione, d ≈ 20–30)
+        const d = R.da([20, 25, 30]);
+        const sa = 140;
+        const sch = schema('Dove parte la cricca in un albero con uno spallamento, caricato a flessione?', [
+          'Nel raccordo dello spallamento, sul diametro piccolo',
+          'A metà del tratto con diametro grande',
+          'Nel diametro grande, vicino allo spallamento',
+          'In un punto qualsiasi: la sezione è piena',
+        ], 'Il cambio di sezione concentra le linee di forza come l\'acqua in una strozzatura. Lì la tensione vera è Kt volte quella nominale, calcolata sul diametro piccolo. Kt si legge sui grafici (dipende da r/d e D/d): più grande il raggio di raccordo, più basso Kt.');
+        const testoTab = 'Dal grafico del manuale (D/d = 1,2, flessione): ' + tab.map(([r, k]) => `r = ${f(r)} mm → Kt = ${f(k)}`).join('; ') + '.';
+        if (liv === 3) {
+          const sn = R.tra(50, 95, 5);
+          const ktMax = sa / sn;
+          const ok = tab.filter(([, k]) => k <= ktMax + 1e-9);
+          const giusto = ok.length ? ok[0] : tab[tab.length - 1];
+          const opz = tab.slice(0, 4).concat(tab.slice(4)).map(([r]) => `r = ${f(r)} mm`);
+          return {
+            schema: sch, contesto: `Su un albero Ø${d} mm con spallamento, la tensione nominale di flessione nel raccordo è ${sn} MPa. L'ammissibile è ${sa} MPa. Il cuscinetto ha uno smusso che non accetta raggi grandi: vuoi il raggio più piccolo che basta. ${testoTab}`,
+            richiesta: 'Kt massimo che puoi permetterti.',
+            dati: [['σ nominale', sn, 'MPa'], ['σ amm', sa, 'MPa']],
+            impostazione: ['σ max = Kt · σ nominale ≤ σ amm.', 'Kt max = σ amm / σ nominale.', 'Poi dal grafico scegli il raggio più piccolo con Kt sotto quel valore.'],
+            risposta: { nome: 'Kt max', valore: ktMax, unita: '' },
+            passi: [['Kt massimo', `${sa} / ${sn}`, ktMax, '']],
+            decisione: { domanda: 'Che raggio di raccordo scegli?', opzioni: opz, giusta: tab.indexOf(giusto) },
+            giudizio: ok.length ? `Kt ≤ ${f(ktMax)}: basta r = ${f(giusto[0])} mm (Kt = ${f(giusto[1])}). Se lo smusso del cuscinetto non lo permette, si usa un anello distanziale con il raggio dentro, o una gola di scarico.` : `Nessun raggio basta (serve Kt ≤ ${f(ktMax)}): bisogna ingrandire l'albero o ridurre il carico. Il raggio più grande della tabella arriva a Kt = ${f(giusto[1])}.`,
+          };
+        }
+        const [r, kt] = R.da(tab);
+        let M, passiM = [];
+        if (liv === 1) { M = R.tra(50, 350, 10) * 1000; }
+        else {
+          const F = R.tra(1, 6, 0.5) * 1000, a = R.da([40, 60, 80]);
+          M = F * a; passiM = [['Momento nello spallamento', `${f(F)} · ${a}`, M, 'N·mm']];
+          M = M; // eslint
+          var Ftesto = `una forza di ${f(F)} N a ${a} mm dallo spallamento`;
+        }
+        const sn = 32 * M / (PI * d ** 3), smax = kt * sn;
+        return {
+          schema: sch, contesto: `Un albero passa da Ø${f(d * 1.2)} a Ø${d} mm con un raggio di raccordo di ${f(r)} mm. Nello spallamento ${liv === 1 ? `c'è un momento flettente di ${f(M / 1000)} N·m` : `arriva il momento di ${Ftesto}`}. ${testoTab} σ amm = ${sa} MPa.`,
+          richiesta: 'Tensione massima nel raccordo, in MPa.',
+          dati: [['d piccolo', d, 'mm'], ['r', r, 'mm'], ['Kt', kt, ''], ...(liv === 1 ? [['M', M / 1000, 'N·m']] : [])],
+          impostazione: [...(liv === 1 ? [] : ['Prima il momento: forza per braccio.']), 'Tensione nominale sul diametro piccolo: σ n = 32 M / (π d³).', 'Tensione vera nel raccordo: σ max = Kt · σ n.'],
+          risposta: { nome: 'σ max', valore: smax, unita: 'MPa' },
+          passi: [...passiM, ['Tensione nominale', `32 · ${f(M)} / (π · ${d}³)`, sn, 'MPa'], ['Tensione massima', `${f(kt)} · σ n`, smax, 'MPa']],
+          decisione: { domanda: 'Il raccordo va bene?', opzioni: MARGINE, giusta: giustaMargine(sa, smax) },
+          giudizio: `${f(smax)} MPa contro ${sa}: senza Kt avresti trovato ${f(sn)} MPa e pensato che andasse tutto bene. In campo plastico (carico statico su acciaio duttile) l'intaglio pesa meno (Neuber); in fatica pesa tutto.`,
+        };
+      },
+    },
+    {
+      id: 'bilanciere', blocco: 'b3', titolo: 'La trave basculante della pompa regge?',
+      genera(liv, R) {
+        const a = R.da([3, 4, 5]), b = R.da([3, 4, 5]);
+        const F = R.tra(20, 120, 5) * 1000; // N, lato pozzo
+        const sch = schema('La trave basculante ruota su un perno centrale: carico sul lato pozzo, biella sul lato motore. Dov\'è il momento massimo?', [
+          'Sul perno centrale: M = F · a',
+          'In punta, dove è attaccato il carico',
+          'A metà di ogni braccio',
+          'È uguale lungo tutta la trave',
+        ], 'Sono due mensole attaccate al perno: il taglio è costante su ogni braccio e il momento cresce linearmente fino al perno. Lì M = F · a (uguale dai due lati, per l\'equilibrio). Il perno porta la somma delle due forze.');
+        const Fb = F * a / b;
+        if (liv === 1) {
+          return {
+            schema: sch, contesto: `Una pompa a cavalletto solleva con l'asta del pozzo ${f(F / 1000)} kN. La trave basculante ha il perno con ${a} m dal lato pozzo e ${b} m dal lato motore, dove c'è la biella.`,
+            richiesta: 'Forza sulla biella lato motore, in kN.',
+            dati: [['F pozzo', F / 1000, 'kN'], ['braccio pozzo', a, 'm'], ['braccio motore', b, 'm']],
+            impostazione: ['Equilibrio alla rotazione attorno al perno.', 'F · a = F biella · b.'],
+            risposta: { nome: 'F biella', valore: Fb / 1000, unita: 'kN' },
+            passi: [['Forza sulla biella', `${f(F / 1000)} · ${a} / ${b}`, Fb / 1000, 'kN'], ['Forza sul perno', 'somma delle due', (F + Fb) / 1000, 'kN']],
+            giudizio: `La biella tira ${f(Fb / 1000)} kN e il perno ne porta ${f((F + Fb) / 1000)}: il perno è il pezzo più caricato. Il contrappeso non serve a far funzionare la pompa, ma a ridurre la potenza del motore, come in un ascensore.`,
+          };
+        }
+        const M = F * a * 1000; // N·mm
+        const sa = 235 / 1.5;
+        if (liv === 3) {
+          const h = Math.cbrt(18 * M / sa);
+          const sc = sceltaCatalogo([200, 250, 300, 350, 400, 450, 500, 600, 700, 800], h, 'mm');
+          return {
+            schema: sch, contesto: `La trave basculante di una pompa a cavalletto porta ${f(F / 1000)} kN in punta al braccio lato pozzo, lungo ${a} m. Per semplicità la fai a sezione rettangolare piena con base = altezza / 3. S235 con sicurezza 1,5.`,
+            richiesta: 'Altezza minima della sezione sul perno, in mm.',
+            dati: [['F', F / 1000, 'kN'], ['braccio', a, 'm'], ['base', 'h/3', ''], ['σ amm', sa, 'MPa']],
+            impostazione: ['M max sul perno = F · a, in N·mm (attenzione: m → mm).', 'Rettangolo b × h con b = h/3: W = b h² / 6 = h³ / 18.', 'h = ∛(18 M / σ amm).'],
+            risposta: { nome: 'h minima', valore: h, unita: 'mm' },
+            passi: [['Momento sul perno', `${f(F)} · ${a * 1000}`, M, 'N·mm'], ['Ammissibile', '235 / 1,5', sa, 'MPa'], ['Altezza minima', 'h = ∛(18 M / σ amm)', h, 'mm']],
+            decisione: { domanda: 'Che altezza scegli?', opzioni: sc.opzioni, giusta: sc.giusta },
+            giudizio: `Almeno ${f(h)} mm: si fa ${sc.valore}. Nella realtà si usa una trave a I, che a parità di peso ha un W molto più alto: il materiale sta lontano dall'asse neutro, dove lavora.`,
+          };
+        }
+        const bs = R.da([80, 100, 120]);
+        const h = vicino([200, 250, 300, 350, 400, 450, 500], Math.sqrt(6 * M / (bs * sa)));
+        const W = bs * h * h / 6, s = M / W;
+        return {
+          schema: sch, contesto: `La trave basculante di una pompa a cavalletto porta ${f(F / 1000)} kN in punta al braccio lato pozzo, lungo ${a} m. Sul perno la sezione è un rettangolo ${bs} × ${h} mm (altezza verticale). S235, sicurezza 1,5: σ amm ≈ 157 MPa.`,
+          richiesta: 'Tensione massima di flessione sul perno, in MPa.',
+          dati: [['F', F / 1000, 'kN'], ['braccio', a, 'm'], ['sezione', `${bs} × ${h}`, 'mm']],
+          impostazione: ['M sul perno = F · a. Attenzione alla conversione: kN·m → N·mm è × 10⁶.', 'W = b h² / 6.', 'σ = M / W.'],
+          risposta: { nome: 'σ', valore: s, unita: 'MPa' },
+          passi: [['Momento', `${f(F)} · ${a * 1000}`, M, 'N·mm'], ['Modulo di resistenza', `${bs} · ${h}² / 6`, W, 'mm³'], ['Tensione', 'M / W', s, 'MPa']],
+          decisione: { domanda: 'La trave va bene?', opzioni: MARGINE, giusta: giustaMargine(sa, s) },
+          giudizio: `${f(s)} MPa contro ${f(sa)}. Il metodo del professore: quando mancano dati, si mette un numero plausibile, si va avanti e si guarda se il risultato ha senso.`,
+        };
+      },
+    },
+    {
+      id: 'freccia', blocco: 'b3', titolo: 'La trave è abbastanza rigida?',
+      genera(liv, R) {
+        const IPE = [['IPE 100', 171], ['IPE 120', 318], ['IPE 140', 541], ['IPE 160', 869], ['IPE 180', 1317], ['IPE 200', 1943], ['IPE 220', 2772], ['IPE 240', 3892], ['IPE 270', 5790], ['IPE 300', 8356]];
+        const L = R.da([2000, 3000, 4000, 5000, 6000]);
+        const F = R.tra(2, 20, 1) * 1000;
+        const fAmm = L / 500;
+        const sch = schema('La via di corsa di un paranco deve flettersi poco, sennò il carrello va in salita. Che grandezza della sezione comanda?', [
+          'Il momento d\'inerzia I: la freccia è F L³ / (48 E I)',
+          'Il modulo di resistenza W',
+          'La tensione di snervamento dell\'acciaio',
+          'L\'area della sezione',
+        ], 'Rigidezza e resistenza sono conti separati. La freccia dipende da E·I: un acciaio più resistente non è più rigido (E è uguale per tutti gli acciai). Come nel blocco unico contro i due listelli: l\'altezza conta al cubo per la rigidezza e al quadrato per la resistenza.');
+        if (liv === 3) {
+          const I = F * L ** 3 / (48 * E_ACC * fAmm) / 1e4; // cm4
+          const iGiusto = IPE.findIndex(([, ix]) => ix >= I);
+          const k = iGiusto < 0 ? IPE.length - 1 : iGiusto;
+          const da = Math.max(0, Math.min(k - Math.floor(Math.random() * 4), IPE.length - 4));
+          const opz = IPE.slice(da, da + 4);
+          return {
+            schema: sch, contesto: `Devi scegliere la trave per la via di corsa di un paranco: luce ${f(L / 1000)} m tra gli appoggi, carico ${f(F / 1000)} kN che nel caso peggiore sta in mezzeria. La freccia non deve superare L/500. ${IPE.map(([n, i]) => `${n}: I = ${i} cm⁴`).join('; ')}.`,
+            richiesta: 'Momento d\'inerzia minimo, in cm⁴.',
+            dati: [['F', F / 1000, 'kN'], ['L', L / 1000, 'm'], ['f amm', fAmm, 'mm'], ['E', 210, 'GPa']],
+            impostazione: ['Freccia ammessa: L / 500, in mm.', 'Trave appoggiata con carico in mezzo: f = F L³ / (48 E I).', 'I = F L³ / (48 E f amm), in mm⁴: dividi per 10⁴ per avere cm⁴.'],
+            risposta: { nome: 'I minimo', valore: I, unita: 'cm⁴' },
+            passi: [['Freccia ammessa', `${L} / 500`, fAmm, 'mm'], ['I minimo', 'F L³ / (48 E f)', I * 1e4, 'mm⁴'], ['In cm⁴', '/ 10⁴', I, 'cm⁴']],
+            decisione: { domanda: 'Che profilo scegli?', opzioni: opz.map((x) => x[0]), giusta: opz.findIndex((x) => x === IPE[k]) },
+            giudizio: `Serve I ≥ ${f(I)} cm⁴: ${IPE[k][0]}. Controlla poi anche la resistenza (σ = M/W), ma nelle vie di corsa di solito comanda la freccia.`,
+          };
+        }
+        let I, sez, passiI;
+        if (liv === 1) {
+          const b = R.da([40, 50, 60]), h = R.da([80, 100, 120, 150]);
+          I = b * h ** 3 / 12; sez = `un piatto pieno ${b} × ${h} mm messo di costa`;
+          passiI = [['Momento d\'inerzia', `${b} · ${h}³ / 12`, I, 'mm⁴']];
+        } else {
+          const [nome, ix] = R.da(IPE.slice(2, 9)); I = ix * 1e4; sez = `una trave ${nome} (I = ${ix} cm⁴)`;
+          passiI = [['Momento d\'inerzia in mm⁴', `${ix} · 10⁴`, I, 'mm⁴']];
+        }
+        const fr = F * L ** 3 / (48 * E_ACC * I);
+        return {
+          schema: sch, contesto: `La via di corsa di un paranco è ${sez}, appoggiata agli estremi con luce ${f(L / 1000)} m. Il paranco con il carico pesa ${f(F / 1000)} kN e nel caso peggiore sta in mezzeria. Limite: freccia ≤ L/500 = ${f(fAmm)} mm.`,
+          richiesta: 'Freccia in mezzeria, in mm.',
+          dati: [['F', F / 1000, 'kN'], ['L', L / 1000, 'm'], ['E', 210, 'GPa']],
+          impostazione: [liv === 1 ? 'Rettangolo: I = b h³ / 12, con h verticale.' : 'Porta I in mm⁴ (1 cm⁴ = 10⁴ mm⁴).', 'f = F L³ / (48 E I), con L in mm ed E in MPa.'],
+          risposta: { nome: 'f', valore: fr, unita: 'mm' },
+          passi: [...passiI, ['Freccia', `${f(F)} · ${L}³ / (48 · 210000 · I)`, fr, 'mm']],
+          decisione: { domanda: 'La trave è abbastanza rigida?', opzioni: ['Sì', 'No'], giusta: fr <= fAmm ? 0 : 1 },
+          giudizio: `${f(fr)} mm contro ${f(fAmm)} ammessi. La luce conta al cubo: raddoppiarla fa la freccia 8 volte più grande.`,
+        };
+      },
+    },
+
+    // ---------------- BLOCCO 4: materiali ----------------
+    {
+      id: 'estensimetro', blocco: 'b4', titolo: 'Cosa dice l\'estensimetro?',
+      genera(liv, R) {
+        const mat = R.da([['acciaio', 210000], ['alluminio', 70000]]);
+        if (liv === 3) {
+          const d = R.da([20, 25, 30, 40]), F = R.tra(10, 80, 5) * 1000;
+          const eps = F / (PI * d * d / 4) / mat[1] * 1e6;
+          return {
+            contesto: `Vuoi un allarme su un tirante tondo in ${mat[0]} Ø${d} mm (E = ${f(mat[1] / 1000)} GPa) quando il carico supera ${f(F / 1000)} kN. Ci incolli un estensimetro.`,
+            richiesta: 'A quale deformazione deve scattare l\'allarme, in µm/m?',
+            dati: [['F soglia', F / 1000, 'kN'], ['d', d, 'mm'], ['E', mat[1] / 1000, 'GPa']],
+            impostazione: ['σ = F / A.', 'ε = σ / E.', 'In µm/m: moltiplica per 10⁶.'],
+            risposta: { nome: 'ε', valore: eps, unita: 'µm/m' },
+            passi: [['Area', `π · ${d}² / 4`, PI * d * d / 4, 'mm²'], ['Tensione', 'F / A', F / (PI * d * d / 4), 'MPa'], ['Deformazione', 'σ / E · 10⁶', eps, 'µm/m']],
+            giudizio: `Soglia a ${f(eps)} µm/m. Gli estensimetri misurano pochi µm/m: la temperatura sposta la lettura quasi come il carico, per questo si usa un ponte con un secondo estensimetro di compensazione.`,
+          };
+        }
+        const eps = R.tra(200, 1200, 10);
+        const s = mat[1] * eps * 1e-6;
+        if (liv === 1) {
+          return {
+            contesto: `Su un pezzo in ${mat[0]} (E = ${f(mat[1] / 1000)} GPa) un estensimetro legge ${eps} µm/m nella direzione del carico.`,
+            richiesta: 'Tensione nel pezzo, in MPa.',
+            dati: [['ε', eps, 'µm/m'], ['E', mat[1] / 1000, 'GPa']],
+            impostazione: ['Legge di Hooke: σ = E · ε.', 'µm/m = 10⁻⁶. E in MPa.'],
+            risposta: { nome: 'σ', valore: s, unita: 'MPa' },
+            passi: [['ε adimensionale', `${eps} · 10⁻⁶`, eps * 1e-6, ''], ['Tensione', `${mat[1]} · ε`, s, 'MPa']],
+            giudizio: `${f(s)} MPa. A parità di deformazione l'alluminio lavora a un terzo della tensione dell'acciaio: E è tre volte più basso.`,
+          };
+        }
+        const d = R.da([16, 20, 25, 30]);
+        const Fk = s * PI * d * d / 4 / 1000;
+        return {
+          contesto: `Un tirante tondo in ${mat[0]} Ø${d} mm (E = ${f(mat[1] / 1000)} GPa) ha un estensimetro che legge ${eps} µm/m.`,
+          richiesta: 'Forza nel tirante, in kN.',
+          dati: [['ε', eps, 'µm/m'], ['E', mat[1] / 1000, 'GPa'], ['d', d, 'mm']],
+          impostazione: ['σ = E · ε.', 'F = σ · A, con A in mm²: esce N.'],
+          risposta: { nome: 'F', valore: Fk, unita: 'kN' },
+          passi: [['Tensione', `${mat[1]} · ${eps} · 10⁻⁶`, s, 'MPa'], ['Area', `π · ${d}² / 4`, PI * d * d / 4, 'mm²'], ['Forza', 'σ · A / 1000', Fk, 'kN']],
+          giudizio: `Circa ${f(Fk)} kN. È così che si pesano le cose in officina: le celle di carico sono estensimetri incollati su un pezzo d'acciaio.`,
+        };
+      },
+    },
+    {
+      id: 'scelta-acciaio', blocco: 'b4', titolo: 'Quale acciaio prendi?',
+      genera(liv, R) {
+        const mat = [['S235', 235], ['S355', 355], ['C45 bonificato', 430], ['42CrMo4 bonificato', 650]];
+        const nu = R.da([1.5, 2, 2.5]);
+        const sch = schema('Alla fine di una verifica, che cosa confronti?', [
+          'La tensione equivalente sul componente con l\'ammissibile del materiale',
+          'Lo snervamento del materiale con la sua rottura',
+          'La tensione equivalente con la tensione nominale',
+          'Il modulo elastico con lo snervamento',
+        ], 'I due mondi del corso: il componente (carichi e geometria danno una sola tensione equivalente, uguale in legno o in acciaio) e il materiale (dà l\'ammissibile = limite / sicurezza). Si confrontano solo all\'ultimo passaggio, uno contro l\'altro. L\'errore tipico è confrontare due cose dello stesso mondo.');
+        let se, passi, ctx;
+        if (liv === 1) {
+          se = R.tra(60, 300, 5);
+          ctx = `Dai conti sul componente la tensione equivalente nel punto più sollecitato è ${se} MPa.`;
+          passi = [];
+        } else if (liv === 2) {
+          const d = R.da([20, 25, 30]), F = R.tra(30, 150, 5) * 1000;
+          se = F / (PI * d * d / 4);
+          ctx = `Un tirante tondo Ø${d} mm porta ${f(F / 1000)} kN a trazione.`;
+          passi = [['Tensione sul componente', `${f(F)} / (π · ${d}² / 4)`, se, 'MPa']];
+        } else {
+          const s = R.tra(60, 250, 5), t = R.tra(30, 150, 5);
+          se = vm(s, t);
+          ctx = `Nel punto più sollecitato di un albero ci sono σ = ${s} MPa di flessione e τ = ${t} MPa di torsione.`;
+          passi = [['Von Mises', `√(${s}² + 3 · ${t}²)`, se, 'MPa']];
+        }
+        const Rs = se * nu;
+        const k = mat.findIndex(([, r]) => r >= Rs);
+        return {
+          schema: sch,
+          contesto: `${ctx} Il pezzo non deve snervare e vuoi sicurezza ${f(nu)}. Snervamento minimo garantito dal fornitore per il tuo diametro: ${mat.map(([n, r]) => `${n} ${r} MPa`).join(', ')}. Vuoi il più economico che basta (sono in ordine di prezzo).`,
+          richiesta: 'Snervamento minimo che deve avere il materiale, in MPa.',
+          dati: [['sicurezza', nu, '']],
+          impostazione: [...(liv === 3 ? ['Prima la tensione equivalente: σ eq = √(σ² + 3τ²).'] : liv === 2 ? ['Prima la tensione: σ = F / A.'] : []), 'σ eq ≤ Rs / ν, quindi Rs ≥ ν · σ eq.'],
+          risposta: { nome: 'Rs minimo', valore: Rs, unita: 'MPa' },
+          passi: [...passi, ['Snervamento minimo', `${f(nu)} · ${f(se)}`, Rs, 'MPa']],
+          decisione: { domanda: 'Che acciaio prendi?', opzioni: mat.map((m) => m[0]).concat(['Nessuno basta: cambio geometria']), giusta: k < 0 ? 4 : k },
+          giudizio: k < 0 ? `Serve Rs ≥ ${f(Rs)} MPa: nessuno di questi basta. Si cambia la geometria (più sezione) prima di cercare acciai speciali.` : `Serve Rs ≥ ${f(Rs)} MPa: basta ${mat[k][0]}. Un acciaio più resistente non è più rigido: se il problema è la freccia, cambiare acciaio non serve.`,
+        };
+      },
+    },
+
+    // ---------------- BLOCCO 5: meccanica applicata ----------------
+    {
+      id: 'frizione', blocco: 'b5', titolo: 'La frizione trasmette la coppia?',
+      genera(liv, R) {
+        const De = R.da([160, 200, 250, 300]), Di = Math.round(De * R.da([0.55, 0.6, 0.65]) / 5) * 5;
+        const mu = R.da([0.25, 0.3, 0.35]), nS = R.da([2, 2, 4]);
+        const Rm = (De + Di) / 4; // raggio medio in mm
+        const sch = schema('Con la frizione già rodata, che ipotesi usi per la pressione sul disco?', [
+          'Usura uniforme: p · r costante, la forza lavora al raggio medio (Re + Ri)/2',
+          'Pressione uniforme su tutta la corona',
+          'Tutta la forza sul raggio esterno',
+          'Tutta la forza sul raggio interno',
+        ], 'Dove il disco striscia più veloce (raggio esterno) si consuma di più, finché l\'usura si uniforma: p · r = costante. Con questa ipotesi la coppia è μ · F · (Re + Ri)/2 per ogni superficie di attrito. È anche l\'ipotesi più cauta.');
+        const ctx = `Una frizione piana ha la corona d'attrito con diametro esterno ${De} mm e interno ${Di} mm, coefficiente d'attrito ${f(mu)} e ${nS} superfici di attrito.`;
+        if (liv === 3) {
+          const P = R.da([5.5, 7.5, 11, 15]), n = R.da([960, 1450]), fs = 1.5;
+          const C = P * 1000 / (2 * PI * n / 60);
+          const F = C * fs / (mu * Rm / 1000 * nS);
+          return {
+            schema: sch, contesto: `${ctx} Deve trasmettere un motore da ${f(P)} kW a ${n} giri/min con fattore di sicurezza 1,5 sullo slittamento.`,
+            richiesta: 'Forza minima delle molle, in N.',
+            dati: [['De', De, 'mm'], ['Di', Di, 'mm'], ['μ', mu, ''], ['superfici', nS, ''], ['P', P, 'kW'], ['n', n, 'giri/min']],
+            impostazione: ['Coppia del motore: C = P / ω.', 'Coppia da trasmettere: 1,5 · C.', 'Usura uniforme: C = μ · F · r medio · n superfici, con r medio = (De + Di)/4.', 'F = 1,5 C / (μ · r medio · n).'],
+            risposta: { nome: 'F molle', valore: F, unita: 'N' },
+            passi: [['Coppia del motore', `${f(P * 1000)} / (2π · ${n} / 60)`, C, 'N·m'], ['Raggio medio', `(${De} + ${Di}) / 4`, Rm, 'mm'], ['Forza delle molle', `1,5 · C / (${f(mu)} · ${f(Rm / 1000)} · ${nS})`, F, 'N']],
+            giudizio: `Almeno ${f(F)} N. Poi si verifica la pressione sul lato interno, dove con l'usura uniforme è massima: p max = F / (2π · r i · (r e − r i)).`,
+          };
+        }
+        const F = R.tra(1, 8, 0.5) * 1000;
+        const C = mu * F * Rm / 1000 * nS;
+        if (liv === 1) {
+          return {
+            schema: sch, contesto: `${ctx} Le molle la chiudono con ${f(F)} N.`,
+            richiesta: 'Coppia massima che trasmette prima di slittare, in N·m.',
+            dati: [['De', De, 'mm'], ['Di', Di, 'mm'], ['μ', mu, ''], ['superfici', nS, ''], ['F', F, 'N']],
+            impostazione: ['Raggio medio: (De + Di) / 4.', 'C = μ · F · r medio · numero di superfici.', 'r medio in metri per avere N·m.'],
+            risposta: { nome: 'C', valore: C, unita: 'N·m' },
+            passi: [['Raggio medio', `(${De} + ${Di}) / 4`, Rm, 'mm'], ['Coppia', `${f(mu)} · ${f(F)} · ${f(Rm / 1000)} · ${nS}`, C, 'N·m']],
+            giudizio: `${f(C)} N·m. Per trasmettere di più senza ingrandirla: più dischi (frizioni a dischi multipli), non più forza, che consuma e scalda.`,
+          };
+        }
+        const n = R.da([960, 1450]);
+        const P = Math.round(C * 2 * PI * n / 60 / 1000 * R.da([0.7, 0.9, 1.1, 1.3]) * 10) / 10;
+        const Cm = P * 1000 / (2 * PI * n / 60);
+        return {
+          schema: sch, contesto: `${ctx} Le molle la chiudono con ${f(F)} N. Deve trasmettere un motore da ${f(P)} kW a ${n} giri/min.`,
+          richiesta: 'Coppia massima trasmissibile dalla frizione, in N·m.',
+          dati: [['De', De, 'mm'], ['Di', Di, 'mm'], ['μ', mu, ''], ['superfici', nS, ''], ['F', F, 'N'], ['P motore', P, 'kW'], ['n', n, 'giri/min']],
+          impostazione: ['C frizione = μ · F · (De + Di)/4 · superfici.', 'C motore = P / ω.', 'Confronta: la frizione deve stare sopra con margine.'],
+          risposta: { nome: 'C frizione', valore: C, unita: 'N·m' },
+          passi: [['Raggio medio', `(${De} + ${Di}) / 4`, Rm, 'mm'], ['Coppia della frizione', 'μ · F · r · n', C, 'N·m'], ['Coppia del motore', `${f(P * 1000)} / ω`, Cm, 'N·m']],
+          decisione: { domanda: 'La frizione basta?', opzioni: MARGINE, giusta: giustaMargine(C, Cm) },
+          giudizio: `Frizione ${f(C)} N·m contro motore ${f(Cm)} N·m. Una frizione al limite slitta negli avviamenti, scalda e si consuma: si vuole almeno 1,3–1,5 di margine.`,
+        };
+      },
+    },
+    {
+      id: 'cinghia', blocco: 'b5', titolo: 'La cinghia slitta?',
+      genera(liv, R) {
+        const mu = R.da([0.25, 0.3, 0.35]), alfa = R.da([150, 160, 170, 180]);
+        const e = Math.exp(mu * alfa * PI / 180);
+        const sch = schema('Due pulegge di diametro diverso: dove controlli che la cinghia non slitti?', [
+          'Sulla più piccola: ha l\'angolo di avvolgimento minore',
+          'Sulla più grande',
+          'È uguale sulle due',
+          'Sempre sulla motrice',
+        ], 'Il rapporto tra le tensioni che la cinghia può reggere senza slittare è e^(μα): dipende dall\'angolo di avvolgimento α. La puleggia piccola ha l\'angolo più piccolo, quindi è lì che slitta per prima.');
+        if (liv === 1) {
+          return {
+            contesto: `Una cinghia piatta avvolge la puleggia piccola per ${alfa}°. Il coefficiente d'attrito è ${f(mu)}.`,
+            richiesta: 'Rapporto massimo T1 / T2 tra ramo teso e ramo lento prima che slitti.',
+            dati: [['μ', mu, ''], ['α', alfa, '°']],
+            impostazione: ['Formula di Eulero delle funi: T1 / T2 = e^(μ α).', 'α in radianti: gradi · π / 180.'],
+            risposta: { nome: 'T1/T2', valore: e, unita: '' },
+            passi: [['Angolo in radianti', `${alfa} · π / 180`, alfa * PI / 180, 'rad'], ['Rapporto', 'e^(μ α)', e, '']],
+            giudizio: `Al massimo ${f(e)}. Le cinghie trapezoidali fanno di più a parità di angolo: l'effetto cuneo aumenta l'attrito apparente.`,
+          };
+        }
+        const P = R.da([1.5, 2.2, 3, 4, 5.5]), n = R.da([960, 1450, 2850]), dp = R.da([100, 125, 160]);
+        const C = P * 1000 / (2 * PI * n / 60);
+        const Fu = C / (dp / 2000);
+        const T1 = Fu * e / (e - 1), T2 = T1 / e;
+        const ctx = `Un motore da ${f(P)} kW a ${n} giri/min ha una puleggia Ø${dp} mm, avvolta dalla cinghia piatta per ${alfa}°, μ = ${f(mu)}.`;
+        if (liv === 2) {
+          return {
+            schema: sch, contesto: ctx, richiesta: 'Tensione nel ramo teso al limite dello slittamento, in N.',
+            dati: [['P', P, 'kW'], ['n', n, 'giri/min'], ['d puleggia', dp, 'mm'], ['μ', mu, ''], ['α', alfa, '°']],
+            impostazione: ['Forza utile: T1 − T2 = C / r, con C = P / ω.', 'Al limite: T1 = T2 · e^(μα).', 'Mettendo insieme: T1 = Fu · e^(μα) / (e^(μα) − 1).'],
+            risposta: { nome: 'T1', valore: T1, unita: 'N' },
+            passi: [['Coppia', `${f(P * 1000)} / (2π · ${n} / 60)`, C, 'N·m'], ['Forza utile', `C / ${f(dp / 2000)}`, Fu, 'N'], ['e^(μα)', '', e, ''], ['Ramo teso', 'Fu · e / (e − 1)', T1, 'N'], ['Ramo lento', 'T1 / e', T2, 'N']],
+            giudizio: `T1 = ${f(T1)} N, T2 = ${f(T2)} N. Sull'albero arriva la somma, ${f(T1 + T2)} N, cioè ${f((T1 + T2) / Fu)} volte la forza utile: è quello che carica i cuscinetti.`,
+          };
+        }
+        const T0 = (T1 + T2) / 2;
+        return {
+          schema: sch, contesto: ctx + ' Devi regolare il tenditore.', richiesta: 'Precarico minimo di ogni ramo a cinghia ferma, in N.',
+          dati: [['P', P, 'kW'], ['n', n, 'giri/min'], ['d puleggia', dp, 'mm'], ['μ', mu, ''], ['α', alfa, '°']],
+          impostazione: ['Trova T1 e T2 al limite dello slittamento.', 'A cinghia ferma i due rami hanno lo stesso precarico T0; in moto uno sale e l\'altro scende della stessa quantità.', 'T0 = (T1 + T2) / 2.'],
+          risposta: { nome: 'T0', valore: T0, unita: 'N' },
+          passi: [['Coppia', 'P / ω', C, 'N·m'], ['Forza utile', 'C / r', Fu, 'N'], ['Ramo teso', 'Fu · e / (e − 1)', T1, 'N'], ['Ramo lento', 'T1 / e', T2, 'N'], ['Precarico', '(T1 + T2) / 2', T0, 'N']],
+          giudizio: `Almeno ${f(T0)} N per ramo; in pratica si sta un 20–30% sopra, perché la cinghia si allunga. Troppo precarico invece consuma cinghia e cuscinetti.`,
+        };
+      },
+    },
+    {
+      id: 'avviamento', blocco: 'b5', titolo: 'Quanto ci mette la macchina ad andare a regime?',
+      genera(liv, R) {
+        const n = R.da([1450, 2900]), w = 2 * PI * n / 60;
+        const Jm = R.da([0.005, 0.01, 0.02]);
+        const sch = schema('C\'è un riduttore tra motore e carico. Come porti inerzia e coppia resistente del carico all\'albero motore?', [
+          'J carico · τ² e C carico · τ / η (τ = n uscita / n motore)',
+          'J carico · τ e C carico · τ',
+          'J carico / τ² e C carico / τ',
+          'Si sommano così come sono',
+        ], 'Equivalenza energetica: l\'energia cinetica del carico, ½ J ω u², vista dal motore vale ½ (J τ²) ω m². La potenza resistente C · ω u, divisa per il rendimento, vista dal motore è C τ / η. Per questo con un riduttore grande l\'inerzia del carico quasi sparisce.');
+        if (liv === 1) {
+          const J = R.da([0.05, 0.1, 0.2, 0.4]), Cm = R.tra(20, 80, 5), Cr = Math.round(Cm * R.da([0.3, 0.4, 0.5]));
+          const t = (Jm + J) * w / (Cm - Cr);
+          return {
+            contesto: `Un motore (J = ${f(Jm)} kg·m²) è collegato direttamente a un ventilatore (J = ${f(J)} kg·m²). Durante l'avviamento il motore dà in media ${Cm} N·m e il ventilatore ne chiede in media ${Cr}. Regime: ${n} giri/min.`,
+            richiesta: 'Tempo di avviamento, in secondi.',
+            dati: [['J motore', Jm, 'kg·m²'], ['J carico', J, 'kg·m²'], ['C motore', Cm, 'N·m'], ['C resistente', Cr, 'N·m'], ['n', n, 'giri/min']],
+            impostazione: ['Equazione del moto: (C m − C r) = J tot · dω/dt.', 'Con coppie medie costanti: t = J tot · ω / (C m − C r).'],
+            risposta: { nome: 't', valore: t, unita: 's' },
+            passi: [['Velocità di regime', `2π · ${n} / 60`, w, 'rad/s'], ['Inerzia totale', `${f(Jm)} + ${f(J)}`, Jm + J, 'kg·m²'], ['Tempo', 'J · ω / (Cm − Cr)', t, 's']],
+            giudizio: `Circa ${f(t)} s. Se il motore resta a lungo ad alta corrente scalda: i ventilatori grandi a volte hanno bisogno di avviatori dolci o inverter.`,
+          };
+        }
+        const i = R.da([10, 15, 20, 30]), tau = 1 / i, eta = 0.9;
+        const Jc = R.da([2, 5, 10, 20]), Cc = R.tra(100, 600, 20);
+        const Jr = Jm + Jc * tau * tau, Cr = Cc * tau / eta;
+        if (liv === 3) {
+          const tObj = R.da([1, 2, 3]);
+          const Cm = Jr * w / tObj + Cr;
+          return {
+            schema: sch, contesto: `Un nastro con inerzia ${Jc} kg·m² e coppia resistente ${Cc} N·m (all'albero lento) è mosso tramite un riduttore i = ${i} (η = 0,9) da un motore con J = ${f(Jm)} kg·m², a ${n} giri/min. Vuoi che vada a regime in ${tObj} s.`,
+            richiesta: 'Coppia media che deve dare il motore in avviamento, in N·m.',
+            dati: [['J carico', Jc, 'kg·m²'], ['C carico', Cc, 'N·m'], ['i', i, ''], ['η', eta, ''], ['J motore', Jm, 'kg·m²'], ['n motore', n, 'giri/min'], ['t', tObj, 's']],
+            impostazione: ['Riduci al motore: J rid = J m + J c · τ², C rid = C c · τ / η, con τ = 1/i.', 'C m = J rid · ω / t + C rid.'],
+            risposta: { nome: 'C motore', valore: Cm, unita: 'N·m' },
+            passi: [['τ', `1 / ${i}`, tau, ''], ['Inerzia ridotta', `${f(Jm)} + ${Jc} · τ²`, Jr, 'kg·m²'], ['Coppia resistente ridotta', `${Cc} · τ / 0,9`, Cr, 'N·m'], ['Velocità', `2π · ${n} / 60`, w, 'rad/s'], ['Coppia del motore', 'J rid · ω / t + C rid', Cm, 'N·m']],
+            giudizio: `Circa ${f(Cm)} N·m medi. Sul catalogo guardi la coppia di spunto e la curva: la coppia media in avviamento sta tra spunto e nominale.`,
+          };
+        }
+        const Cm = Math.round(Cr * R.da([1.6, 2, 2.5]));
+        const t = Jr * w / (Cm - Cr);
+        return {
+          schema: sch, contesto: `Un nastro con inerzia ${Jc} kg·m² e coppia resistente ${Cc} N·m (all'albero lento) è mosso tramite un riduttore i = ${i} (η = 0,9) da un motore con J = ${f(Jm)} kg·m², a ${n} giri/min. In avviamento il motore dà in media ${Cm} N·m.`,
+          richiesta: 'Tempo di avviamento, in secondi.',
+          dati: [['J carico', Jc, 'kg·m²'], ['C carico', Cc, 'N·m'], ['i', i, ''], ['J motore', Jm, 'kg·m²'], ['C motore', Cm, 'N·m'], ['n', n, 'giri/min']],
+          impostazione: ['τ = 1 / i.', 'J rid = J m + J c · τ², C rid = C c · τ / η.', 't = J rid · ω / (C m − C rid).'],
+          risposta: { nome: 't', valore: t, unita: 's' },
+          passi: [['Inerzia ridotta', `${f(Jm)} + ${Jc} / ${i}²`, Jr, 'kg·m²'], ['Coppia resistente ridotta', `${Cc} / ${i} / 0,9`, Cr, 'N·m'], ['Velocità', `2π · ${n} / 60`, w, 'rad/s'], ['Tempo', 'J rid · ω / (Cm − C rid)', t, 's']],
+          giudizio: `Circa ${f(t)} s. Il carico ha ${f(Jc / Jm)} volte l'inerzia del motore, ma dopo il riduttore ne vale solo ${f(Jc * tau * tau / Jm)} volte.`,
+        };
+      },
+    },
+    {
+      id: 'epicicloidale', blocco: 'b5', titolo: 'Che cosa esce dal riduttore epicicloidale?',
+      genera(liv, R) {
+        const Zs = R.da([18, 20, 24, 27, 30]), Zc = R.da([60, 72, 78, 84, 90]);
+        const sch = schema('Corona ferma, entrata sul solare, uscita sul portatreno. Che formula usi?', [
+          'Willis: (n s − n p) / (n c − n p) = − Zc / Zs, con n c = 0',
+          'Rapporto semplice: n p = n s · Zs / Zc',
+          'n p = n s · Zc / Zs',
+          'Il portatreno gira come il solare',
+        ], 'Nei rotismi epicicloidali gli assi dei satelliti si muovono: si guarda il treno "dal portatreno" (formula di Willis), dove diventa un rotismo ordinario con rapporto −Zc/Zs. Con la corona ferma: n p = n s · Zs / (Zs + Zc).');
+        if (liv === 3) {
+          const ns = R.da([1450, 2900]), nc = R.tra(-300, 300, 50);
+          const np = (ns * Zs + nc * Zc) / (Zs + Zc);
+          return {
+            schema: null, contesto: `In un differenziale epicicloidale il solare (${Zs} denti) gira a ${ns} giri/min e la corona (${Zc} denti), mossa da un secondo motore, a ${nc} giri/min (stesso verso se positivo).`,
+            richiesta: 'Giri al minuto del portatreno.',
+            dati: [['Zs', Zs, ''], ['Zc', Zc, ''], ['n solare', ns, 'giri/min'], ['n corona', nc, 'giri/min']],
+            impostazione: ['Willis: (n s − n p) / (n c − n p) = − Zc / Zs.', 'Ricava n p: n p = (n s · Zs + n c · Zc) / (Zs + Zc).'],
+            risposta: { nome: 'n portatreno', valore: np, unita: 'giri/min' },
+            passi: [['Portatreno', `(${ns} · ${Zs} + ${nc} · ${Zc}) / (${Zs} + ${Zc})`, np, 'giri/min']],
+            giudizio: `${f(np)} giri/min. È lo stesso principio del differenziale dell'auto: due ingressi, un'uscita che fa la media pesata.`,
+          };
+        }
+        const ns = R.da([1450, 2900, 960]);
+        const i = 1 + Zc / Zs, np = ns / i;
+        if (liv === 1) {
+          return {
+            schema: sch, contesto: `Un riduttore epicicloidale ha il solare da ${Zs} denti, la corona da ${Zc} denti ferma nella carcassa, e l'uscita sul portatreno. Il motore sul solare gira a ${ns} giri/min.`,
+            richiesta: 'Giri al minuto del portatreno.',
+            dati: [['Zs', Zs, ''], ['Zc', Zc, ''], ['n solare', ns, 'giri/min']],
+            impostazione: ['Corona ferma: rapporto i = 1 + Zc / Zs.', 'n uscita = n solare / i.'],
+            risposta: { nome: 'n portatreno', valore: np, unita: 'giri/min' },
+            passi: [['Rapporto', `1 + ${Zc} / ${Zs}`, i, ''], ['Giri in uscita', `${ns} / i`, np, 'giri/min']],
+            giudizio: `${f(np)} giri/min, riduzione ${f(i)} in un solo stadio e con assi coassiali: per questo gli epicicloidali sono compatti.`,
+          };
+        }
+        const Cin = R.tra(5, 50, 1), eta = 0.97;
+        const Cout = Cin * i * eta;
+        return {
+          schema: sch, contesto: `Un riduttore epicicloidale ha solare ${Zs} denti, corona ${Zc} denti ferma, uscita sul portatreno. Entrano ${Cin} N·m sul solare. Rendimento 0,97.`,
+          richiesta: 'Coppia sul portatreno, in N·m.',
+          dati: [['Zs', Zs, ''], ['Zc', Zc, ''], ['C solare', Cin, 'N·m'], ['η', eta, '']],
+          impostazione: ['Rapporto con corona ferma: i = 1 + Zc / Zs.', 'C uscita = C ingresso · i · η.', 'La corona ferma scarica sulla carcassa la differenza: C corona = C uscita − C ingresso.'],
+          risposta: { nome: 'C uscita', valore: Cout, unita: 'N·m' },
+          passi: [['Rapporto', `1 + ${Zc} / ${Zs}`, i, ''], ['Coppia in uscita', `${Cin} · i · 0,97`, Cout, 'N·m'], ['Coppia di reazione sulla carcassa', 'C uscita − C ingresso', Cout - Cin, 'N·m']],
+          giudizio: `${f(Cout)} N·m in uscita e ${f(Cout - Cin)} N·m da reggere con i fissaggi della carcassa: le viti del riduttore si calcolano con questa.`,
+        };
+      },
+    },
+
+    // ---------------- BLOCCO 6: elementi costruttivi ----------------
+    {
+      id: 'vite', blocco: 'b6', titolo: 'Che precarico dà la chiave dinamometrica?',
+      genera(liv, R) {
+        const viti = [['M8', 8, 36.6], ['M10', 10, 58], ['M12', 12, 84.3], ['M16', 16, 157], ['M20', 20, 245]];
+        const [nome, d, As] = R.da(viti);
+        const cl = R.da([['8.8', 640], ['10.9', 940]]);
+        const K = 0.2;
+        if (liv === 3) {
+          const F = 0.7 * cl[1] * As;
+          const T = K * F * d / 1000;
+          return {
+            contesto: `Devi dare la coppia di serraggio per viti ${nome} classe ${cl[0]} (Rp0,2 = ${cl[1]} MPa, sezione resistente ${f(As)} mm²). Vuoi un precarico pari al 70% dello snervamento. Filetto leggermente oliato: K ≈ 0,2.`,
+            richiesta: 'Coppia di serraggio, in N·m.',
+            dati: [['vite', nome, ''], ['As', As, 'mm²'], ['Rp0,2', cl[1], 'MPa'], ['K', K, '']],
+            impostazione: ['Precarico: F = 0,7 · Rp0,2 · As.', 'Coppia: T = K · F · d (d nominale in m per avere N·m).'],
+            risposta: { nome: 'T', valore: T, unita: 'N·m' },
+            passi: [['Precarico', `0,7 · ${cl[1]} · ${f(As)}`, F, 'N'], ['Coppia', `0,2 · F · ${d} / 1000`, T, 'N·m']],
+            giudizio: `Circa ${f(T)} N·m. K cambia molto con la lubrificazione (da 0,12 a oltre 0,2): con la stessa coppia una vite oliata si precarica molto di più. Per questo sulle tabelle c'è sempre scritto "secco" o "lubrificato".`,
+          };
+        }
+        const T = Math.round(K * 0.7 * cl[1] * As * d / 1000 * R.da([0.6, 0.8, 1, 1.2, 1.4]));
+        const F = T * 1000 / (K * d);
+        if (liv === 1) {
+          return {
+            contesto: `Una vite ${nome} viene serrata con la chiave dinamometrica a ${T} N·m. Filetto leggermente oliato: K ≈ 0,2.`,
+            richiesta: 'Precarico nella vite, in N.',
+            dati: [['d', d, 'mm'], ['T', T, 'N·m'], ['K', K, '']],
+            impostazione: ['Formula pratica: T = K · F · d.', 'F = T / (K · d), con T in N·mm e d in mm.'],
+            risposta: { nome: 'F', valore: F, unita: 'N' },
+            passi: [['Coppia in N·mm', `${T} · 1000`, T * 1000, 'N·mm'], ['Precarico', `T / (0,2 · ${d})`, F, 'N']],
+            giudizio: `Circa ${f(F)} N. Il precarico è quello che tiene chiuso il giunto: finché i pezzi restano premuti, la vite vede solo una piccola parte del carico esterno.`,
+          };
+        }
+        const s = F / As;
+        return {
+          contesto: `Una vite ${nome} classe ${cl[0]} (Rp0,2 = ${cl[1]} MPa, sezione resistente ${f(As)} mm²) viene serrata a ${T} N·m, K ≈ 0,2. Per non snervarla durante il serraggio si sta sotto il 90% di Rp0,2.`,
+          richiesta: 'Tensione nella sezione resistente, in MPa.',
+          dati: [['vite', nome, ''], ['T', T, 'N·m'], ['As', As, 'mm²'], ['Rp0,2', cl[1], 'MPa']],
+          impostazione: ['Precarico: F = T / (K · d).', 'σ = F / As (la sezione del filetto, non quella nominale).'],
+          risposta: { nome: 'σ', valore: s, unita: 'MPa' },
+          passi: [['Precarico', `${T * 1000} / (0,2 · ${d})`, F, 'N'], ['Tensione', `F / ${f(As)}`, s, 'MPa'], ['Limite al 90%', `0,9 · ${cl[1]}`, 0.9 * cl[1], 'MPa']],
+          decisione: { domanda: 'Il serraggio va bene?', opzioni: ['Sì, sotto il 90% di Rp0,2', 'No, si rischia di snervarla'], giusta: s <= 0.9 * cl[1] ? 0 : 1 },
+          giudizio: `${f(s)} MPa contro ${f(0.9 * cl[1])}. Una vite allungata oltre lo snervamento perde precarico e va buttata: non si riusa.`,
+        };
+      },
+    },
+    {
+      id: 'saldatura', blocco: 'b6', titolo: 'Il cordone di saldatura tiene?',
+      genera(liv, R) {
+        const L = R.da([60, 80, 100, 120, 150]), nC = 2, ta = R.da([80, 100]);
+        const sch = schema('Che sezione resistente usi per un cordone d\'angolo?', [
+          'La gola a = 0,7 · z per la lunghezza del cordone',
+          'Il lato z per la lunghezza',
+          'Lo spessore della lamiera per la lunghezza',
+          'L\'area del triangolo del cordone',
+        ], 'Il cordone d\'angolo si rompe sulla sezione più stretta, la gola: l\'altezza del triangolo, a ≈ 0,7 · z per un cordone a 45°. La sezione resistente è a · L per ogni cordone. Le estremità del cordone sono spesso difettose: nei conti seri si tolgono.');
+        const ctx = (z, Ftesto) => `Una piastra è saldata a una mensola con ${nC} cordoni d'angolo lunghi ${L} mm${z ? ` con lato z = ${z} mm` : ''}. Il carico ${Ftesto} è parallelo ai cordoni. Ammissibile del cordone: τ amm = ${ta} MPa.`;
+        if (liv === 3) {
+          const F = R.tra(20, 120, 5) * 1000;
+          const z = F / (nC * L * ta) / 0.7;
+          const sc = sceltaCatalogo([3, 4, 5, 6, 7, 8, 10, 12], z, 'mm');
+          return {
+            schema: sch, contesto: ctx(0, `di ${f(F / 1000)} kN`), richiesta: 'Lato minimo del cordone z, in mm.',
+            dati: [['F', F / 1000, 'kN'], ['L', L, 'mm'], ['cordoni', nC, ''], ['τ amm', ta, 'MPa']],
+            impostazione: ['τ = F / (n · a · L) ≤ τ amm.', 'a minima = F / (n · L · τ amm).', 'z = a / 0,7.'],
+            risposta: { nome: 'z minimo', valore: z, unita: 'mm' },
+            passi: [['Gola minima', `${f(F)} / (${nC} · ${L} · ${ta})`, z * 0.7, 'mm'], ['Lato minimo', 'a / 0,7', z, 'mm']],
+            decisione: { domanda: 'Che cordone prescrivi a disegno?', opzioni: sc.opzioni, giusta: sc.giusta },
+            giudizio: `Almeno z = ${f(z)} mm: si scrive ${sc.valore}. Il cordone non deve superare circa 0,7 volte lo spessore della lamiera più sottile, sennò si brucia il pezzo: se non basta, si allungano i cordoni.`,
+          };
+        }
+        const z = R.da([4, 5, 6, 8]), a = 0.7 * z;
+        const m = R.da([500, 1000, 1500, 2000]);
+        const F = liv === 1 ? R.tra(10, 80, 5) * 1000 : m * G * R.da([2, 3]);
+        const din = liv === 2 ? F / (m * G) : 1;
+        const t = F / (nC * a * L);
+        return {
+          schema: sch, contesto: ctx(z, liv === 1 ? `di ${f(F / 1000)} kN` : `è una massa di ${m} kg con coefficiente dinamico ${din} (urti in esercizio)`),
+          richiesta: 'Tensione tangenziale nei cordoni, in MPa.',
+          dati: [['z', z, 'mm'], ['L', L, 'mm'], ['cordoni', nC, ''], ...(liv === 1 ? [['F', F / 1000, 'kN']] : [['m', m, 'kg'], ['coeff. dinamico', din, '']])],
+          impostazione: [...(liv === 1 ? [] : ['F = m · g · coefficiente dinamico.']), 'Gola: a = 0,7 · z.', 'τ = F / (n cordoni · a · L).'],
+          risposta: { nome: 'τ', valore: t, unita: 'MPa' },
+          passi: [...(liv === 1 ? [] : [['Forza', `${m} · 9,81 · ${din}`, F, 'N']]), ['Gola', `0,7 · ${z}`, a, 'mm'], ['Tensione', `F / (${nC} · a · ${L})`, t, 'MPa']],
+          decisione: { domanda: 'I cordoni tengono?', opzioni: MARGINE, giusta: giustaMargine(ta, t) },
+          giudizio: `${f(t)} MPa contro ${ta}. Usare z al posto della gola sovrastima la resistenza del 43%: è l'errore più comune nei calcoli delle saldature.`,
+        };
+      },
+    },
+    {
+      id: 'chiavetta', blocco: 'b6', titolo: 'La chiavetta trasmette la coppia?',
+      genera(liv, R) {
+        const tab = [[20, 6, 6, 2.8], [25, 8, 7, 3.3], [30, 8, 7, 3.3], [35, 10, 8, 3.3], [40, 12, 8, 3.3], [50, 14, 9, 3.8]]; // d, b, h, t2 (profondità nel mozzo)
+        const [d, b, h, t2] = R.da(tab);
+        const pa = R.da([['acciaio', 100], ['ghisa', 60]]);
+        const T = R.tra(d * 3, d * 9, 10); // N·m
+        const F = 2 * T * 1000 / d;
+        if (liv === 3) {
+          const l = F / (t2 * pa[1]);
+          const sc = sceltaCatalogo([16, 20, 25, 28, 32, 36, 40, 45, 50, 56, 63, 70, 80, 90, 100], l, 'mm');
+          return {
+            contesto: `Su un albero Ø${d} mm devi calettare un mozzo in ${pa[0]} che trasmette ${T} N·m. Chiavetta ${b} × ${h}, profondità nel mozzo t2 = ${f(t2)} mm. Pressione ammissibile sul mozzo: ${pa[1]} MPa.`,
+            richiesta: 'Lunghezza minima della chiavetta, in mm.',
+            dati: [['T', T, 'N·m'], ['d', d, 'mm'], ['t2', t2, 'mm'], ['p amm', pa[1], 'MPa']],
+            impostazione: ['Forza sulla chiavetta: F = 2T / d.', 'La chiavetta schiaccia il mozzo su un\'area t2 · l: p = F / (t2 · l).', 'l = F / (t2 · p amm).'],
+            risposta: { nome: 'l minima', valore: l, unita: 'mm' },
+            passi: [['Forza', `2 · ${T * 1000} / ${d}`, F, 'N'], ['Lunghezza minima', `F / (${f(t2)} · ${pa[1]})`, l, 'mm']],
+            decisione: { domanda: 'Che lunghezza scegli?', opzioni: sc.opzioni, giusta: sc.giusta },
+            giudizio: `Almeno ${f(l)} mm: si prende ${sc.valore}. Se supera circa 1,5 volte il diametro, meglio due chiavette a 180° o un profilo scanalato.`,
+          };
+        }
+        if (liv === 1) {
+          return {
+            contesto: `Un albero Ø${d} mm trasmette ${T} N·m a un mozzo tramite una chiavetta.`,
+            richiesta: 'Forza che la chiavetta trasmette, in N.',
+            dati: [['T', T, 'N·m'], ['d', d, 'mm']],
+            impostazione: ['La chiavetta lavora sul raggio dell\'albero: T = F · d/2.', 'F = 2T / d, con T in N·mm.'],
+            risposta: { nome: 'F', valore: F, unita: 'N' },
+            passi: [['Coppia in N·mm', `${T} · 1000`, T * 1000, 'N·mm'], ['Forza', '2T / d', F, 'N']],
+            giudizio: `${f(F)} N: tanta forza su un pezzetto d'acciaio. Per questo di solito si rompe prima il mozzo (pressione) della chiavetta (taglio).`,
+          };
+        }
+        const l = vicino([20, 25, 28, 32, 36, 40, 45, 50, 56, 63, 70], F / (t2 * pa[1]));
+        const p = F / (t2 * l);
+        return {
+          contesto: `Un albero Ø${d} mm trasmette ${T} N·m a un mozzo in ${pa[0]} con una chiavetta ${b} × ${h} lunga ${l} mm, profondità nel mozzo t2 = ${f(t2)} mm. Pressione ammissibile sul mozzo: ${pa[1]} MPa.`,
+          richiesta: 'Pressione sul fianco della cava del mozzo, in MPa.',
+          dati: [['T', T, 'N·m'], ['d', d, 'mm'], ['l', l, 'mm'], ['t2', t2, 'mm']],
+          impostazione: ['F = 2T / d.', 'p = F / (t2 · l).'],
+          risposta: { nome: 'p', valore: p, unita: 'MPa' },
+          passi: [['Forza', `2 · ${T * 1000} / ${d}`, F, 'N'], ['Pressione', `F / (${f(t2)} · ${l})`, p, 'MPa']],
+          decisione: { domanda: 'Il mozzo regge?', opzioni: MARGINE, giusta: giustaMargine(pa[1], p) },
+          giudizio: `${f(p)} MPa contro ${pa[1]}. Con un mozzo in ghisa l'ammissibile è più basso: è il caso tipico in cui la chiavetta va allungata.`,
+        };
+      },
+    },
+    {
+      id: 'molla-elicoidale', blocco: 'b6', titolo: 'Che molla serve?',
+      genera(liv, R) {
+        const Gm = 80000;
+        const d = R.da([2, 2.5, 3, 4, 5]), c = R.da([6, 7, 8, 10]), D = d * c;
+        if (liv === 3) {
+          const k = R.tra(5, 40, 1);
+          const n = Gm * d ** 4 / (8 * D ** 3 * k);
+          return {
+            contesto: `Per un premilamiera ti serve una molla di compressione da ${k} N/mm. Filo d'acciaio per molle d = ${f(d)} mm, diametro medio D = ${f(D)} mm, G = 80 GPa.`,
+            richiesta: 'Numero di spire attive.',
+            dati: [['k', k, 'N/mm'], ['d', d, 'mm'], ['D', D, 'mm'], ['G', 80, 'GPa']],
+            impostazione: ['Rigidezza: k = G d⁴ / (8 D³ n).', 'n = G d⁴ / (8 D³ k).'],
+            risposta: { nome: 'n', valore: n, unita: 'spire' },
+            passi: [['Spire attive', `80000 · ${f(d)}⁴ / (8 · ${f(D)}³ · ${k})`, n, 'spire']],
+            giudizio: `Circa ${f(n)} spire attive (si arrotonda a mezza spira). Ne aggiungi 2 di estremità, chiuse e molate. Se servono poche spire, la molla diventa troppo rigida da regolare: meglio un D più grande.`,
+          };
+        }
+        const n = R.da([4, 6, 8, 10, 12]);
+        const k = Gm * d ** 4 / (8 * D ** 3 * n);
+        if (liv === 1) {
+          return {
+            contesto: `Una molla di compressione ha filo d = ${f(d)} mm, diametro medio D = ${f(D)} mm e ${n} spire attive. Acciaio per molle, G = 80 GPa.`,
+            richiesta: 'Rigidezza della molla, in N/mm.',
+            dati: [['d', d, 'mm'], ['D', D, 'mm'], ['n', n, ''], ['G', 80, 'GPa']],
+            impostazione: ['k = G d⁴ / (8 D³ n).', 'G in MPa, misure in mm: esce N/mm.'],
+            risposta: { nome: 'k', valore: k, unita: 'N/mm' },
+            passi: [['Rigidezza', `80000 · ${f(d)}⁴ / (8 · ${f(D)}³ · ${n})`, k, 'N/mm']],
+            giudizio: `${f(k)} N/mm. Il filo conta alla quarta, il diametro della molla al cubo: piccole variazioni cambiano molto la rigidezza.`,
+          };
+        }
+        const Kw = (4 * c - 1) / (4 * c - 4) + 0.615 / c;
+        const ta = R.da([500, 600]);
+        const Fmax = Math.round(ta * PI * d ** 3 / (8 * D * Kw) * R.da([0.7, 0.9, 1.1, 1.3]) / 5) * 5;
+        const t = Kw * 8 * Fmax * D / (PI * d ** 3);
+        return {
+          contesto: `Una molla con filo d = ${f(d)} mm e diametro medio D = ${f(D)} mm (indice c = ${c}) lavora fino a ${Fmax} N. Il filo ammette τ = ${ta} MPa. Correzione di Wahl: K w = (4c − 1)/(4c − 4) + 0,615/c.`,
+          richiesta: 'Tensione tangenziale massima nel filo, in MPa.',
+          dati: [['d', d, 'mm'], ['D', D, 'mm'], ['F max', Fmax, 'N'], ['τ amm', ta, 'MPa']],
+          impostazione: ['Il filo della molla lavora a torsione: τ = 8 F D / (π d³).', 'Sul lato interno della spira la tensione è più alta: si moltiplica per K w.'],
+          risposta: { nome: 'τ max', valore: t, unita: 'MPa' },
+          passi: [['Fattore di Wahl', `(4·${c} − 1)/(4·${c} − 4) + 0,615/${c}`, Kw, ''], ['τ nominale', `8 · ${Fmax} · ${f(D)} / (π · ${f(d)}³)`, t / Kw, 'MPa'], ['τ massima', '· K w', t, 'MPa']],
+          decisione: { domanda: 'La molla regge?', opzioni: MARGINE, giusta: giustaMargine(ta, t) },
+          giudizio: `${f(t)} MPa contro ${ta}. Ecco perché le molle sono in acciai speciali: lavorano a tensioni che un S235 non vedrebbe mai.`,
+        };
+      },
+    },
+
+    // ---------------- BLOCCO 8: termodinamica e scambio termico ----------------
+    {
+      id: 'parete', blocco: 'b8', titolo: 'Quanto calore perde la parete del forno?',
+      genera(liv, R) {
+        const A = R.da([2, 4, 6, 8]), dT = R.da([150, 200, 250, 300]);
+        const lamI = R.da([0.04, 0.05]);
+        if (liv === 1) {
+          const s = R.da([50, 80, 100, 150]);
+          const Q = lamI * A * dT / (s / 1000);
+          return {
+            contesto: `La parete di un forno ha ${A} m² di lana di roccia spessa ${s} mm (λ = ${f(lamI)} W/(m·K)). Tra faccia interna ed esterna dell'isolante ci sono ${dT} °C di differenza.`,
+            richiesta: 'Calore che passa, in W.',
+            dati: [['A', A, 'm²'], ['s', s, 'mm'], ['λ', lamI, 'W/(m·K)'], ['ΔT', dT, '°C']],
+            impostazione: ['Conduzione (Fourier): Q = λ · A · ΔT / s.', 's in metri.'],
+            risposta: { nome: 'Q', valore: Q, unita: 'W' },
+            passi: [['Spessore in m', `${s} / 1000`, s / 1000, 'm'], ['Calore', `${f(lamI)} · ${A} · ${dT} / ${f(s / 1000)}`, Q, 'W']],
+            giudizio: `${f(Q)} W, cioè ${f(Q * 24 / 1000)} kWh al giorno. Raddoppiare lo spessore dimezza la perdita.`,
+          };
+        }
+        const sAcc = 3, lamA = 50;
+        if (liv === 2) {
+          const s = R.da([50, 80, 100]);
+          const Rt = sAcc / 1000 / lamA + s / 1000 / lamI;
+          const Q = A * dT / Rt;
+          return {
+            contesto: `La parete di un forno è una lamiera d'acciaio da ${sAcc} mm (λ = ${lamA} W/(m·K)) più ${s} mm di isolante (λ = ${f(lamI)}). Superficie ${A} m², differenza di temperatura tra le due facce esterne ${dT} °C.`,
+            richiesta: 'Calore che passa, in W.',
+            dati: [['A', A, 'm²'], ['lamiera', sAcc, 'mm'], ['isolante', s, 'mm'], ['ΔT', dT, '°C']],
+            impostazione: ['Strati in serie: le resistenze termiche si sommano, R = Σ s / λ (per m²).', 'Q = A · ΔT / R.'],
+            risposta: { nome: 'Q', valore: Q, unita: 'W' },
+            passi: [['Resistenza lamiera', `${f(sAcc / 1000)} / ${lamA}`, sAcc / 1000 / lamA, 'm²K/W'], ['Resistenza isolante', `${f(s / 1000)} / ${f(lamI)}`, s / 1000 / lamI, 'm²K/W'], ['Calore', 'A · ΔT / R tot', Q, 'W']],
+            giudizio: `${f(Q)} W. La lamiera conta ${f(sAcc / 1000 / lamA / Rt * 100)}% della resistenza: in pratica tutto il lavoro lo fa l'isolante.`,
+          };
+        }
+        const qMax = R.da([100, 150, 200]);
+        const s = (dT / qMax - sAcc / 1000 / lamA) * lamI * 1000;
+        const sc = sceltaCatalogo([50, 80, 100, 120, 150, 200, 250, 300], s, 'mm');
+        return {
+          contesto: `Per la sicurezza degli operatori la parete di un forno non deve perdere più di ${qMax} W/m². È una lamiera d'acciaio da ${sAcc} mm (λ = ${lamA}) più isolante con λ = ${f(lamI)} W/(m·K). Differenza di temperatura tra le facce ${dT} °C.`,
+          richiesta: 'Spessore minimo dell\'isolante, in mm.',
+          dati: [['q max', qMax, 'W/m²'], ['ΔT', dT, '°C'], ['λ isolante', lamI, 'W/(m·K)']],
+          impostazione: ['Resistenza totale necessaria: R = ΔT / q.', 'R = s acc / λ acc + s iso / λ iso.', 's iso = (R − s acc / λ acc) · λ iso.'],
+          risposta: { nome: 's minimo', valore: s, unita: 'mm' },
+          passi: [['Resistenza necessaria', `${dT} / ${qMax}`, dT / qMax, 'm²K/W'], ['Spessore isolante', `(R − ${f(sAcc / 1000)}/${lamA}) · ${f(lamI)} · 1000`, s, 'mm']],
+          decisione: { domanda: 'Che pannello scegli?', opzioni: sc.opzioni, giusta: sc.giusta },
+          giudizio: `Almeno ${f(s)} mm: pannello da ${sc.valore}. Nella realtà c'è anche la convezione sulle due facce, che aiuta: questo conto è dalla parte della sicurezza.`,
+        };
+      },
+    },
+    {
+      id: 'scambiatore', blocco: 'b8', titolo: 'Lo scambiatore raffredda abbastanza l\'olio?',
+      genera(liv, R) {
+        const th1 = R.da([60, 70, 80]), th2 = th1 - R.da([15, 20, 25]);
+        const tc1 = R.da([15, 20, 25]), tc2 = tc1 + R.da([8, 10, 12]);
+        const d1 = th1 - tc2, d2 = th2 - tc1;
+        const ml = Math.abs(d1 - d2) < 1e-9 ? d1 : (d1 - d2) / Math.log(d1 / d2);
+        const sch = schema('Scambiatore in controcorrente: quali differenze di temperatura usi nella media logaritmica?', [
+          'Ingresso caldo − uscita freddo, e uscita caldo − ingresso freddo',
+          'Ingresso caldo − ingresso freddo, e uscita caldo − uscita freddo',
+          'La media aritmetica delle quattro temperature',
+          'Solo la differenza più grande',
+        ], 'In controcorrente i due fluidi entrano da lati opposti: a un\'estremità si incontrano l\'olio caldo in ingresso e l\'acqua in uscita, all\'altra l\'olio in uscita e l\'acqua in ingresso. ΔT ml = (ΔT1 − ΔT2) / ln(ΔT1/ΔT2).');
+        const ctx = `In una centralina idraulica l'olio va raffreddato da ${th1} a ${th2} °C con acqua che entra a ${tc1} °C ed esce a ${tc2} °C, in controcorrente.`;
+        if (liv === 1) {
+          return {
+            schema: sch, contesto: ctx, richiesta: 'Differenza di temperatura media logaritmica, in °C.',
+            dati: [['olio in', th1, '°C'], ['olio out', th2, '°C'], ['acqua in', tc1, '°C'], ['acqua out', tc2, '°C']],
+            impostazione: ['ΔT1 = olio in − acqua out, ΔT2 = olio out − acqua in.', 'ΔT ml = (ΔT1 − ΔT2) / ln(ΔT1 / ΔT2).'],
+            risposta: { nome: 'ΔT ml', valore: ml, unita: '°C' },
+            passi: [['ΔT1', `${th1} − ${tc2}`, d1, '°C'], ['ΔT2', `${th2} − ${tc1}`, d2, '°C'], ['Media logaritmica', '(ΔT1 − ΔT2) / ln(ΔT1/ΔT2)', ml, '°C']],
+            giudizio: `${f(ml)} °C. È poco più bassa della media aritmetica (${f((d1 + d2) / 2)}): usare quella sovrastima lo scambiatore.`,
+          };
+        }
+        const P = R.da([3, 5, 8, 12]) * 1000, U = R.da([300, 400, 500]);
+        const A = P / (U * ml);
+        if (liv === 2) {
+          const Areale = Math.round(A * R.da([0.8, 1, 1.2, 1.5]) * 10) / 10 || 0.1;
+          const Q = U * Areale * ml;
+          return {
+            schema: sch, contesto: `${ctx} Lo scambiatore installato ha ${f(Areale)} m² e U = ${U} W/(m²·K). La centralina deve smaltire ${f(P / 1000)} kW.`,
+            richiesta: 'Potenza che lo scambiatore riesce a smaltire, in kW.',
+            dati: [['A', Areale, 'm²'], ['U', U, 'W/(m²K)'], ['olio', `${th1} → ${th2}`, '°C'], ['acqua', `${tc1} → ${tc2}`, '°C']],
+            impostazione: ['ΔT ml in controcorrente.', 'Q = U · A · ΔT ml.'],
+            risposta: { nome: 'Q', valore: Q / 1000, unita: 'kW' },
+            passi: [['ΔT1', `${th1} − ${tc2}`, d1, '°C'], ['ΔT2', `${th2} − ${tc1}`, d2, '°C'], ['ΔT ml', '', ml, '°C'], ['Potenza', `${U} · ${f(Areale)} · ΔT ml / 1000`, Q / 1000, 'kW']],
+            decisione: { domanda: 'Basta per la centralina?', opzioni: MARGINE, giusta: giustaMargine(Q, P) },
+            giudizio: `${f(Q / 1000)} kW contro ${f(P / 1000)} richiesti. Col tempo lo scambiatore si sporca e U scende: si tiene sempre un margine.`,
+          };
+        }
+        return {
+          schema: sch, contesto: `${ctx} La centralina deve smaltire ${f(P / 1000)} kW; per scambiatori a piastre olio-acqua stimi U = ${U} W/(m²·K).`,
+          richiesta: 'Superficie di scambio necessaria, in m².',
+          dati: [['P', P / 1000, 'kW'], ['U', U, 'W/(m²K)'], ['olio', `${th1} → ${th2}`, '°C'], ['acqua', `${tc1} → ${tc2}`, '°C']],
+          impostazione: ['ΔT ml in controcorrente.', 'A = Q / (U · ΔT ml).'],
+          risposta: { nome: 'A', valore: A, unita: 'm²' },
+          passi: [['ΔT1', `${th1} − ${tc2}`, d1, '°C'], ['ΔT2', `${th2} − ${tc1}`, d2, '°C'], ['ΔT ml', '', ml, '°C'], ['Superficie', `${f(P)} / (${U} · ΔT ml)`, A, 'm²']],
+          giudizio: `Circa ${f(A)} m²: sul catalogo prendi la taglia sopra, +15–20% per lo sporcamento.`,
+        };
+      },
+    },
+    {
+      id: 'frigorifero', blocco: 'b8', titolo: 'Quanto consuma il gruppo frigo?',
+      genera(liv, R) {
+        const tf = R.da([-20, -10, 0, 5]), tc = R.da([35, 40, 45]);
+        const Tf = tf + 273.15, Tc = tc + 273.15;
+        const copC = Tf / (Tc - Tf);
+        if (liv === 1) {
+          return {
+            contesto: `Un gruppo frigo lavora con evaporatore a ${tf} °C e condensatore a ${tc} °C.`,
+            richiesta: 'COP ideale (di Carnot).',
+            dati: [['t evaporatore', tf, '°C'], ['t condensatore', tc, '°C']],
+            impostazione: ['Le temperature vanno in kelvin: + 273,15.', 'COP Carnot = T fredda / (T calda − T fredda).'],
+            risposta: { nome: 'COP', valore: copC, unita: '' },
+            passi: [['T fredda', `${tf} + 273,15`, Tf, 'K'], ['T calda', `${tc} + 273,15`, Tc, 'K'], ['COP ideale', 'Tf / (Tc − Tf)', copC, '']],
+            giudizio: `COP ideale ${f(copC)}; una macchina vera arriva a circa il 40–50% di questo valore. L'errore classico è usare i gradi Celsius: viene un numero senza senso.`,
+          };
+        }
+        const cop = 0.45 * copC;
+        if (liv === 2) {
+          const Qf = R.da([5, 10, 20, 40]);
+          const Pel = Qf / cop;
+          return {
+            contesto: `Una cella frigorifera chiede ${Qf} kW di freddo. Il gruppo lavora tra ${tf} °C (evaporatore) e ${tc} °C (condensatore) e ha un rendimento pari al 45% di quello ideale.`,
+            richiesta: 'Potenza elettrica assorbita, in kW.',
+            dati: [['Q freddo', Qf, 'kW'], ['t evap', tf, '°C'], ['t cond', tc, '°C'], ['rendimento rispetto a Carnot', 0.45, '']],
+            impostazione: ['COP Carnot con le temperature in K.', 'COP reale = 0,45 · COP Carnot.', 'P el = Q freddo / COP.'],
+            risposta: { nome: 'P el', valore: Pel, unita: 'kW' },
+            passi: [['COP ideale', `${f(Tf)} / (${f(Tc)} − ${f(Tf)})`, copC, ''], ['COP reale', '0,45 · COP', cop, ''], ['Potenza elettrica', `${Qf} / COP`, Pel, 'kW'], ['Calore al condensatore', 'Q f + P el', Qf + Pel, 'kW']],
+            giudizio: `${f(Pel)} kW elettrici. Il condensatore deve buttare fuori ${f(Qf + Pel)} kW: il freddo più l'energia del compressore.`,
+          };
+        }
+        const tc2 = tc - 10;
+        const copC2 = Tf / (tc2 + 273.15 - Tf);
+        const ris = (1 - copC / copC2) * 100;
+        return {
+          contesto: `Un gruppo frigo lavora tra ${tf} °C e ${tc} °C. Pulendo il condensatore e spostandolo all'ombra, la temperatura di condensazione scende a ${tc2} °C. Supponi che il rapporto tra COP reale e COP ideale resti uguale.`,
+          richiesta: 'Risparmio di energia elettrica, in %.',
+          dati: [['t evap', tf, '°C'], ['t cond prima', tc, '°C'], ['t cond dopo', tc2, '°C']],
+          impostazione: ['A parità di freddo, P el = Q / COP.', 'Risparmio = 1 − COP prima / COP dopo.', 'Se il rapporto con Carnot non cambia, basta confrontare i COP di Carnot.'],
+          risposta: { nome: 'risparmio', valore: ris, unita: '%' },
+          passi: [['COP ideale prima', `${f(Tf)} / (${f(Tc)} − ${f(Tf)})`, copC, ''], ['COP ideale dopo', `${f(Tf)} / (${f(tc2 + 273.15)} − ${f(Tf)})`, copC2, ''], ['Risparmio', '(1 − COP prima / COP dopo) · 100', ris, '%']],
+          giudizio: `Circa il ${f(ris)}% in meno di bolletta solo pulendo e ombreggiando il condensatore: è uno dei consigli che le aziende pagano volentieri, perché costa quasi zero.`,
+        };
+      },
+    }
+  );
 
   const TEST = [
     { id: 't01', domanda: '6 bar quanti MPa sono?', risposta: 0.6, unita: 'MPa', tolleranza: 0.02 },
