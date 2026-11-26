@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Falegnameria L'Italegno · Bologna (proposta di sito)</title>
+<meta name="description" content="Falegnameria a Bologna, via Ruffini 6/C: arredamento su misura e scale in legno, da oltre 50 anni. Proposta di sito preparata da Mila Studio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --carta: #f7f1e8; --inchiostro: #2a2119; --muto: #6b5f53; --legno: #8a5a2b; --legno-chiaro: #efe2cf;
+    --verde: #3d5a40; --linea: #dccfbc; --bianco: #fffdf9;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--carta); color: var(--inchiostro); font: 400 17px/1.6 Inter, system-ui, sans-serif; }
+  a { color: inherit; }
+  .avviso { background: var(--inchiostro); color: #f7f1e8; font-size: 13px; text-align: center; padding: 8px 16px; }
+  .avviso b { color: #ffd9a8; }
+  header { max-width: 1080px; margin: 0 auto; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .logo { font-family: Fraunces, Georgia, serif; font-weight: 800; font-size: 22px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .logo svg { width: 38px; height: 38px; }
+  nav a { text-decoration: none; margin-left: 18px; font-weight: 500; font-size: 15px; color: var(--muto); }
+  nav a:hover { color: var(--inchiostro); }
+  @media (max-width: 640px) { nav { display: none; } }
+  .eroe { max-width: 1080px; margin: 0 auto; padding: 40px 20px 56px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
+  @media (max-width: 820px) { .eroe { grid-template-columns: 1fr; padding-top: 16px; } }
+  .eroe h1 { font-family: Fraunces, Georgia, serif; font-weight: 800; font-size: clamp(40px, 7vw, 70px); line-height: 1.03; margin: 0 0 18px; letter-spacing: -.02em; }
+  .eroe h1 em { font-style: normal; color: var(--legno); }
+  .eroe p { font-size: 19px; color: var(--muto); margin: 0 0 26px; max-width: 36ch; }
+  .bottoni { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 999px; font-weight: 600; text-decoration: none; border: 2px solid var(--inchiostro); }
+  .btn.pieno { background: var(--inchiostro); color: var(--carta); }
+  .disegno { background: var(--legno-chiaro); border-radius: 28px; aspect-ratio: 1 / 1; display: grid; place-items: center; position: relative; overflow: hidden; }
+  .disegno svg { width: 80%; }
+  .disegno .tag { position: absolute; bottom: 18px; left: 18px; background: var(--bianco); border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  section { max-width: 1080px; margin: 0 auto; padding: 56px 20px; }
+  h2 { font-family: Fraunces, Georgia, serif; font-size: clamp(28px, 4.5vw, 40px); line-height: 1.1; margin: 0 0 10px; }
+  .sotto { color: var(--muto); margin: 0 0 30px; max-width: 60ch; }
+  .griglia { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 820px) { .griglia { grid-template-columns: 1fr; } }
+  .carta { background: var(--bianco); border: 1px solid var(--linea); border-radius: 20px; padding: 24px; }
+  .carta .ico { width: 44px; height: 44px; border-radius: 12px; background: var(--legno-chiaro); display: grid; place-items: center; margin-bottom: 14px; font-size: 22px; }
+  .carta h3 { margin: 0 0 6px; font-size: 19px; }
+  .carta p { margin: 0; color: var(--muto); font-size: 16px; }
+  .fascia { background: var(--legno); color: var(--carta); }
+  .fascia .sotto { color: #f1dfc6; }
+  .numero { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .numero strong { font-family: Fraunces, Georgia, serif; font-size: 64px; line-height: 1; }
+  .faq details { background: var(--bianco); border: 1px solid var(--linea); border-radius: 16px; padding: 16px 20px; margin-bottom: 10px; }
+  .faq summary { cursor: pointer; font-weight: 600; }
+  .faq p { margin: 10px 0 0; color: var(--muto); }
+  .contatti { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 820px) { .contatti { grid-template-columns: 1fr; } }
+  .contatti .carta a { font-weight: 600; }
+  footer { border-top: 1px solid var(--linea); max-width: 1080px; margin: 0 auto; padding: 24px 20px 48px; color: var(--muto); font-size: 14px; }
+  .proposta { background: #fff3df; border: 1px solid #f0d3a6; border-radius: 16px; padding: 16px 20px; color: var(--inchiostro); font-size: 15px; margin-top: 16px; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HomeAndConstructionBusiness",
+  "name": "Falegnameria L'Italegno",
+  "description": "Falegnameria artigiana a Bologna: arredamento su misura e scale in legno, da oltre 50 anni.",
+  "address": {"@type": "PostalAddress", "streetAddress": "Via Ruffini 6/C", "addressLocality": "Bologna", "addressRegion": "BO", "addressCountry": "IT"},
+  "telephone": ["+39 051 6170162", "+39 339 2296290"],
+  "email": "info@litalegno.com"
+}
+</script>
+</head>
+<body>
+<div class="avviso">Questa è una <b>proposta di sito</b> preparata da Mila Studio per la Falegnameria L'Italegno. Non è il sito ufficiale.</div>
+
+<header>
+  <a class="logo" href="#">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="14" width="36" height="22" rx="3" fill="#efe2cf" stroke="#8a5a2b" stroke-width="3"/><path d="M10 20 q14 6 28 0 M10 26 q14 6 28 0 M10 32 q14 4 28 0" fill="none" stroke="#8a5a2b" stroke-width="2"/></svg>
+    L'Italegno
+  </a>
+  <nav><a href="#cosa">Cosa facciamo</a><a href="#chi">Chi siamo</a><a href="#domande">Domande</a><a href="#dove">Dove siamo</a></nav>
+</header>
+
+<div class="eroe">
+  <div>
+    <h1>Il legno,<br><em>su misura per casa tua.</em></h1>
+    <p>Falegnameria artigiana a Bologna da oltre 50 anni: mobili su misura e scale in legno, progettati e costruiti per i tuoi spazi.</p>
+    <div class="bottoni">
+      <a class="btn pieno" href="tel:+390516170162">📞 Chiama</a>
+      <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Falegnameria+L%27Italegno+Via+Ruffini+6+Bologna" target="_blank" rel="noopener">📍 Come arrivare</a>
+    </div>
+  </div>
+  <div class="disegno" aria-hidden="true">
+    <svg viewBox="0 0 320 260">
+      <path d="M40 230 h60 v-40 h50 v-40 h50 v-40 h50 v-40 h30" fill="none" stroke="#8a5a2b" stroke-width="10" stroke-linejoin="round"/>
+      <path d="M40 230 h240" stroke="#2a2119" stroke-width="6"/>
+      <path d="M280 70 v160 M100 190 v40 M150 150 v80 M200 110 v120 M250 70 v160" stroke="#2a2119" stroke-width="3" opacity=".35"/>
+      <g transform="translate(40 30)"><rect x="0" y="0" width="70" height="90" rx="6" fill="#fffdf9" stroke="#2a2119" stroke-width="4"/><path d="M35 0 v90 M0 45 h70" stroke="#2a2119" stroke-width="3"/><circle cx="29" cy="60" r="3" fill="#2a2119"/><circle cx="41" cy="60" r="3" fill="#2a2119"/></g>
+    </svg>
+    <span class="tag">🪵 via Ruffini 6/C, Bologna</span>
+  </div>
+</div>
+
+<section id="cosa">
+  <h2>Cosa facciamo</h2>
+  <p class="sotto">Lavoriamo il legno in bottega, a Bologna. Ogni pezzo nasce dalle misure di casa tua, non da un catalogo.</p>
+  <div class="griglia">
+    <div class="carta"><div class="ico">📐</div><h3>Arredamento su misura</h3><p>Armadi, librerie, mobili per la cucina e per il soggiorno, fatti sulle misure reali dei tuoi spazi.</p></div>
+    <div class="carta"><div class="ico">🪜</div><h3>Scale in legno</h3><p>Scale interne progettate e costruite in bottega, adatte allo spazio che hai.</p></div>
+    <div class="carta"><div class="ico">🔨</div><h3>Lavori su richiesta</h3><p>Hai un'idea o un angolo difficile? Raccontacela: ti diciamo come si può fare in legno.</p></div>
+  </div>
+</section>
+
+<section class="fascia" id="chi">
+  <h2>Chi siamo</h2>
+  <p class="sotto">Una falegnameria di Bologna con più di cinquant'anni di lavoro alle spalle. Il mestiere si è passato di mano in mano: misurare bene, scegliere il legno giusto, costruire pezzi che durano.</p>
+</section>
+
+<section>
+  <div class="numero"><strong>50+</strong><div><b>anni di falegnameria</b><br><span class="sotto" style="margin:0">a Bologna, in via Ruffini.</span></div></div>
+</section>
+
+<section id="domande" class="faq">
+  <h2>Domande frequenti</h2>
+  <p class="sotto">Le domande che ci fanno più spesso. Le stesse che oggi le persone chiedono anche a Google e a ChatGPT.</p>
+  <details><summary>Chi fa mobili su misura in legno a Bologna?</summary><p>Noi: la Falegnameria L'Italegno, in via Ruffini 6/C. Chiamaci allo 051 617 0162 per un sopralluogo o un preventivo.</p></details>
+  <details><summary>Fate anche scale in legno?</summary><p>Sì, le scale in legno sono uno dei nostri lavori principali.</p></details>
+  <details><summary>Posso portare un disegno o una foto di quello che vorrei?</summary><p>Certo: partiamo dalla tua idea e dalle misure, poi ti diciamo come realizzarla.</p></details>
+  <details><summary>Come vi contatto?</summary><p>Al telefono (051 617 0162 o 339 229 6290) oppure per email a info@litalegno.com.</p></details>
+</section>
+
+<section id="dove">
+  <h2>Dove siamo</h2>
+  <div class="contatti">
+    <div class="carta">
+      <h3>Falegnameria L'Italegno</h3>
+      <p>Via Ruffini 6/C<br>Bologna</p>
+      <p style="margin-top:12px"><a href="https://www.google.com/maps/search/?api=1&amp;query=Falegnameria+L%27Italegno+Via+Ruffini+6+Bologna" target="_blank" rel="noopener">Apri in Google Maps →</a></p>
+    </div>
+    <div class="carta">
+      <h3>Contatti</h3>
+      <p>Telefono: <a href="tel:+390516170162">051 617 0162</a><br>Cellulare: <a href="tel:+393392296290">339 229 6290</a><br>Email: <a href="mailto:info@litalegno.com">info@litalegno.com</a></p>
+      <p style="margin-top:12px;font-size:14px">Orari: da aggiungere insieme (nella proposta non li abbiamo inventati).</p>
+    </div>
+  </div>
+  <div class="proposta"><b>Per L'Italegno:</b> questa pagina usa solo le informazioni che avete già pubblicato. Al posto dei disegni vanno le foto dei vostri lavori. Avete già il dominio <b>litalegno.com</b>, che oggi usate solo per l'email: il sito potrebbe andare lì. Dentro c'è anche la scheda con i dati in forma leggibile da Google e dalle AI (schema.org), che aiuta a comparire quando qualcuno chiede "falegname su misura a Bologna".</div>
+</section>
+
+<footer>
+  Proposta di sito preparata da <b>Mila Studio</b> (Luca Baresi) per la Falegnameria L'Italegno, novembre 2026. Non è il sito ufficiale e non è indicizzato dai motori di ricerca.
+</footer>
+</body>
+</html>
