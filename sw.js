@@ -1,6 +1,6 @@
 // App "Riepilogo i7": funziona anche senza rete, mostrando gli ultimi dati scaricati.
 // Prima la rete (così pagina e dati arrivano sempre freschi), la copia salvata solo se la rete manca.
-const VERSIONE = 'riepilogo-i7-v1';
+const VERSIONE = 'riepilogo-i7-v2';
 const BASE = ['./', 'index.html', 'motore.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 const D3 = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js';
 
@@ -11,7 +11,8 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((k) => Promise.all(k.filter((n) => n !== VERSIONE).map((n) => caches.delete(n))))
+      // solo le copie del Riepilogo: sullo stesso sito ci sono anche Allenamento e Meccanica con le loro
+      .then((k) => Promise.all(k.filter((n) => n.startsWith('riepilogo-i7-') && n !== VERSIONE).map((n) => caches.delete(n))))
       .then(() => self.clients.claim())
   );
 });
@@ -27,7 +28,8 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== location.origin) return;
   const chiave = url.origin + url.pathname; // senza ?t=... così la copia offline si ritrova
   e.respondWith(
-    fetch(req).then((res) => {
+    // no-cache: chiede sempre a GitHub se c'è una versione nuova (senza aspettare i 10 minuti della cache del browser)
+    fetch(req, {cache: 'no-cache'}).then((res) => {
       if (res.ok) { const copia = res.clone(); caches.open(VERSIONE).then((c) => c.put(chiave, copia)); }
       return res;
     }).catch(() => caches.match(chiave).then((hit) => hit || caches.match('index.html')))
