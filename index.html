@@ -204,6 +204,13 @@
   .rp-mostra { align-self: flex-start; }
   .rp-subtabs { border-bottom-style: dashed; }
   .rp-subtabs .rp-tab { font-size: var(--cds-font-size-caption); padding: 6px 12px; }
+  .rp-tabs:not(.aperto) .rp-tab-altro:not([aria-selected="true"]) { display: none; }
+  .rp-altro { color: var(--color-fg-muted); }
+  .rp-cliente-fasi { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .rp-cliente-fasi li { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 2px 10px; }
+  .rp-cliente-fasi li.fatta { color: var(--color-ok); border-color: currentColor; }
+  .rp-cliente-fasi li.ora { color: var(--color-fg); border-color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+  .rp-prossimo { border-left: 3px solid var(--color-warn); padding-left: 10px; }
   .rp-chiamate { display: flex; flex-direction: column; gap: var(--cds-gap-md); }
   .rp-chiamata { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: var(--cds-pad-md); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
   .rp-chiamata-testa { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--cds-gap-sm); }
@@ -254,18 +261,21 @@
   </header>
 
   <nav class="rp-tabs" role="tablist" aria-label="Schede">
+    <!-- 27/11/2026, Luca: "molte schede non le usiamo più". In vista solo quelle di tutti i giorni; le altre sotto "Altro". -->
     <button class="rp-tab" role="tab" id="tab-panoramica" data-tab="panoramica" aria-controls="panoramica" aria-selected="true">Panoramica</button>
-    <button class="rp-tab" role="tab" id="tab-salute" data-tab="salute" aria-controls="salute" aria-selected="false">Salute PC i7 <span class="rp-count" data-draw="salute-livello" data-source="salute" data-field="livello" data-row="0">—</span></button>
-    <button class="rp-tab" role="tab" id="tab-salute9" data-tab="salute9" aria-controls="salute9" aria-selected="false">Salute PC i9 <span class="rp-count" data-draw="i9-stato" data-source="salute_i9" data-field="livello" data-row="0">—</span></button>
-    <button class="rp-tab" role="tab" id="tab-email" data-tab="email" aria-controls="email" aria-selected="false">Email <span class="rp-count" data-draw="conta-tab" data-area="Email" data-source="per_area" data-field="azioni" data-where="area=Email">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-clienti" data-tab="clienti" aria-controls="clienti" aria-selected="false">Clienti <span class="rp-count" data-draw="conta-clienti" data-source="clienti">—</span></button>
     <button class="rp-tab" role="tab" id="tab-chiamate" data-tab="chiamate" aria-controls="chiamate" aria-selected="false">Chiamate <span class="rp-count" data-draw="conta-chiamate" data-source="chiamate">—</span></button>
-    <button class="rp-tab" role="tab" id="tab-instagram" data-tab="instagram" aria-controls="instagram" aria-selected="false">Instagram <span class="rp-count" data-draw="conta-tab" data-area="Instagram" data-source="per_area" data-field="azioni" data-where="area=Instagram">—</span></button>
-    <button class="rp-tab" role="tab" id="tab-linkedin" data-tab="linkedin" aria-controls="linkedin" aria-selected="false">LinkedIn <span class="rp-count" data-draw="conta-tab" data-area="LinkedIn" data-source="per_area" data-field="azioni" data-where="area=LinkedIn">—</span></button>
-    <button class="rp-tab" role="tab" id="tab-lavoro" data-tab="lavoro" aria-controls="lavoro" aria-selected="false">Lavoro</button>
-    <button class="rp-tab" role="tab" id="tab-libri" data-tab="libri" aria-controls="libri" aria-selected="false">Libri</button>
-    <button class="rp-tab" role="tab" id="tab-radar" data-tab="radar" aria-controls="radar" aria-selected="false">Radar e idee <span class="rp-count" data-draw="conta-tab" data-area="Radar" data-source="per_area" data-field="azioni" data-where="area=Radar">—</span></button>
-    <button class="rp-tab" role="tab" id="tab-errori" data-tab="errori" aria-controls="errori" aria-selected="false">Errori <span class="rp-count" data-draw="errori-aperti" data-source="errori">—</span></button>
-    <button class="rp-tab" role="tab" id="tab-sistema" data-tab="sistema" aria-controls="sistema" aria-selected="false">Sistema <span class="rp-count" data-draw="conta-tab" data-area="Sistema" data-source="per_area" data-field="azioni" data-where="area=Sistema">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-email" data-tab="email" aria-controls="email" aria-selected="false">Email <span class="rp-count" data-draw="conta-tab" data-area="Email" data-source="per_area" data-field="azioni" data-where="area=Email">—</span></button>
+    <button class="rp-tab" role="tab" id="tab-salute" data-tab="salute" aria-controls="salute" aria-selected="false">Salute PC <span class="rp-count" data-draw="salute-livello" data-source="salute" data-field="livello" data-row="0">—</span></button>
+    <button class="rp-tab rp-altro" type="button" id="tab-altro" aria-expanded="false" onclick="rpAltro()">Altro ▾</button>
+    <button class="rp-tab rp-tab-altro" role="tab" id="tab-salute9" data-tab="salute9" aria-controls="salute9" aria-selected="false">Salute PC i9 <span class="rp-count" data-draw="i9-stato" data-source="salute_i9" data-field="livello" data-row="0">—</span></button>
+    <button class="rp-tab rp-tab-altro" role="tab" id="tab-instagram" data-tab="instagram" aria-controls="instagram" aria-selected="false">Instagram <span class="rp-count" data-draw="conta-tab" data-area="Instagram" data-source="per_area" data-field="azioni" data-where="area=Instagram">—</span></button>
+    <button class="rp-tab rp-tab-altro" role="tab" id="tab-linkedin" data-tab="linkedin" aria-controls="linkedin" aria-selected="false">LinkedIn <span class="rp-count" data-draw="conta-tab" data-area="LinkedIn" data-source="per_area" data-field="azioni" data-where="area=LinkedIn">—</span></button>
+    <button class="rp-tab rp-tab-altro" role="tab" id="tab-lavoro" data-tab="lavoro" aria-controls="lavoro" aria-selected="false">Lavoro</button>
+    <button class="rp-tab rp-tab-altro" role="tab" id="tab-libri" data-tab="libri" aria-controls="libri" aria-selected="false">Libri</button>
+    <button class="rp-tab rp-tab-altro" role="tab" id="tab-radar" data-tab="radar" aria-controls="radar" aria-selected="false">Radar e idee <span class="rp-count" data-draw="conta-tab" data-area="Radar" data-source="per_area" data-field="azioni" data-where="area=Radar">—</span></button>
+    <button class="rp-tab rp-tab-altro" role="tab" id="tab-errori" data-tab="errori" aria-controls="errori" aria-selected="false">Errori <span class="rp-count" data-draw="errori-aperti" data-source="errori">—</span></button>
+    <button class="rp-tab rp-tab-altro" role="tab" id="tab-sistema" data-tab="sistema" aria-controls="sistema" aria-selected="false">Sistema <span class="rp-count" data-draw="conta-tab" data-area="Sistema" data-source="per_area" data-field="azioni" data-where="area=Sistema">—</span></button>
   </nav>
 
   <!-- PANORAMICA -->
@@ -540,6 +550,18 @@
       </div>
       <p class="rp-empty" id="attivita-vuote" hidden>Ancora nessuna attività in lista.</p>
     </details>
+    </div>
+  </section>
+
+  <!-- CLIENTI (27/11/2026, Luca): chi ha passato il primo livello (sì al telefono) e ha già ricevuto il report -->
+  <section class="rp-panel" id="clienti" role="tabpanel" aria-labelledby="tab-clienti" hidden>
+    <div class="rp-sec">
+      <div class="rp-sec-head">
+        <h2 class="rp-h2">Clienti che hanno ricevuto il report</h2>
+        <p class="rp-sub">Hanno detto sì al telefono (primo livello) e gli abbiamo mandato il report con la proposta. Restano qui finché non diventano clienti paganti o dicono di no. Per ognuno: cosa hanno detto, quando è partito il report e il prossimo passo. Le risposte partono solo col tuo sì.</p>
+      </div>
+      <div class="rp-chiamate" data-draw="clienti" data-source="clienti"></div>
+      <p class="rp-empty" id="clienti-vuoti" hidden>Ancora nessuno: compare qui chi dice sì al telefono e riceve il report.</p>
     </div>
   </section>
 
@@ -871,6 +893,7 @@
   dash.loader('errori_giorno', {description: 'Prende dal file gli errori di ogni giorno, raccolti da diario e registri dei programmi.', fn: ({answer}) => ({columns: ['id', 'data', 'fonte', 'errore', 'volte'], rows: answer.errori_giorno || []})});
   dash.loader('idee_libri', {description: 'Prende dal file le idee per libri nuovi trovate dal giro.', fn: ({answer}) => ({columns: ['id', 'data', 'idea', 'pubblico', 'domanda', 'concorrenza', 'perche', 'stagione', 'stato', 'prima'], rows: answer.idee_libri || []})});
   dash.loader('chiamate', {description: 'Prende dal file le attività che Luca chiama, con la scheda chiamata e l\'esito.', fn: ({answer}) => ({columns: ['id', 'aggiunta', 'tipo', 'nome', 'settore', 'zona', 'telefono', 'sito', 'email', 'perche', 'chi_sono', 'trovato', 'offerta', 'apertura', 'domande', 'obiezioni', 'chiusura', 'word', 'stato', 'note', 'deciso'], rows: answer.chiamate || []})});
+  dash.loader('clienti', {description: 'Prende dal file chi ha detto sì al telefono e ha già ricevuto il report.', fn: ({answer}) => ({columns: ['id', 'nome', 'settore', 'zona', 'telefono', 'email', 'sito', 'chiamata', 'detto', 'report_inviato', 'report', 'stato_cliente', 'prossimo', 'offerta', 'giorni'], rows: answer.clienti || []})});
 
   const rpSettimana = (info) => {
     const fine = (info[0] && info[0].aggiornato ? info[0].aggiornato.slice(0, 10) : '');
@@ -1638,6 +1661,76 @@
     if (doc) doc.hidden = true;
     document.documentElement.style.overflow = '';
   };
+  // "Altro": le schede usate poco (27/11/2026). Quella aperta resta sempre visibile.
+  window.rpAltro = () => {
+    const nav = document.querySelector('.rp-tabs[aria-label="Schede"]');
+    const b = document.getElementById('tab-altro');
+    if (!nav || !b) return;
+    const aperto = nav.classList.toggle('aperto');
+    b.setAttribute('aria-expanded', aperto ? 'true' : 'false');
+    b.textContent = aperto ? 'Meno ▴' : 'Altro ▾';
+  };
+
+  // Scheda Clienti (27/11/2026): chi ha detto sì al telefono e ha già ricevuto il report.
+  dash.draw('conta-clienti', (el) => {
+    const c = dash.data('clienti');
+    el.textContent = c.status === 'ok' ? window.rpNum(c.data.length) : '—';
+  });
+  dash.draw('clienti', (box) => {
+    const c = dash.data('clienti');
+    const rows = c.status === 'ok' ? c.data : [];
+    const vuoto = document.getElementById('clienti-vuoti');
+    if (vuoto) vuoto.hidden = c.status !== 'ok' || rows.length > 0;
+    const el = (tag, t, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; if (t != null) e.textContent = t; return e; };
+    const elenco = (titolo, v) => {
+      const rr = String(v || '').split('\n').filter(Boolean);
+      if (!rr.length) return null;
+      const d = el('details', null, 'rp-scheda');
+      d.append(el('summary', titolo));
+      const ul = el('ul');
+      rr.forEach((x) => ul.append(el('li', x.replace(/^[-•]\s*/, ''))));
+      d.append(ul);
+      return d;
+    };
+    box.replaceChildren(...rows.map((r) => {
+      const card = el('article', null, 'rp-chiamata');
+      const stato = String(r.stato_cliente || 'aspettiamo la risposta');
+      const s = stato.toLowerCase();
+      const testa = el('div', null, 'rp-chiamata-testa');
+      testa.append(el('strong', r.nome), window.rpPill(stato, /pagat/.test(s) ? 'rp-ok' : /no\b|perso|rifiut/.test(s) ? 'rp-muted' : 'rp-warn'));
+      card.append(testa);
+      card.append(el('p', [r.settore, r.zona].filter(Boolean).join(' · ')));
+      // A che punto è: sì al telefono → report → risposta → lavoro → pagato
+      const fatte = /pagat/.test(s) ? 5 : /consegn/.test(s) ? 4 : /lavoro|accett|confermat/.test(s) ? 3 : (/rispost/.test(s) && !/aspett/.test(s)) ? 3 : 2;
+      const fasi = el('ol', null, 'rp-cliente-fasi');
+      ['Sì al telefono' + (r.chiamata ? ' · ' + window.rpQuando(String(r.chiamata).slice(0, 10)) : ''),
+        'Report inviato' + (r.report_inviato ? ' · ' + window.rpQuando(String(r.report_inviato).slice(0, 10)) : ''),
+        'Risposta', 'Lavoro', 'Pagato'].forEach((f, i) => {
+        fasi.append(el('li', (i < fatte ? '✓ ' : '') + f, i < fatte ? 'fatta' : i === fatte ? 'ora' : ''));
+      });
+      card.append(fasi);
+      if (r.prossimo) { const p = el('p', null, 'rp-prossimo'); p.append(el('b', 'Prossimo passo: '), r.prossimo); card.append(p); }
+      const rep = el('p');
+      rep.append(el('b', 'Report: '), (r.report || 'inviato') + (r.report_inviato ? ', mandato il ' + window.rpQuando(r.report_inviato) : '') +
+        (r.giorni != null && r.giorni !== '' ? ' (' + (+r.giorni === 0 ? 'oggi' : +r.giorni === 1 ? 'ieri' : r.giorni + ' giorni fa') + ')' : '') + '. Sul NAS nella cartella del cliente.');
+      card.append(rep);
+      const contatti = el('p');
+      String(r.telefono || '').split(/;\s*/).filter(Boolean).forEach((t, i) => {
+        const a = el('a', t, 'rp-tel'); a.href = 'tel:' + t.replace(/[^\d+]/g, '');
+        if (i) contatti.append(' · ');
+        contatti.append(a);
+      });
+      if (r.email) { const a = el('a', r.email); a.href = 'mailto:' + r.email; contatti.append(contatti.childNodes.length ? ' · ' : '', a); }
+      if (/^https?:\/\//.test(r.sito || '')) { const a = el('a', 'sito'); a.href = r.sito; a.target = '_blank'; a.rel = 'noopener'; contatti.append(contatti.childNodes.length ? ' · ' : '', a); }
+      card.append(contatti);
+      const detto = elenco('Cosa hanno detto al telefono', r.detto);
+      const offerta = elenco('Cosa gli abbiamo proposto', r.offerta);
+      if (detto) card.append(detto);
+      if (offerta) card.append(offerta);
+      return card;
+    }));
+  });
+
   dash.draw('chiamate', (box) => {
     const c = dash.data('chiamate');
     const rows = c.status === 'ok' ? c.data : [];
